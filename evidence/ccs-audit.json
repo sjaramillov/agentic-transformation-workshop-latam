@@ -204,7 +204,9 @@
     "guide": "../CCS_DATABASE_E2E.md",
     "cases_passed": 17,
     "scope": "new original implementation; historical PHP analysis unchanged",
-    "managed_ara_rerun": false
+    "managed_ara_rerun": false,
+    "historical": true,
+    "superseded_by": "evidence/mit/provenance.json"
   },
   "current_mit_evaluation": {
     "date": "2026-10-16",

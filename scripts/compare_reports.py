@@ -17,7 +17,7 @@ def questions(document, kind):
             state = (item.get('ara_metadata', {}).get('native_severity', item.get('severity'))
                      if group == 'findings' else item.get('status', 'unspecified'))
             result[ident] = {'status': state, 'title': item.get('title', ''),
-                             'score': item.get('mod_metadata', {}).get('internal_score')}
+                             'score': item.get('mod_metadata', {}).get('internal_score', item.get('score'))}
     return result
 
 

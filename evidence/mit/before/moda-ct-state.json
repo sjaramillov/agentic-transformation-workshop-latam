@@ -1,0 +1,2074 @@
+{
+  "id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+  "schema_version": 1,
+  "created_at": "2026-10-16T16:27:36.344Z",
+  "updated_at": "2026-10-16T16:51:12.779Z",
+  "created_by": "managed",
+  "analysis_type": "modernization-readiness",
+  "compute_mode": "LOCAL",
+  "type_name": "Modernization Readiness",
+  "category": "Modernization Readiness",
+  "subcategory": null,
+  "repos": [
+    "mit-moda-20261016::booking-mit"
+  ],
+  "inputs": {
+    "source": "mit-moda-20261016",
+    "context": "Assess modernization readiness of the original MIT Python booking service, PostgreSQL database, synthetic payment HTTP provider and recovery/audit worker. Goal: a simple reproducible container-based workshop, with a clear path to an operated deployment. Prefer the smallest compatible runtime; no pre-existing EKS cluster or platform pipeline may be assumed. Examine durability, concurrency, identity, API contracts, observability, dependency management, CI and operability. Distinguish current runnable implementation from proposed infrastructure. Application source is under booking_lab/; run.py executes integration tests with disposable isolated Docker resources. Evaluate applicable rubric questions without suppressing findings because this is educational code. Do not modify application code during assessment.",
+    "assessment_type": "modernization"
+  },
+  "tag": null,
+  "status": "complete",
+  "progress": {
+    "done": 0,
+    "total": 1
+  },
+  "findings": [
+    {
+      "id": "01M52SZRSWVHXRGJFA0174PGNB",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "INF-Q1: Managed Compute: Containerized workload with no managed orchestration",
+      "description": "booking_lab/Dockerfile builds one image (digest-pinned python base, non-root USER 65532:65532) serving all three runtime modes, but no managed compute target exists: no aws_ecs_*, aws_eks_*, aws_lambda_*, aws_apprunner_* or aws_instance resources, and no Kubernetes manifest, Helm chart or ECS task definition. Compute lifecycle is imperative docker run calls in booking_lab/run.py.",
+      "severity": "medium",
+      "category": "INF",
+      "recommendation": "Define two ECS Fargate services from the existing image (api and worker commands) wired to /health/ready as the container health check, reusing booking_lab/Dockerfile unchanged. EKS is not recommended (no cluster may be assumed; two processes and one database do not justify cluster operations). Lambda is unsuitable for the api mode because the saga holds a session-scoped pg_advisory_lock across the external payment call.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 1
+      },
+      "metadata": {
+        "question_id": "INF-Q1",
+        "category_id": "INF",
+        "category_display": "Infrastructure, Platform, and DevOps",
+        "severity": "Medium",
+        "priority": "P1",
+        "effort": "Medium",
+        "phase": 1,
+        "gap": "Containerization is complete; managed orchestration is entirely absent. No declarative replica count, restart policy, placement or scheduler health check exists - /health/live and /health/ready are defined but consumed only by the test harness.",
+        "evidence": {
+          "file": "booking_lab/Dockerfile",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 2,
+          "max_score": 4,
+          "score_label": "Needs Work",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZS0TZPN42K5M7YMC5316",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "INF-Q2: Managed Databases: PostgreSQL self-managed in a container with no failover",
+      "description": "The sole datastore is a self-managed PostgreSQL container: booking_lab/images.lock.json pins postgres@sha256:721873c3..., started by booking_lab/run.py with a generated POSTGRES_PASSWORD on a local Docker volume. No managed database resource (aws_rds_*, aws_dynamodb_*, aws_docdb_*, aws_elasticache_*) exists. One instance, no replica, no failover. The audit sink is the same instance under the audit_writer role, so the audit trail shares a failure domain with the data it audits.",
+      "severity": "high",
+      "category": "INF",
+      "recommendation": "Migrate to Amazon RDS for PostgreSQL (or Aurora PostgreSQL) with multi_az=true, storage_encrypted=true on a customer-managed KMS key and backup_retention_period >= 7. Validate pg_advisory_lock, pg_advisory_xact_lock and FOR UPDATE SKIP LOCKED on the target before cutover - session-scoped advisory locks are incompatible with transaction-mode pooling, so re-run the eight-concurrent-request case through any proxy. Place the audit sink in a separate database or account.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 1
+      },
+      "metadata": {
+        "question_id": "INF-Q2",
+        "category_id": "INF",
+        "category_display": "Infrastructure, Platform, and DevOps",
+        "severity": "High",
+        "priority": "P1",
+        "effort": "Medium",
+        "phase": 1,
+        "gap": "Every durability guarantee the service provides - persisted saga state, transactional outbox, append-only audit trail - rests on a single unmanaged, unreplicated PostgreSQL process with no automated patching, failover or managed backup.",
+        "evidence": {
+          "file": "booking_lab/images.lock.json",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZS5TK0FHPGXCPK4RX6S0",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "INF-Q3: Workflow Orchestration: Durable saga hand-coded with no orchestration service",
+      "description": "Archetype-calibrated (stateful-crud). The multi-step booking workflow is a structured, resumable state machine in application code: booking_lab/schema.sql constrains operations.status via CHECK to eight states and booking_lab/service.py::advance() transitions from persisted state, with transition() and result() committing each change together with its outbox event. No aws_sfn_*, Temporal, Camunda or MWAA is used.",
+      "severity": "medium",
+      "category": "INF",
+      "recommendation": "Keep the saga in application code - it is durable and correct, and moving it to Step Functions would break the single-transaction commit of operations+bookings+outbox that the compensation tests verify. Close the visibility gap instead: alarm on the count of operations in ('NEW','CHARGED','COMPENSATING','CANCELLING') older than a threshold (the query already exists as the pending_operations invariant), and add a bounded attempt counter with backoff.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "INF-Q3",
+        "category_id": "INF",
+        "category_display": "Infrastructure, Platform, and DevOps",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Medium",
+        "phase": 2,
+        "gap": "Retry policy, backoff, timeout escalation and workflow visibility are implicit in the code path and the worker's fixed 0.25s poll loop. There is no execution history, no per-step timeout, and no operator-visible view of in-flight or stuck operations.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 2,
+          "max_score": 4,
+          "score_label": "Needs Work",
+          "archetype_calibrated": true,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZSD6D74FAKV8T129GED4",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "INF-Q4: Async Messaging and Streaming: Transactional outbox on PostgreSQL rather than managed messaging",
+      "description": "Archetype-calibrated (stateful-crud). Async delivery exists and is well built but self-managed: booking_lab/schema.sql defines an outbox table, emit() inserts in the same transaction as the state change, and deliver() drains with FOR UPDATE SKIP LOCKED and inserts into audit_events with ON CONFLICT(id) DO NOTHING. No aws_sqs_*, aws_sns_*, aws_eventbridge_*, aws_kinesis_*, aws_msk_* or aws_mq_* resource exists, and no messaging SDK is in booking_lab/requirements.txt.",
+      "severity": "medium",
+      "category": "INF",
+      "recommendation": "Keep the transactional outbox - it correctly couples state change to event and removing it reintroduces the dual-write problem. Change only the delivery target: publish to EventBridge or SQS instead of inserting into a second database, attach a dead-letter queue, and alarm on undelivered outbox depth.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "INF-Q4",
+        "category_id": "INF",
+        "category_display": "Infrastructure, Platform, and DevOps",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Medium",
+        "phase": 2,
+        "gap": "The broker is the application's own database table, so durability, throughput and backlog visibility are coupled to the single PostgreSQL instance, and fan-out to another consumer needs new code. The 0.25s fixed poll is the only trigger; there is no backpressure signal and no dead-letter destination.",
+        "evidence": {
+          "file": "booking_lab/schema.sql",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 2,
+          "max_score": 4,
+          "score_label": "Needs Work",
+          "archetype_calibrated": true,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZSJWAHXXTK38WDAW3XNP",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "INF-Q5: Network Security: Segmentation demonstrated only in the ephemeral test fixture",
+      "description": "The repository owns a real network surface and segments it deliberately: booking_lab/run.py creates an --internal network carrying the database, payment provider and worker, plus a front network carrying only the API replicas. Host exposure is loopback-only on an ephemeral port (-p 127.0.0.1:{port}:8080), never 0.0.0.0. Containers run --read-only --cap-drop=ALL --security-opt=no-new-privileges with a noexec,nosuid tmpfs and cgroup limits. No 0.0.0.0/0 ingress exists anywhere.",
+      "severity": "low",
+      "category": "INF",
+      "recommendation": "Port the demonstrated tiering into a VPC definition: API tasks in private subnets behind a load balancer, worker and database with no inbound internet path, per-hop security groups, and VPC endpoints for ECR/Secrets Manager/CloudWatch. Enforce sslmode=verify-full on DATABASE_URL and AUDIT_DATABASE_URL and TLS on PAYMENT_URL before any non-local deployment.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "INF-Q5",
+        "category_id": "INF",
+        "category_display": "Infrastructure, Platform, and DevOps",
+        "severity": "Low",
+        "priority": "P1",
+        "effort": "Medium",
+        "phase": 2,
+        "gap": "The segmentation lives only in a disposable test fixture: no VPC, no private-subnet placement, no security group, no VPC endpoint or PrivateLink. No TLS anywhere - DATABASE_URL uses plain postgresql:// with no sslmode and the payment call uses http://, so credentials and bearer tokens cross the network in cleartext.",
+        "evidence": {
+          "file": "booking_lab/run.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 3,
+          "max_score": 4,
+          "score_label": "Partial",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZSPVW1XR4J3AYE01YSHV",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "INF-Q6: API Entry Point: stdlib HTTP server exposed directly with no gateway",
+      "description": "booking_lab/service.py::main() starts ThreadingHTTPServer(('0.0.0.0',8080), Handler) and booking_lab/run.py publishes it straight to a host port. No aws_api_gateway_*, aws_apigatewayv2_*, aws_appsync_*, aws_lb_* or CloudFront resource exists, and no reverse proxy is in the image.",
+      "severity": "medium",
+      "category": "INF",
+      "recommendation": "Place API Gateway (HTTP API) or an ALB in front of the service - ALB for TLS termination and health-checked target groups, API Gateway for per-client throttling and request validation. Terminate TLS at the edge, set a request-rate limit, and use /health/ready as the target-group health check. Retain the in-handler validation as defence in depth.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "INF-Q6",
+        "category_id": "INF",
+        "category_display": "Infrastructure, Platform, and DevOps",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Medium",
+        "phase": 2,
+        "gap": "No throttling or rate limiting of any kind, no TLS termination, no edge request-size or connection-rate control (only an in-handler 8192-byte body cap and an 8s socket timeout), no WAF. ThreadingHTTPServer spawns an unbounded thread per connection, so connection-rate abuse translates directly into thread and database-connection exhaustion.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZSW25P8ZGKPPKS92PN7A",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "INF-Q7: Auto-Scaling: Fixed, imperatively-set capacity with no scaling policy",
+      "description": "No auto-scaling exists. booking_lab/run.py starts exactly two API replicas and one worker with hard-coded --memory 256m --cpus 1 --pids-limit 128 (512m for the database). No aws_autoscaling_* or aws_appautoscaling_* resource, no scaling policy, no min/max capacity, no Lambda concurrency, and no database capacity scaling.",
+      "severity": "medium",
+      "category": "INF",
+      "recommendation": "Once the ECS definition exists, attach Application Auto Scaling target tracking to the API service on ALB request-count-per-target rather than CPU - the workload is I/O-bound on the database and provider, so CPU is a poor load signal. Scale the worker on a custom metric from undelivered-outbox and pending-operation depth. Enable RDS storage autoscaling and size the connection ceiling against the task maximum, since db() opens a fresh connection per request.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "INF-Q7",
+        "category_id": "INF",
+        "category_display": "Infrastructure, Platform, and DevOps",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 2,
+        "gap": "Neither compute nor data capacity can respond to load. The two replicas exist to prove cross-replica correctness, not elasticity, and the single worker is fixed-throughput: its 0.25s loop with LIMIT 100 caps outbox drain and saga recovery regardless of backlog.",
+        "evidence": {
+          "file": "booking_lab/run.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZSZ99D46AHYXWAE1TNBJ",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "INF-Q8: Backup and Recovery: Restore is tested but no backup policy is configured",
+      "description": "Restore capability is genuinely tested: booking_lab/run.py::dump_restore() performs a real pg_dump, restores into a separate restore_check database, and asserts equal row counts and per-table MD5 row hashes for all six tables, recording hashes and the dump SHA-256 as evidence. Volume survival across restart is also proven. But there is no scheduled backup, no retention period, no PITR, no aws_backup_plan, no snapshot lifecycle and no cross-region copy.",
+      "severity": "medium",
+      "category": "INF",
+      "recommendation": "On the managed database set backup_retention_period (7-35 days), enable PITR and KMS-encrypted automated snapshots, and add an AWS Backup plan with a cross-region copy rule for the audit data. Promote dump_restore() into the CI pipeline as a continuous fidelity check and record the resulting RPO/RTO.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 1
+      },
+      "metadata": {
+        "question_id": "INF-Q8",
+        "category_id": "INF",
+        "category_display": "Infrastructure, Platform, and DevOps",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 1,
+        "gap": "A restore procedure is verified; a backup policy does not exist. There is nothing to restore from after a volume loss, and no defined RPO or RTO. The dump is also written unencrypted to local disk.",
+        "evidence": {
+          "file": "booking_lab/run.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 2,
+          "max_score": 4,
+          "score_label": "Needs Work",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZT3Q2HM22H46KXWCMMHF",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "INF-Q10: Infrastructure as Code Coverage: No infrastructure as code of any kind",
+      "description": "Searches for *.tf, *.tfvars, cdk.json, CloudFormation templates, Chart.yaml, values.yaml, kustomization.yaml, docker-compose*.yml, Ansible playbooks and ArgoCD/Flux resources returned nothing. The repository has eleven files; the only environment definition is booking_lab/run.py - imperative subprocess calls to the Docker CLI creating per-run networks, a volume, database roles and five containers under a random prefix, designed to be disposable. Every dependent category is uncovered: compute, networking, data store, secrets and monitoring.",
+      "severity": "high",
+      "category": "INF",
+      "recommendation": "Author one Terraform or CDK stack as the first infrastructure deliverable: VPC with public/private subnets across two AZs; ECS Fargate api and worker services from the existing image; ALB or API Gateway; RDS PostgreSQL Multi-AZ with storage_encrypted and backup_retention_period; Secrets Manager entries for the four roles, JWT key and payment token; CloudWatch log groups with retention; latency and error-rate alarms; provider default_tags. Keep booking_lab/run.py unchanged - it is a correct disposable test fixture, not a deployment definition.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 1
+      },
+      "metadata": {
+        "question_id": "INF-Q10",
+        "category_id": "INF",
+        "category_display": "Infrastructure, Platform, and DevOps",
+        "severity": "High",
+        "priority": "P1",
+        "effort": "Medium",
+        "phase": 1,
+        "gap": "No operated environment is reproducible, reviewable, diffable or recoverable from the repository. This is the structural blocker beneath most other findings - there is no artifact in which to express multi-AZ placement, encryption keys, backup retention, scaling policies, alarms or tags.",
+        "evidence": {
+          "file": "booking_lab/run.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZTB7Z0YVYJ7FA5P8VK3J",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "INF-Q11: CI/CD Automation: No pipeline definition exists",
+      "description": "There is no .github/ directory, no .gitlab-ci.yml, no Jenkinsfile, no buildspec.yml, no appspec.yml and no CodePipeline definition. The image build happens inside booking_lab/run.py as part of the test run and is never published to a registry. booking_lab/README.md documents a single manual command: python3 booking_lab/run.py e2e --output .local/db-e2e.json.",
+      "severity": "high",
+      "category": "INF",
+      "recommendation": "Add a pull-request workflow that builds the image, runs python3 booking_lab/run.py e2e on a Docker-capable runner, fails the build on non-zero exit, and uploads the evidence JSON as an artifact. This is the highest-leverage change available and is small work because the suite is already self-contained, self-isolating and emits machine-readable evidence. Then extend with the SEC-Q7 security steps, ECR publish, and a deploy stage once IaC exists.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 1
+      },
+      "metadata": {
+        "question_id": "INF-Q11",
+        "category_id": "INF",
+        "category_display": "Infrastructure, Platform, and DevOps",
+        "severity": "High",
+        "priority": "P1",
+        "effort": "Low",
+        "phase": 1,
+        "gap": "Nothing is automated: no build, no test execution, no image publish, no deploy, no rollback. The 17-case durability acceptance suite - which verifies exactly the properties most likely to regress under refactoring - never runs unless a human remembers to run it.",
+        "evidence": {
+          "file": ".github/workflows/",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZTGP2JWZ8KYDH9QRRTJ7",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "APP-Q1: Programming Languages: Modern Python runtime with no web framework and no AWS SDK",
+      "description": "Python 3.11+ (booking_lab/README.md) on a digest-pinned official python image. The language axis is modern with first-class AWS SDK coverage; the framework axis lags: there is no web framework at all - the HTTP layer is stdlib http.server.BaseHTTPRequestHandler/ThreadingHTTPServer and JWT handling is hand-rolled on hmac/base64 in booking_lab/auth.py. The single third-party dependency is psycopg[binary]==3.3.6 (current major). No boto3 is present.",
+      "severity": "low",
+      "category": "APP",
+      "recommendation": "Keep Python. Replace the stdlib HTTP layer with a maintained ASGI framework (FastAPI or Starlette), which brings routing, validation, structured errors, OpenAPI generation (closing APP-Q5) and bounded concurrency while preserving handler logic nearly verbatim. Replace the hand-rolled verifier with a maintained JWT library once asymmetric keys or an external IdP arrive. Add boto3 only where managed services are adopted.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "APP-Q1",
+        "category_id": "APP",
+        "category_display": "Application Architecture",
+        "severity": "Low",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 2,
+        "gap": "The stdlib server provides no routing, middleware, validation framework, structured logging integration, OpenAPI generation or connection limiting - all reimplemented by hand in Handler.dispatch. Hand-rolled JWT verification carries ongoing maintenance and cryptographic-review burden.",
+        "evidence": {
+          "file": "booking_lab/requirements.txt",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 3,
+          "max_score": 4,
+          "score_label": "Partial",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZTNMDN3E2H14D2J0BKMM",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "APP-Q2: Monolith vs Microservices: One deployable unit and one shared schema holding three logical services",
+      "description": "booking_lab/service.py holds the booking API, the synthetic payment provider (Handler.payments) and the recovery/outbox worker, selected by sys.argv[1] from one image. All tables live in the single public schema of one database. Data isolation is nevertheless enforced and tested at the privilege layer: booking_lab/schema.sql revokes default public access and creates four roles with table- and column-level grants, and booking_lab/run.py::rights() proves payment_app cannot read bookings, booking_app cannot read audit_events or create tables, and no runtime role can UPDATE or DELETE audit rows. Cross-service communication is over HTTP, not shared tables, with no cross-module joins.",
+      "severity": "medium",
+      "category": "APP",
+      "recommendation": "Promote the existing role grants into per-service schemas (booking, payments, audit) so isolation is structural, and split booking_lab/service.py into packages along the lines the grants already describe. Extract the payment provider into its own repository, image and database - it is already an HTTP boundary with its own credential and table. Do NOT split the booking saga: operations, bookings and outbox must commit in one local transaction for the compensation and crash-recovery guarantees to hold.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "APP-Q2",
+        "category_id": "APP",
+        "category_display": "Application Architecture",
+        "severity": "Medium",
+        "priority": "P1",
+        "effort": "Medium",
+        "phase": 2,
+        "gap": "Boundaries exist as privilege policy rather than deployable or schema boundaries: all services share one public schema in one database, and the payment provider - an external third party in any operated deployment - is in-process code in the same file as its caller. The three modes cannot be versioned, released, scaled or rolled back independently, and there is no package structure in the 302-line module.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 2,
+          "max_score": 4,
+          "score_label": "Needs Work",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZTVTN257PGRDCBFSVRB6",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "APP-Q3: Async vs Sync Communication: Async for audit and recovery; one bounded synchronous provider call remains",
+      "description": "Archetype-calibrated (stateful-crud). Async is used where it matters: the transactional outbox decouples audit delivery and the worker's recover() resumes persisted operations without a client. The remaining synchronous dependency is the inline payment() call, deliberately bounded (4s HTTP, 3s connect, 10s statement, 8s lock timeouts) and failing closed to 503 with retry_same_idempotency_key while the durable intent survives. booking_lab/run.py::provider_outage() proves the provider can be stopped mid-flight and the operation still reaches CONFIRMED.",
+      "severity": "low",
+      "category": "APP",
+      "recommendation": "Publish outbox events to EventBridge or SQS instead of inserting directly into the audit database. Optionally make the payment step fully async (202 plus an operation URI, worker-driven charge) - but this is a deliberate API-contract trade-off, not a defect: synchronous-with-durable-fallback giving an immediate 201 in the normal case is a reasonable choice for a booking API.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "APP-Q3",
+        "category_id": "APP",
+        "category_display": "Application Architecture",
+        "severity": "Low",
+        "priority": "P2",
+        "effort": "Medium",
+        "phase": 2,
+        "gap": "Cross-service state propagation to the audit sink goes through a direct second-database insert rather than a managed event bus, so adding a consumer requires code change. The payment call stays in the client-facing path, so provider latency is client-visible even though correctness is preserved.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 3,
+          "max_score": 4,
+          "score_label": "Partial",
+          "archetype_calibrated": true,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZV1K1YSVRH2WB22JDW45",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "APP-Q4: Long-Running Process Handling: Bounded operations with durable async completion but no client status surface",
+      "description": "Archetype-calibrated (stateful-crud). No operation can run unbounded: db() sets connect_timeout=3, statement_timeout=10000, lock_timeout=8000; payment() uses a 4s HTTP timeout; dispatch sets an 8s socket timeout. Anything that cannot finish in those bounds is persisted in an intermediate state and completed by the worker - pending() demonstrates a refund outage leaving the operation durably COMPENSATING and the worker driving it to COMPENSATED, and crash()/refund_crash() demonstrate recovery after the API process exits mid-saga.",
+      "severity": "low",
+      "category": "APP",
+      "recommendation": "Expose a read-only operation-status endpoint backed by operations.status/response_code/response_body, which the data model already supports with no schema change, and document the 503 retry contract alongside it. Add an attempt counter and exponential backoff to recover(), with a terminal state and an alarm for operations exceeding the ceiling.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 3
+      },
+      "metadata": {
+        "question_id": "APP-Q4",
+        "category_id": "APP",
+        "category_display": "Application Architecture",
+        "severity": "Low",
+        "priority": "P2",
+        "effort": "Medium",
+        "phase": 3,
+        "gap": "There is no client-facing status resource: a caller receiving 503 must re-POST with the same Idempotency-Key to learn the outcome; there is no GET /operations/{id} and no callback. recover() is also unprioritised and unbounded in attempts - first 100 pending by id, fixed 0.25s loop, no backoff or ceiling - so a permanently failing operation retries forever and silently.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 3,
+          "max_score": 4,
+          "score_label": "Partial",
+          "archetype_calibrated": true,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZV5JMZ4TCHCGHQ473EE2",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "APP-Q5: API Versioning Strategy: No API versioning and no published contract",
+      "description": "Routes are unversioned literals plus one regex in Handler.dispatch: /bookings, /bookings/[a-f0-9]{64}, /health/live, /health/ready, plus /charge and /refund on the provider. No /v1/ segment, no Accept-Version or other version header, no version query parameter. The only version marker is the cosmetic server_version='BookingLab/1' header. No OpenAPI/Swagger/AsyncAPI/GraphQL specification and no changelog exists.",
+      "severity": "medium",
+      "category": "APP",
+      "recommendation": "Introduce a version segment (/v1/bookings) before any external consumer exists, keeping current paths as aliases. Publish an OpenAPI document describing the request contract, every error code (400/401/402/403/404/405/409/503), the Idempotency-Key and X-Correlation-ID headers, and the replay semantics - all currently discoverable only by reading Handler.dispatch. Adopting an ASGI framework makes the specification generated rather than hand-maintained.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "APP-Q5",
+        "category_id": "APP",
+        "category_display": "Application Architecture",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 2,
+        "gap": "Any change to request validation or response shape breaks every consumer simultaneously with no negotiation path or deprecation window. The risk is sharper here because the contract is exact - dispatch rejects any payload whose key set is not exactly {itinerary, amount} and whose itinerary does not match [A-Z]{3}-[A-Z]{3} - so even an additive field is breaking, and the Idempotency-Key fingerprint (SHA-256 over the canonicalised payload) means a shape change also invalidates replay equivalence for in-flight keys.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZV8GXD9TAHJT8JHQ9SKP",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "APP-Q6: Service Discovery: Endpoints supplied as environment variables with no dynamic discovery",
+      "description": "booking_lab/service.py reads os.environ['PAYMENT_URL'] in payment() and DATABASE_URL/AUDIT_DATABASE_URL in db(). booking_lab/run.py::Lab.start materialises them into per-container .env files, resolving the provider as http://{prefix}-payments:8080 via Docker container-name DNS. No AWS Cloud Map/ECS Service Discovery, Consul, Istio or API catalog is used, and there is no client-side resolution, health-aware endpoint selection or retry-across-instances logic.",
+      "severity": "medium",
+      "category": "APP",
+      "recommendation": "Keep configuration-driven endpoints - the right level of indirection for a service with one dependency - but resolve them through a discovery-backed name. On ECS, register the payment service in AWS Cloud Map and point PAYMENT_URL at the service-discovery DNS name; use the RDS endpoint name for DATABASE_URL. Add bounded retry with jitter in payment(), which the provider's advisory-lock-guarded idempotency already makes safe.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "APP-Q6",
+        "category_id": "APP",
+        "category_display": "Application Architecture",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 2,
+        "gap": "The provider is a single fixed address: payment() has no instance-level failover, so if that endpoint is unreachable every charge attempt fails (correctly, into the retryable 503 path) until it is healthy. Endpoints are fixed at container start, so relocating a dependency requires a restart.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 2,
+          "max_score": 4,
+          "score_label": "Needs Work",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZVBC86E4RHCKTTD3YRPW",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "DATA-Q2: Unified Data Access Layer: Centralized connection factory but SQL inline in business and handler code",
+      "description": "Every connection is created by one factory, booking_lab/service.py::db(name='DATABASE_URL'), which uniformly applies autocommit, dict_row, connect_timeout=3, statement_timeout=10000 and lock_timeout=8000, so no code path can open an unbounded or inconsistently configured connection; the audit sink uses the same factory with a different variable. psycopg is imported in exactly one file, and all queries are parameterised with no interpolation of user input.",
+      "severity": "low",
+      "category": "DATA",
+      "recommendation": "Extract a thin persistence module exposing intention-named operations (load_operation, insert_operation, set_status, append_outbox, list_bookings_for_principal, claim_undelivered) and keep the saga functions free of SQL. Low effort given the small statement count; it makes the state machine unit-testable without Docker and creates the single place to add tracing instrumentation. Preserve the db() timeout defaults and parameterisation discipline unchanged.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 3
+      },
+      "metadata": {
+        "question_id": "DATA-Q2",
+        "category_id": "DATA",
+        "category_display": "Data Platform Modernization",
+        "severity": "Low",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 3,
+        "gap": "There is no repository or DAO abstraction above the connection factory: SQL is inline in create(), cancel(), advance(), transition(), result(), recover(), deliver(), in Handler.dispatch (the booking list query and the readiness probe) and in Handler.payments. Table knowledge is spread across the module and the saga state machine cannot be unit-tested without a live database.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 3,
+          "max_score": 4,
+          "score_label": "Partial",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZVEYDZDYGHS415E96TZZ",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "DATA-Q3: Database Engine Version and EOL: Engine pinned by digest but major version and EOL status untracked",
+      "description": "booking_lab/images.lock.json fixes postgres@sha256:721873c3... and booking_lab/run.py pulls it and records RepoDigests as evidence - stronger than a floating tag since the exact binary is reproducible. The harness also captures SHOW server_version and SHOW synchronous_commit at runtime. No aws_rds_* engine version parameter exists because no managed database exists.",
+      "severity": "low",
+      "category": "DATA",
+      "recommendation": "Record the human-readable major version alongside the digest in booking_lab/images.lock.json and document a short update procedure (how the digest is refreshed, how the suite validates the new engine, what the rollback is). On the managed database pin engine_version explicitly, enable minor-version auto-upgrade only, and track the community EOL date against the RDS deprecation calendar.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "DATA-Q3",
+        "category_id": "DATA",
+        "category_display": "Data Platform Modernization",
+        "severity": "Low",
+        "priority": "P1",
+        "effort": "Low",
+        "phase": 2,
+        "gap": "The digest does not disclose the PostgreSQL major version to a reader of the repository - it must be discovered by running the suite - so EOL status cannot be assessed by inspection and is effectively untracked. There is no documented engine-update procedure covering downtime, rollback or risk acknowledgment, and digest pinning without an update mechanism means base-image security patches are never picked up.",
+        "evidence": {
+          "file": "booking_lab/images.lock.json",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 3,
+          "max_score": 4,
+          "score_label": "Partial",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZVHZ45MPCKBCQ50JS8Z7",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "DATA-Q4: Stored Procedures and Schema Complexity: Test-only plpgsql trigger plus load-bearing PostgreSQL-specific concurrency constructs",
+      "description": "Business logic is in the application layer, but the schema and concurrency design are coupled to PostgreSQL. booking_lab/schema.sql has one CREATE FUNCTION fail_booking_insert() LANGUAGE plpgsql and one BEFORE INSERT trigger, present solely so the test administrator can inject a real insert failure (there is deliberately no HTTP fault endpoint). Beyond those, the engine-specific constructs are load-bearing: session-scoped pg_advisory_lock held across local commits and the external payment call, pg_advisory_xact_lock(17,...) on a separate namespace in the provider, FOR UPDATE SKIP LOCKED, ON CONFLICT DO NOTHING, jsonb, clock_timestamp() and column-level GRANT SELECT(id).",
+      "severity": "medium",
+      "category": "DATA",
+      "recommendation": "Keep PostgreSQL - this is not a reason to change engines. (1) Document the advisory-lock dependency as an explicit architectural constraint including its incompatibility with transaction-mode pooling, and make it a pre-cutover check for RDS Proxy or PgBouncer. (2) Move the fault-injection function and trigger into a schema.test.sql applied only by the harness so the deployed schema has no test artefacts. (3) Retain SKIP LOCKED and ON CONFLICT - both are supported across RDS/Aurora PostgreSQL.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 3
+      },
+      "metadata": {
+        "question_id": "DATA-Q4",
+        "category_id": "DATA",
+        "category_display": "Data Platform Modernization",
+        "severity": "Medium",
+        "priority": "P1",
+        "effort": "Medium",
+        "phase": 3,
+        "gap": "No business logic needs extraction - correctly, the saga is in Python - but the correctness model is portable only to PostgreSQL. Advisory locks make 'eight concurrent requests across two replicas produce exactly one charge' true and are the construct most at risk from infrastructure change: a transaction-level connection pooler silently breaks session-scoped advisory locks with no error. The plpgsql trigger also means production and test schemas differ unless it is excluded.",
+        "evidence": {
+          "file": "booking_lab/schema.sql",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 2,
+          "max_score": 4,
+          "score_label": "Needs Work",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZVM5D6B3JHE9V8PCMYE6",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "SEC-Q2: Encryption at Rest: No encryption at rest on any data surface",
+      "description": "No encryption at rest is configured. The PostgreSQL data directory is a plain Docker volume mounted at /var/lib/postgresql/data with no volume or filesystem encryption and no aws_kms_key or kms_key_id anywhere. The pg_dump output from dump_restore() is written in cleartext to {work}/workshop.sql, and the per-container .env files written by Lab.env hold the four role passwords, the symmetric JWT_KEY and PAYMENT_TOKEN in cleartext on disk. Filesystem permissions are the only control (work dir mode 0700, dump and .env files 0600).",
+      "severity": "high",
+      "category": "SEC",
+      "recommendation": "On the managed database set storage_encrypted=true with a customer-managed KMS key and ensure snapshots inherit it. Move the four role passwords, JWT_KEY and PAYMENT_TOKEN into Secrets Manager so plaintext never reaches disk; inject at task start rather than via --env-file. Encrypt any dump before it leaves the host and write it to an S3 bucket with SSE-KMS and a lifecycle policy. Document a key rotation policy. Keep the existing 0700/0600 discipline as defence in depth, not as the control.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 1
+      },
+      "metadata": {
+        "question_id": "SEC-Q2",
+        "category_id": "SEC",
+        "category_display": "Security Baseline",
+        "severity": "High",
+        "priority": "P1",
+        "effort": "Low",
+        "phase": 1,
+        "gap": "Payment-adjacent records (principals, itineraries, amounts, charge states, refund counts) and the immutable audit trail sit unencrypted at rest, as do live credentials and the JWT signing key. Permissions-only protection does not survive volume snapshot, host compromise, disk disposal or backup copy, and provides no key rotation or access audit trail.",
+        "evidence": {
+          "file": "booking_lab/run.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZVPDFK51WK61XP46VY7X",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "SEC-Q3: API Authentication: Strict per-request JWT auth but no gateway throttling and symmetric keys",
+      "description": "Per-request token auth is enforced on every business endpoint and enforced carefully. Handler.dispatch extracts the Bearer value and calls auth.verify with required scope bookings:read for GET and bookings:write otherwise. auth.verify validates HMAC-SHA256 with hmac.compare_digest, rejects any header other than exactly {'alg':'HS256','typ':'JWT'} (closing algorithm confusion and alg:none), and checks iss, aud, exp, nbf, iat and a sub pattern before scope evaluation, returning 403 for insufficient scope versus 401 for invalid tokens. Token length is capped at 4096 bytes and the service refuses to start if JWT_KEY is under 32 characters. The provider independently requires its own bearer compared with compare_digest. run.py::auth() proves rejection of missing, expired, wrong-audience, wrong-issuer, not-yet-valid, wrong-key and insufficient-scope tokens with no charge created; isolation() proves cross-principal reads and cancels are denied.",
+      "severity": "low",
+      "category": "SEC",
+      "recommendation": "Front the service with API Gateway or an ALB and apply a per-client throttle; keep /health/* reachable only from the load balancer's security group. Move to asymmetric signing (RS256/ES256) with a JWKS endpoint so the API holds only a public key, removing the shared-secret minting risk. Retain the existing claim-validation strictness and the 403-versus-401 distinction verbatim in whatever framework replaces the handler.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "SEC-Q3",
+        "category_id": "SEC",
+        "category_display": "Security Baseline",
+        "severity": "Low",
+        "priority": "P2",
+        "effort": "Medium",
+        "phase": 2,
+        "gap": "Score 4 requires intentionally public endpoints to sit behind a gateway with throttling and request validation. /health/live and /health/ready are unauthenticated and there is no gateway at all (INF-Q6=1), so there is no throttling, no per-client rate limit and no protection against token-guessing or request floods; /health/ready also opens a database connection on every unauthenticated call, a cheap amplification vector. Tokens are symmetric HS256 on one shared secret, so any holder of JWT_KEY can mint tokens for any principal, and verification is hand-rolled rather than library-backed.",
+        "evidence": {
+          "file": "booking_lab/auth.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 3,
+          "max_score": 4,
+          "score_label": "Partial",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZVS101ZMCHY01PACKW78",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "SEC-Q4: Centralized Identity Integration: Application is its own token issuer with no external IdP",
+      "description": "booking_lab/auth.py is both issuer (encode(), minting iss='booking-lab', aud='booking-api', 300s lifetime, default scope bookings:read bookings:write) and verifier (verify()), on one symmetric HMAC key supplied as JWT_KEY. booking_lab/run.py generates that key per run and mints tokens for the agent-a and agent-b principals. No aws_cognito_* resource, no OIDC discovery or JWKS endpoint, no SAML, no federation, no SSO. The module docstring states the symmetric JWT is confined to this local lab, so this is an acknowledged scope boundary.",
+      "severity": "medium",
+      "category": "SEC",
+      "recommendation": "Introduce a centralised IdP and reduce the application to a verifier only: Amazon Cognito user pools (or an existing enterprise OIDC provider) issuing asymmetrically-signed tokens, with the API validating against the published JWKS and mapping the scope/client_id claim to the existing checks. For the machine-to-machine callers agent-a/agent-b, use the OAuth2 client-credentials flow with per-client scopes so each caller has its own revocable identity. Keep auth.encode() as a test fixture only. Treat PAYMENT_TOKEN similarly - acceptable as a static bearer for a synthetic double, but rotated credentials or SigV4/mTLS for a real provider.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "SEC-Q4",
+        "category_id": "SEC",
+        "category_display": "Security Baseline",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Medium",
+        "phase": 2,
+        "gap": "Because one symmetric key both signs and verifies, any component holding JWT_KEY - including the API itself - can mint a token for an arbitrary principal, so principal attribution in operations.principal and audit_events.principal is only as trustworthy as every key holder. There is no central place to revoke a principal, rotate signing material without a coordinated restart, enforce MFA, apply conditional access or audit token issuance. Scope assignment is a code default rather than IdP policy, and there are no refresh semantics.",
+        "evidence": {
+          "file": "booking_lab/auth.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZVV59019PJPNGTBH8KRW",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "SEC-Q5: Secrets Management: No committed plaintext secrets, but env-var delivery with no store or rotation",
+      "description": "There are no plaintext credentials committed anywhere: every secret is generated at runtime with secrets.token_hex in booking_lab/run.py::Lab.__init__ (32-byte JWT_KEY, 32-byte PAYMENT_TOKEN, 24-byte passwords for postgres and the four runtime roles), never hard-coded, and .gitignore excludes .env* and .local/. The harness avoids leakage: docker() truncates stderr and never prints container environments or bootstrap SQL, and Handler.log_message is a deliberate no-op so bearer tokens and request bodies are never logged. However secrets are delivered as plaintext environment variables through on-disk .env files (chmod 0600) consumed via docker run --env-file and read from os.environ. No Secrets Manager, Parameter Store or Vault integration exists, and there is no rotation.",
+      "severity": "medium",
+      "category": "SEC",
+      "recommendation": "Store the four role passwords, JWT_KEY and PAYMENT_TOKEN in AWS Secrets Manager and inject them into the ECS task definition via secrets/valueFrom so plaintext never reaches a file. Enable managed RDS credential rotation and rotate PAYMENT_TOKEN; for JWT_KEY the asymmetric migration in SEC-Q4 removes the shared secret entirely and is the better fix. Keep runtime generation in run.py for tests, and keep the .gitignore entries, 0600/0700 permissions, stderr truncation and log_message suppression - all genuine strengths.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 1
+      },
+      "metadata": {
+        "question_id": "SEC-Q5",
+        "category_id": "SEC",
+        "category_display": "Security Baseline",
+        "severity": "Medium",
+        "priority": "P1",
+        "effort": "Low",
+        "phase": 1,
+        "gap": "Production credentials would live in environment variables and on-disk .env files with no encryption, no rotation, no access audit trail and no revocation path. Environment variables are visible to anything that can read the process environment or inspect the container, and the symmetric JWT_KEY is a token-minting capability, so its blast radius exceeds a normal database password. Because the harness generates fresh secrets per run, nothing exercises rotation, so no rotation path has been designed.",
+        "evidence": {
+          "file": "booking_lab/run.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 2,
+          "max_score": 4,
+          "score_label": "Needs Work",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZW08QJ5A8HDT7DCSYKCV",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "SEC-Q6: Compute Hardening and Patching: Strong runtime hardening but no scanning or patch automation",
+      "description": "Runtime hardening is thorough: booking_lab/Dockerfile runs non-root (USER 65532:65532), installs with --no-cache-dir, copies only the three needed source files and sets PYTHONDONTWRITEBYTECODE; .dockerignore excludes everything else so no harness, git metadata or local state enters the image. Base images are digest-pinned and the harness records resolved RepoDigests and the built image ID. Containers launch with --read-only --cap-drop=ALL --security-opt=no-new-privileges, a noexec,nosuid tmpfs and memory/CPU/PID limits when cgroups are available, with an explicit message when they are not. Patching and scanning are absent: no .github/dependabot.yml, no renovate.json, no .snyk, no Inspector, no ECR scanning, no pip-audit, no SSM patch baseline.",
+      "severity": "low",
+      "category": "SEC",
+      "recommendation": "Add a dependency-update bot (.github/dependabot.yml for pip and docker) so pinned digests are proposed for refresh rather than frozen, and let the existing E2E suite gate each bump - converting pinning from a liability back into a strength. Enable Amazon ECR enhanced scanning (or Trivy in the pipeline) and add pip-audit as a pipeline step. Consider a distroless or -slim base. Carry every runtime flag into the ECS task definition (readonlyRootFilesystem, dropped capabilities, non-root user, explicit CPU/memory limits) - they translate directly and must not be lost.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "SEC-Q6",
+        "category_id": "SEC",
+        "category_display": "Security Baseline",
+        "severity": "Low",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 2,
+        "gap": "Digest pinning without an update mechanism guarantees reproducibility but also guarantees base-image CVE fixes are never picked up, because nothing watches for a newer digest. There is no vulnerability signal on either the Python base image or psycopg[binary], and the stock python image is used rather than a distroless or minimal variant.",
+        "evidence": {
+          "file": "booking_lab/Dockerfile",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 3,
+          "max_score": 4,
+          "score_label": "Partial",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZW2KA1F78GG26HV7BP86",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "SEC-Q7: Application Security Pipeline: No SAST, dependency or container scanning anywhere",
+      "description": "There is no security validation in any pipeline because there is no pipeline. No SAST tool (SonarQube, Semgrep, Bandit, CodeGuru Reviewer), no dependency scanning (pip-audit, Dependabot, Renovate, Snyk - there is no .github/dependabot.yml, renovate.json or .snyk), and no container image scanning. The only automated verification is the functional/durability suite in booking_lab/run.py, which does include real negative security testing (token forgery and expiry rejection in auth(), cross-principal denial in isolation(), privilege containment in rights()) but no vulnerability scanning of code or dependencies.",
+      "severity": "medium",
+      "category": "SEC",
+      "recommendation": "Add to the INF-Q11 pipeline, in order: (1) pip-audit against booking_lab/requirements.txt; (2) a SAST step - Bandit as the lowest-friction Python option, or Semgrep with the Python security ruleset - failing on high-severity findings; (3) container image scanning via ECR scan-on-push or Trivy, failing on critical CVEs; (4) Dependabot for pip and docker. Keep the existing security-behaviour tests as the complement to scanning - they verify properties no scanner can, and the two are not substitutes.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 1
+      },
+      "metadata": {
+        "question_id": "SEC-Q7",
+        "category_id": "SEC",
+        "category_display": "Security Baseline",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 1,
+        "gap": "A vulnerability in psycopg[binary]==3.3.6, in the pinned Python base image, or a newly introduced injection or crypto flaw in the hand-rolled JWT verifier would reach a deployment undetected. There is no gate that could block on a critical finding, and the reliance on hand-written security-sensitive code (HMAC verification, path regex matching, SQL construction) is exactly the profile where SAST has the highest yield.",
+        "evidence": {
+          "file": ".github/workflows/",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZW4RQM1FTGVDW9X2K47S",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "OPS-Q1: Distributed Tracing: Durable correlation IDs but no tracing SDK and no cross-service propagation",
+      "description": "Correlation identity exists and is persisted but there is no tracing instrumentation. Handler.dispatch accepts an X-Correlation-ID header (generating a UUID when absent) and threads it through create() and cancel() into operations.correlation_id, every outbox row via emit() and every audit_events row via deliver(), so a durable queryable correlation trail exists end to end; run.py::happy() asserts the booking.confirmed event's principal and correlation_id match the caller's exactly, and cancellation is deliberately re-attributed to its own request. However no OpenTelemetry or X-Ray SDK is present, no traceparent or X-Amzn-Trace-Id header is read or emitted, and payment() sends only operation_id and amount - the correlation ID is not forwarded, so provider work cannot be joined to the caller's trace.",
+      "severity": "medium",
+      "category": "OPS",
+      "recommendation": "Add OpenTelemetry (or the X-Ray SDK) with auto-instrumentation for the HTTP server, the outbound urllib call and psycopg, mapping the existing correlation_id onto the trace as a span attribute so the durable trail and the trace join on one key. Forward the correlation ID and traceparent on the payment() request. Replace the three print() calls with structured JSON logs carrying correlation ID, principal, operation ID and outcome - while preserving the existing discipline of never logging tokens or request bodies.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Medium",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "OPS-Q1",
+        "category_id": "OPS",
+        "category_display": "Operations & Observability",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Medium",
+        "phase": 2,
+        "gap": "There are no spans, no latency attribution and no cross-service trace join. Diagnosing a slow or failing booking requires manually querying operations, outbox and audit_events by correlation ID; time spent inside payment() versus the database is not measurable. Worker recovery carries the original correlation ID but produces no trace, so asynchronous completion is invisible. Logging is minimal by design - log_message is a deliberate no-op and the only output is three unstructured print() lines with no timestamp, level, correlation ID or structure.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 2,
+          "max_score": 4,
+          "score_label": "Needs Work",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZW858DVCJGAYCGCWWKGX",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "OPS-Q2: SLO Definitions: No SLOs, alarms or monitoring artifacts in the repository",
+      "description": "Gate has_api_surface is true, so this question is evaluated. No monitoring artifacts of any kind exist - no CloudWatch alarms (there is no IaC to define them), no latency or error-rate thresholds, no SLO definition file, no error-budget tracking, no dashboard. The service exposes /health/live and /health/ready (the latter proving database reachability with a real query and returning 503 when the database is down), a correct liveness/readiness split, but nothing consumes them outside the harness and a health probe is not an SLO. The timeouts in code (4s payment, 8s socket, 10s statement) are protective limits, not declared objectives. The only durable quality measurements are test-run artifacts: per-case duration_seconds and five correctness invariants asserted to be zero.",
+      "severity": "medium",
+      "category": "OPS",
+      "recommendation": "Define three SLOs and alarm on them once IaC exists: availability and p99 latency for POST /bookings; saga completion (zero operations pending beyond a defined age); and audit freshness (zero outbox rows undelivered beyond a defined age). Promote the five invariant queries from run.py into continuously evaluated CloudWatch custom metrics, since they are already written and already proven to be the right correctness signals. Track an error budget against the availability objective.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "OPS-Q2",
+        "category_id": "OPS",
+        "category_display": "Operations & Observability",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 2,
+        "gap": "There is no declared availability or latency target for POST /bookings, the critical user journey, so there is no way to know whether the service is meeting expectations or degrading. The properties that actually matter operationally are already measurable but not monitored: operations stuck in ('NEW','CHARGED','COMPENSATING','CANCELLING') and undelivered outbox rows are exactly the saga and audit degradation signals, and both have working queries sitting unused in the harness.",
+        "evidence": {
+          "file": "booking_lab/run.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZWAH2DNJ0J0244TQ1A5J",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "OPS-Q3: Business Metrics: No metrics emitted at all",
+      "description": "The service publishes no metrics, business or infrastructure. There is no cloudwatch.put_metric_data call, no StatsD/Prometheus client, no metrics endpoint and no metrics library in booking_lab/requirements.txt. Runtime output is three unstructured print() lines (request_retry_pending, worker_retry_pending, recovery_pending), none counted or aggregated. Business-relevant quantities all exist in the database and are queried by the test harness only: bookings confirmed, charges captured versus refunded, declined payments, operations by status, audit event counts.",
+      "severity": "medium",
+      "category": "OPS",
+      "recommendation": "Emit custom CloudWatch metrics where the saga already knows the outcome - in result() and at the 201 return in advance() - for booking created, payment declined, booking compensated, booking cancelled, and 503 retry returned. Add gauges from the worker loop for pending-operation and undelivered-outbox depth. Dimension by status only; avoid principal as a dimension to prevent cardinality explosion. Build one dashboard combining these with the OPS-Q2 SLOs.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "OPS-Q3",
+        "category_id": "OPS",
+        "category_display": "Operations & Observability",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 2,
+        "gap": "None of the outcomes that define whether this service is working - booking success rate, payment decline rate, compensation (refund-after-failed-booking) rate, cancellation rate, saga pending depth, audit delivery lag - is emitted anywhere. The compensation rate is especially important and especially invisible: a rising rate of COMPENSATED operations means customers are charged and refunded rather than served, a business-visible failure no current signal would surface.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZWCXHGN3GJVEPBKMFBVE",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "OPS-Q4: Anomaly Detection and Alerting: No alerting of any kind; handled failures are silent to operators",
+      "description": "No alerting exists. There are no CloudWatch alarms (no IaC), no anomaly detectors, no composite alarms, no SNS topic and no PagerDuty/OpsGenie integration. Failure handling is in-process and silent: Handler.dispatch catches RuntimeError/psycopg.Error/OSError and returns 503 after one unstructured print; the worker loop catches every exception and prints worker_retry_pending; recover() prints recovery_pending per failed operation and continues. Nothing escalates, counts or notifies.",
+      "severity": "medium",
+      "category": "OPS",
+      "recommendation": "Once IaC exists, alarm on: API 5xx rate and p99 latency; /health/ready failures; pending-operation count above a threshold or age; undelivered-outbox count above a threshold or age; and payment decline-rate deviation. Use CloudWatch anomaly detection for latency and error rate rather than fixed thresholds, since booking traffic is likely diurnal. Route to SNS with an on-call destination. Replace the print() statements with structured logs and derive metric filters so the existing failure-detection logic becomes an alerting source.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 2
+      },
+      "metadata": {
+        "question_id": "OPS-Q4",
+        "category_id": "OPS",
+        "category_display": "Operations & Observability",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 2,
+        "gap": "Every failure mode the service is engineered to survive is also invisible while it is happening. A payment provider outage, a database outage, a permanently stuck saga operation, or a blocked audit delivery (exactly the audit_outage() scenario, where audit_writer loses INSERT and the outbox silently backs up) would all be handled correctly and reported to nobody. Because the worker retries indefinitely with no attempt ceiling, an operation that can never complete produces an unbounded stream of identical prints and no signal.",
+        "evidence": {
+          "file": "booking_lab/service.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    },
+    {
+      "id": "01M52SZWJ9MG6TPKZ9G7Z9JDE7",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "OPS-Q6: Integration Testing: Exceptional integration coverage that never runs automatically",
+      "description": "booking_lab/run.py builds the real image, starts a real PostgreSQL container, real payment provider, two real API replicas and a real worker on isolated per-run Docker networks, then runs 17 integration cases against live HTTP and live SQL: token rejection across issuer/audience/expiry/nbf/signature/scope; happy-path create with correlation attribution; idempotent replay and payload-conflict detection across replicas; cross-principal isolation and identity-scoped idempotency; eight concurrent requests across two replicas yielding exactly one charge and one booking; real insert failure after charge refunding with no orphan; refund-provider outage leaving durable COMPENSATING state with worker recovery; crash after external commit reconciling without double charge; provider outage retaining intent; crash after refund without a second refund; declined payment creating no booking; cancel/refund idempotency preserving the original create response; audit delivery failure with durable outbox drain; redelivery deduplication; runtime-role inability to rewrite audit or cross-service tables; database outage failing closed with volume survival; and a real pg_dump/restore verified by per-table row hashes. It closes with five global invariant assertions and emits machine-readable evidence. Nothing is mocked - fault injection uses a real database trigger and real process exits. But there is no CI pipeline, so none of it runs automatically.",
+      "severity": "medium",
+      "category": "OPS",
+      "recommendation": "Wire python3 booking_lab/run.py e2e --output .local/db-e2e.json into a pull-request pipeline on a Docker-capable runner and fail the build on non-zero exit - this alone moves the score to 4 and is small work, because the harness is already self-isolating (unique resource prefix, loopback-only ephemeral ports, no global prune) and already emits an artifact to upload. Add a case-name filter argument for debugging. Then add unit tests for advance() and auth.verify() against a fake store so fast feedback does not require Docker.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 1
+      },
+      "metadata": {
+        "question_id": "OPS-Q6",
+        "category_id": "OPS",
+        "category_display": "Operations & Observability",
+        "severity": "Medium",
+        "priority": "P1",
+        "effort": "Low",
+        "phase": 1,
+        "gap": "The rubric's discriminator between 4 and 2 is pipeline execution, and that is the entire gap: the suite is never run consistently or automatically, so it provides no regression protection on change. Secondary gaps: no unit tests, so the saga state machine cannot be exercised without Docker and a full environment build; and the suite is all-or-nothing with no way to run a single case while debugging.",
+        "evidence": {
+          "file": "booking_lab/run.py",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 2,
+          "max_score": 4,
+          "score_label": "Needs Work",
+          "archetype_calibrated": false,
+          "core_question": true
+        }
+      }
+    },
+    {
+      "id": "01M52SZWN4BM2EGHGZB5C5KRYS",
+      "analysis_type": "modernization-readiness",
+      "analysis_run_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+      "repo": "mit-moda-20261016::booking-mit",
+      "portfolio": "my-portfolio",
+      "title": "OPS-Q8: Observability Ownership: No observability assets and no ownership attribution",
+      "description": "There is no observability ownership of any kind because there are no observability assets to own. No dashboard definitions, no alarms, no SLO files and no CODEOWNERS file exist anywhere. There is no team attribution, no owner metadata and no on-call reference. booking_lab/README.md describes how to run the acceptance suite and what each source file does, but names no owner, escalation path or monitoring responsibility.",
+      "severity": "medium",
+      "category": "OPS",
+      "recommendation": "Add a CODEOWNERS file covering booking_lab/ and, once created, the IaC and observability directories, so monitoring configuration has a named reviewer. Define the service's dashboard and alarms in the same IaC stack as the service so ownership follows the code, and tag both resources and alarms with Owner and Team. Record the owning team, escalation path and the OPS-Q2 SLOs in the README alongside the existing run instructions.",
+      "file_refs": [],
+      "remediation": {
+        "auto_remediable": false,
+        "transform_name": null,
+        "effort": "Low",
+        "phase": 3
+      },
+      "metadata": {
+        "question_id": "OPS-Q8",
+        "category_id": "OPS",
+        "category_display": "Operations & Observability",
+        "severity": "Medium",
+        "priority": "P2",
+        "effort": "Low",
+        "phase": 3,
+        "gap": "Nobody is identified as responsible for detecting or responding to degradation of this service. There is no per-service dashboard, no alarm with a named owner and no SLO with team attribution - so even once monitoring exists (OPS-Q2, OPS-Q4), signals would have no defined recipient.",
+        "evidence": {
+          "file": "booking_lab/README.md",
+          "lines": null
+        },
+        "mod_metadata": {
+          "internal_score": 1,
+          "max_score": 4,
+          "score_label": "Not Ready",
+          "archetype_calibrated": false,
+          "core_question": false
+        }
+      }
+    }
+  ],
+  "finding_ids": [
+    "01M52SZRSWVHXRGJFA0174PGNB",
+    "01M52SZS0TZPN42K5M7YMC5316",
+    "01M52SZS5TK0FHPGXCPK4RX6S0",
+    "01M52SZSD6D74FAKV8T129GED4",
+    "01M52SZSJWAHXXTK38WDAW3XNP",
+    "01M52SZSPVW1XR4J3AYE01YSHV",
+    "01M52SZSW25P8ZGKPPKS92PN7A",
+    "01M52SZSZ99D46AHYXWAE1TNBJ",
+    "01M52SZT3Q2HM22H46KXWCMMHF",
+    "01M52SZTB7Z0YVYJ7FA5P8VK3J",
+    "01M52SZTGP2JWZ8KYDH9QRRTJ7",
+    "01M52SZTNMDN3E2H14D2J0BKMM",
+    "01M52SZTVTN257PGRDCBFSVRB6",
+    "01M52SZV1K1YSVRH2WB22JDW45",
+    "01M52SZV5JMZ4TCHCGHQ473EE2",
+    "01M52SZV8GXD9TAHJT8JHQ9SKP",
+    "01M52SZVBC86E4RHCKTTD3YRPW",
+    "01M52SZVEYDZDYGHS415E96TZZ",
+    "01M52SZVHZ45MPCKBCQ50JS8Z7",
+    "01M52SZVM5D6B3JHE9V8PCMYE6",
+    "01M52SZVPDFK51WK61XP46VY7X",
+    "01M52SZVS101ZMCHY01PACKW78",
+    "01M52SZVV59019PJPNGTBH8KRW",
+    "01M52SZW08QJ5A8HDT7DCSYKCV",
+    "01M52SZW2KA1F78GG26HV7BP86",
+    "01M52SZW4RQM1FTGVDW9X2K47S",
+    "01M52SZW858DVCJGAYCGCWWKGX",
+    "01M52SZWAH2DNJ0J0244TQ1A5J",
+    "01M52SZWCXHGN3GJVEPBKMFBVE",
+    "01M52SZWJ9MG6TPKZ9G7Z9JDE7",
+    "01M52SZWN4BM2EGHGZB5C5KRYS"
+  ],
+  "portfolio_summary": null,
+  "repo_errors": {},
+  "report_paths": {
+    "mit-moda-20261016::booking-mit": {
+      "mod": "${HOME}/.atxct/shared/analyses/01M52RMNGR77M5PG3VPWBNJ9QJ/artifacts/mit-moda-20261016__booking-mit/booking-mit-mod-report.md"
+    }
+  },
+  "repo_scores": {
+    "mit-moda-20261016::booking-mit": {
+      "overall_score": 2.02,
+      "categories": {
+        "INF": {
+          "score": 1.6,
+          "max": 4
+        },
+        "APP": {
+          "score": 2.33,
+          "max": 4
+        },
+        "DATA": {
+          "score": 3,
+          "max": 4
+        },
+        "SEC": {
+          "score": 1.83,
+          "max": 4
+        },
+        "OPS": {
+          "score": 1.33,
+          "max": 4
+        }
+      }
+    }
+  },
+  "error": null,
+  "repo_status": {
+    "mit-moda-20261016::booking-mit": "done"
+  },
+  "repo_agent_minutes": {
+    "mit-moda-20261016::booking-mit": 80.38
+  },
+  "repos_done": 1,
+  "repos_total": 1,
+  "ara_results": {},
+  "mod_results": {
+    "mit-moda-20261016::booking-mit": {
+      "repo": "mit-moda-20261016::booking-mit",
+      "overall_score": 2.02,
+      "categories": {
+        "INF": {
+          "score": 1.6,
+          "max": 4
+        },
+        "APP": {
+          "score": 2.33,
+          "max": 4
+        },
+        "DATA": {
+          "score": 3,
+          "max": 4
+        },
+        "SEC": {
+          "score": 1.83,
+          "max": 4
+        },
+        "OPS": {
+          "score": 1.33,
+          "max": 4
+        }
+      },
+      "pathways_triggered": [
+        "Move to Cloud Native",
+        "Move to Managed Databases",
+        "Move to Modern DevOps"
+      ],
+      "questions": [
+        {
+          "question_id": "INF-Q1",
+          "title": "Managed Compute: Containerized workload with no managed orchestration",
+          "score": 2,
+          "max_score": 4,
+          "description": "booking_lab/Dockerfile builds one image (digest-pinned python base, non-root USER 65532:65532) serving all three runtime modes, but no managed compute target exists: no aws_ecs_*, aws_eks_*, aws_lambda_*, aws_apprunner_* or aws_instance resources, and no Kubernetes manifest, Helm chart or ECS task definition. Compute lifecycle is imperative docker run calls in booking_lab/run.py.",
+          "finding": "booking_lab/Dockerfile builds one image (digest-pinned python base, non-root USER 65532:65532) serving all three runtime modes, but no managed compute target exists: no aws_ecs_*, aws_eks_*, aws_lambda_*, aws_apprunner_* or aws_instance resources, and no Kubernetes manifest, Helm chart or ECS task definition. Compute lifecycle is imperative docker run calls in booking_lab/run.py.",
+          "recommendation": "Define two ECS Fargate services from the existing image (api and worker commands) wired to /health/ready as the container health check, reusing booking_lab/Dockerfile unchanged. EKS is not recommended (no cluster may be assumed; two processes and one database do not justify cluster operations). Lambda is unsuitable for the api mode because the saga holds a session-scoped pg_advisory_lock across the external payment call.",
+          "category": "INF",
+          "gap": "Containerization is complete; managed orchestration is entirely absent. No declarative replica count, restart policy, placement or scheduler health check exists - /health/live and /health/ready are defined but consumed only by the test harness.",
+          "evidence": {
+            "file": "booking_lab/Dockerfile",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P1",
+          "effort": "Medium",
+          "phase": 1,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Needs Work"
+        },
+        {
+          "question_id": "INF-Q2",
+          "title": "Managed Databases: PostgreSQL self-managed in a container with no failover",
+          "score": 1,
+          "max_score": 4,
+          "description": "The sole datastore is a self-managed PostgreSQL container: booking_lab/images.lock.json pins postgres@sha256:721873c3..., started by booking_lab/run.py with a generated POSTGRES_PASSWORD on a local Docker volume. No managed database resource (aws_rds_*, aws_dynamodb_*, aws_docdb_*, aws_elasticache_*) exists. One instance, no replica, no failover. The audit sink is the same instance under the audit_writer role, so the audit trail shares a failure domain with the data it audits.",
+          "finding": "The sole datastore is a self-managed PostgreSQL container: booking_lab/images.lock.json pins postgres@sha256:721873c3..., started by booking_lab/run.py with a generated POSTGRES_PASSWORD on a local Docker volume. No managed database resource (aws_rds_*, aws_dynamodb_*, aws_docdb_*, aws_elasticache_*) exists. One instance, no replica, no failover. The audit sink is the same instance under the audit_writer role, so the audit trail shares a failure domain with the data it audits.",
+          "recommendation": "Migrate to Amazon RDS for PostgreSQL (or Aurora PostgreSQL) with multi_az=true, storage_encrypted=true on a customer-managed KMS key and backup_retention_period >= 7. Validate pg_advisory_lock, pg_advisory_xact_lock and FOR UPDATE SKIP LOCKED on the target before cutover - session-scoped advisory locks are incompatible with transaction-mode pooling, so re-run the eight-concurrent-request case through any proxy. Place the audit sink in a separate database or account.",
+          "category": "INF",
+          "gap": "Every durability guarantee the service provides - persisted saga state, transactional outbox, append-only audit trail - rests on a single unmanaged, unreplicated PostgreSQL process with no automated patching, failover or managed backup.",
+          "evidence": {
+            "file": "booking_lab/images.lock.json",
+            "lines": null
+          },
+          "severity": "High",
+          "priority": "P1",
+          "effort": "Medium",
+          "phase": 1,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "INF-Q3",
+          "title": "Workflow Orchestration: Durable saga hand-coded with no orchestration service",
+          "score": 2,
+          "max_score": 4,
+          "description": "Archetype-calibrated (stateful-crud). The multi-step booking workflow is a structured, resumable state machine in application code: booking_lab/schema.sql constrains operations.status via CHECK to eight states and booking_lab/service.py::advance() transitions from persisted state, with transition() and result() committing each change together with its outbox event. No aws_sfn_*, Temporal, Camunda or MWAA is used.",
+          "finding": "Archetype-calibrated (stateful-crud). The multi-step booking workflow is a structured, resumable state machine in application code: booking_lab/schema.sql constrains operations.status via CHECK to eight states and booking_lab/service.py::advance() transitions from persisted state, with transition() and result() committing each change together with its outbox event. No aws_sfn_*, Temporal, Camunda or MWAA is used.",
+          "recommendation": "Keep the saga in application code - it is durable and correct, and moving it to Step Functions would break the single-transaction commit of operations+bookings+outbox that the compensation tests verify. Close the visibility gap instead: alarm on the count of operations in ('NEW','CHARGED','COMPENSATING','CANCELLING') older than a threshold (the query already exists as the pending_operations invariant), and add a bounded attempt counter with backoff.",
+          "category": "INF",
+          "gap": "Retry policy, backoff, timeout escalation and workflow visibility are implicit in the code path and the worker's fixed 0.25s poll loop. There is no execution history, no per-step timeout, and no operator-visible view of in-flight or stuck operations.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Medium",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": true,
+          "score_label": "Needs Work"
+        },
+        {
+          "question_id": "INF-Q4",
+          "title": "Async Messaging and Streaming: Transactional outbox on PostgreSQL rather than managed messaging",
+          "score": 2,
+          "max_score": 4,
+          "description": "Archetype-calibrated (stateful-crud). Async delivery exists and is well built but self-managed: booking_lab/schema.sql defines an outbox table, emit() inserts in the same transaction as the state change, and deliver() drains with FOR UPDATE SKIP LOCKED and inserts into audit_events with ON CONFLICT(id) DO NOTHING. No aws_sqs_*, aws_sns_*, aws_eventbridge_*, aws_kinesis_*, aws_msk_* or aws_mq_* resource exists, and no messaging SDK is in booking_lab/requirements.txt.",
+          "finding": "Archetype-calibrated (stateful-crud). Async delivery exists and is well built but self-managed: booking_lab/schema.sql defines an outbox table, emit() inserts in the same transaction as the state change, and deliver() drains with FOR UPDATE SKIP LOCKED and inserts into audit_events with ON CONFLICT(id) DO NOTHING. No aws_sqs_*, aws_sns_*, aws_eventbridge_*, aws_kinesis_*, aws_msk_* or aws_mq_* resource exists, and no messaging SDK is in booking_lab/requirements.txt.",
+          "recommendation": "Keep the transactional outbox - it correctly couples state change to event and removing it reintroduces the dual-write problem. Change only the delivery target: publish to EventBridge or SQS instead of inserting into a second database, attach a dead-letter queue, and alarm on undelivered outbox depth.",
+          "category": "INF",
+          "gap": "The broker is the application's own database table, so durability, throughput and backlog visibility are coupled to the single PostgreSQL instance, and fan-out to another consumer needs new code. The 0.25s fixed poll is the only trigger; there is no backpressure signal and no dead-letter destination.",
+          "evidence": {
+            "file": "booking_lab/schema.sql",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Medium",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": true,
+          "score_label": "Needs Work"
+        },
+        {
+          "question_id": "INF-Q5",
+          "title": "Network Security: Segmentation demonstrated only in the ephemeral test fixture",
+          "score": 3,
+          "max_score": 4,
+          "description": "The repository owns a real network surface and segments it deliberately: booking_lab/run.py creates an --internal network carrying the database, payment provider and worker, plus a front network carrying only the API replicas. Host exposure is loopback-only on an ephemeral port (-p 127.0.0.1:{port}:8080), never 0.0.0.0. Containers run --read-only --cap-drop=ALL --security-opt=no-new-privileges with a noexec,nosuid tmpfs and cgroup limits. No 0.0.0.0/0 ingress exists anywhere.",
+          "finding": "The repository owns a real network surface and segments it deliberately: booking_lab/run.py creates an --internal network carrying the database, payment provider and worker, plus a front network carrying only the API replicas. Host exposure is loopback-only on an ephemeral port (-p 127.0.0.1:{port}:8080), never 0.0.0.0. Containers run --read-only --cap-drop=ALL --security-opt=no-new-privileges with a noexec,nosuid tmpfs and cgroup limits. No 0.0.0.0/0 ingress exists anywhere.",
+          "recommendation": "Port the demonstrated tiering into a VPC definition: API tasks in private subnets behind a load balancer, worker and database with no inbound internet path, per-hop security groups, and VPC endpoints for ECR/Secrets Manager/CloudWatch. Enforce sslmode=verify-full on DATABASE_URL and AUDIT_DATABASE_URL and TLS on PAYMENT_URL before any non-local deployment.",
+          "category": "INF",
+          "gap": "The segmentation lives only in a disposable test fixture: no VPC, no private-subnet placement, no security group, no VPC endpoint or PrivateLink. No TLS anywhere - DATABASE_URL uses plain postgresql:// with no sslmode and the payment call uses http://, so credentials and bearer tokens cross the network in cleartext.",
+          "evidence": {
+            "file": "booking_lab/run.py",
+            "lines": null
+          },
+          "severity": "Low",
+          "priority": "P1",
+          "effort": "Medium",
+          "phase": 2,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Partial"
+        },
+        {
+          "question_id": "INF-Q6",
+          "title": "API Entry Point: stdlib HTTP server exposed directly with no gateway",
+          "score": 1,
+          "max_score": 4,
+          "description": "booking_lab/service.py::main() starts ThreadingHTTPServer(('0.0.0.0',8080), Handler) and booking_lab/run.py publishes it straight to a host port. No aws_api_gateway_*, aws_apigatewayv2_*, aws_appsync_*, aws_lb_* or CloudFront resource exists, and no reverse proxy is in the image.",
+          "finding": "booking_lab/service.py::main() starts ThreadingHTTPServer(('0.0.0.0',8080), Handler) and booking_lab/run.py publishes it straight to a host port. No aws_api_gateway_*, aws_apigatewayv2_*, aws_appsync_*, aws_lb_* or CloudFront resource exists, and no reverse proxy is in the image.",
+          "recommendation": "Place API Gateway (HTTP API) or an ALB in front of the service - ALB for TLS termination and health-checked target groups, API Gateway for per-client throttling and request validation. Terminate TLS at the edge, set a request-rate limit, and use /health/ready as the target-group health check. Retain the in-handler validation as defence in depth.",
+          "category": "INF",
+          "gap": "No throttling or rate limiting of any kind, no TLS termination, no edge request-size or connection-rate control (only an in-handler 8192-byte body cap and an 8s socket timeout), no WAF. ThreadingHTTPServer spawns an unbounded thread per connection, so connection-rate abuse translates directly into thread and database-connection exhaustion.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Medium",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "INF-Q7",
+          "title": "Auto-Scaling: Fixed, imperatively-set capacity with no scaling policy",
+          "score": 1,
+          "max_score": 4,
+          "description": "No auto-scaling exists. booking_lab/run.py starts exactly two API replicas and one worker with hard-coded --memory 256m --cpus 1 --pids-limit 128 (512m for the database). No aws_autoscaling_* or aws_appautoscaling_* resource, no scaling policy, no min/max capacity, no Lambda concurrency, and no database capacity scaling.",
+          "finding": "No auto-scaling exists. booking_lab/run.py starts exactly two API replicas and one worker with hard-coded --memory 256m --cpus 1 --pids-limit 128 (512m for the database). No aws_autoscaling_* or aws_appautoscaling_* resource, no scaling policy, no min/max capacity, no Lambda concurrency, and no database capacity scaling.",
+          "recommendation": "Once the ECS definition exists, attach Application Auto Scaling target tracking to the API service on ALB request-count-per-target rather than CPU - the workload is I/O-bound on the database and provider, so CPU is a poor load signal. Scale the worker on a custom metric from undelivered-outbox and pending-operation depth. Enable RDS storage autoscaling and size the connection ceiling against the task maximum, since db() opens a fresh connection per request.",
+          "category": "INF",
+          "gap": "Neither compute nor data capacity can respond to load. The two replicas exist to prove cross-replica correctness, not elasticity, and the single worker is fixed-throughput: its 0.25s loop with LIMIT 100 caps outbox drain and saga recovery regardless of backlog.",
+          "evidence": {
+            "file": "booking_lab/run.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "INF-Q8",
+          "title": "Backup and Recovery: Restore is tested but no backup policy is configured",
+          "score": 2,
+          "max_score": 4,
+          "description": "Restore capability is genuinely tested: booking_lab/run.py::dump_restore() performs a real pg_dump, restores into a separate restore_check database, and asserts equal row counts and per-table MD5 row hashes for all six tables, recording hashes and the dump SHA-256 as evidence. Volume survival across restart is also proven. But there is no scheduled backup, no retention period, no PITR, no aws_backup_plan, no snapshot lifecycle and no cross-region copy.",
+          "finding": "Restore capability is genuinely tested: booking_lab/run.py::dump_restore() performs a real pg_dump, restores into a separate restore_check database, and asserts equal row counts and per-table MD5 row hashes for all six tables, recording hashes and the dump SHA-256 as evidence. Volume survival across restart is also proven. But there is no scheduled backup, no retention period, no PITR, no aws_backup_plan, no snapshot lifecycle and no cross-region copy.",
+          "recommendation": "On the managed database set backup_retention_period (7-35 days), enable PITR and KMS-encrypted automated snapshots, and add an AWS Backup plan with a cross-region copy rule for the audit data. Promote dump_restore() into the CI pipeline as a continuous fidelity check and record the resulting RPO/RTO.",
+          "category": "INF",
+          "gap": "A restore procedure is verified; a backup policy does not exist. There is nothing to restore from after a volume loss, and no defined RPO or RTO. The dump is also written unencrypted to local disk.",
+          "evidence": {
+            "file": "booking_lab/run.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 1,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Needs Work"
+        },
+        {
+          "question_id": "INF-Q10",
+          "title": "Infrastructure as Code Coverage: No infrastructure as code of any kind",
+          "score": 1,
+          "max_score": 4,
+          "description": "Searches for *.tf, *.tfvars, cdk.json, CloudFormation templates, Chart.yaml, values.yaml, kustomization.yaml, docker-compose*.yml, Ansible playbooks and ArgoCD/Flux resources returned nothing. The repository has eleven files; the only environment definition is booking_lab/run.py - imperative subprocess calls to the Docker CLI creating per-run networks, a volume, database roles and five containers under a random prefix, designed to be disposable. Every dependent category is uncovered: compute, networking, data store, secrets and monitoring.",
+          "finding": "Searches for *.tf, *.tfvars, cdk.json, CloudFormation templates, Chart.yaml, values.yaml, kustomization.yaml, docker-compose*.yml, Ansible playbooks and ArgoCD/Flux resources returned nothing. The repository has eleven files; the only environment definition is booking_lab/run.py - imperative subprocess calls to the Docker CLI creating per-run networks, a volume, database roles and five containers under a random prefix, designed to be disposable. Every dependent category is uncovered: compute, networking, data store, secrets and monitoring.",
+          "recommendation": "Author one Terraform or CDK stack as the first infrastructure deliverable: VPC with public/private subnets across two AZs; ECS Fargate api and worker services from the existing image; ALB or API Gateway; RDS PostgreSQL Multi-AZ with storage_encrypted and backup_retention_period; Secrets Manager entries for the four roles, JWT key and payment token; CloudWatch log groups with retention; latency and error-rate alarms; provider default_tags. Keep booking_lab/run.py unchanged - it is a correct disposable test fixture, not a deployment definition.",
+          "category": "INF",
+          "gap": "No operated environment is reproducible, reviewable, diffable or recoverable from the repository. This is the structural blocker beneath most other findings - there is no artifact in which to express multi-AZ placement, encryption keys, backup retention, scaling policies, alarms or tags.",
+          "evidence": {
+            "file": "booking_lab/run.py",
+            "lines": null
+          },
+          "severity": "High",
+          "priority": "P1",
+          "effort": "Medium",
+          "phase": 1,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "INF-Q11",
+          "title": "CI/CD Automation: No pipeline definition exists",
+          "score": 1,
+          "max_score": 4,
+          "description": "There is no .github/ directory, no .gitlab-ci.yml, no Jenkinsfile, no buildspec.yml, no appspec.yml and no CodePipeline definition. The image build happens inside booking_lab/run.py as part of the test run and is never published to a registry. booking_lab/README.md documents a single manual command: python3 booking_lab/run.py e2e --output .local/db-e2e.json.",
+          "finding": "There is no .github/ directory, no .gitlab-ci.yml, no Jenkinsfile, no buildspec.yml, no appspec.yml and no CodePipeline definition. The image build happens inside booking_lab/run.py as part of the test run and is never published to a registry. booking_lab/README.md documents a single manual command: python3 booking_lab/run.py e2e --output .local/db-e2e.json.",
+          "recommendation": "Add a pull-request workflow that builds the image, runs python3 booking_lab/run.py e2e on a Docker-capable runner, fails the build on non-zero exit, and uploads the evidence JSON as an artifact. This is the highest-leverage change available and is small work because the suite is already self-contained, self-isolating and emits machine-readable evidence. Then extend with the SEC-Q7 security steps, ECR publish, and a deploy stage once IaC exists.",
+          "category": "INF",
+          "gap": "Nothing is automated: no build, no test execution, no image publish, no deploy, no rollback. The 17-case durability acceptance suite - which verifies exactly the properties most likely to regress under refactoring - never runs unless a human remembers to run it.",
+          "evidence": {
+            "file": ".github/workflows/",
+            "lines": null
+          },
+          "severity": "High",
+          "priority": "P1",
+          "effort": "Low",
+          "phase": 1,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "APP-Q1",
+          "title": "Programming Languages: Modern Python runtime with no web framework and no AWS SDK",
+          "score": 3,
+          "max_score": 4,
+          "description": "Python 3.11+ (booking_lab/README.md) on a digest-pinned official python image. The language axis is modern with first-class AWS SDK coverage; the framework axis lags: there is no web framework at all - the HTTP layer is stdlib http.server.BaseHTTPRequestHandler/ThreadingHTTPServer and JWT handling is hand-rolled on hmac/base64 in booking_lab/auth.py. The single third-party dependency is psycopg[binary]==3.3.6 (current major). No boto3 is present.",
+          "finding": "Python 3.11+ (booking_lab/README.md) on a digest-pinned official python image. The language axis is modern with first-class AWS SDK coverage; the framework axis lags: there is no web framework at all - the HTTP layer is stdlib http.server.BaseHTTPRequestHandler/ThreadingHTTPServer and JWT handling is hand-rolled on hmac/base64 in booking_lab/auth.py. The single third-party dependency is psycopg[binary]==3.3.6 (current major). No boto3 is present.",
+          "recommendation": "Keep Python. Replace the stdlib HTTP layer with a maintained ASGI framework (FastAPI or Starlette), which brings routing, validation, structured errors, OpenAPI generation (closing APP-Q5) and bounded concurrency while preserving handler logic nearly verbatim. Replace the hand-rolled verifier with a maintained JWT library once asymmetric keys or an external IdP arrive. Add boto3 only where managed services are adopted.",
+          "category": "APP",
+          "gap": "The stdlib server provides no routing, middleware, validation framework, structured logging integration, OpenAPI generation or connection limiting - all reimplemented by hand in Handler.dispatch. Hand-rolled JWT verification carries ongoing maintenance and cryptographic-review burden.",
+          "evidence": {
+            "file": "booking_lab/requirements.txt",
+            "lines": null
+          },
+          "severity": "Low",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Partial"
+        },
+        {
+          "question_id": "APP-Q2",
+          "title": "Monolith vs Microservices: One deployable unit and one shared schema holding three logical services",
+          "score": 2,
+          "max_score": 4,
+          "description": "booking_lab/service.py holds the booking API, the synthetic payment provider (Handler.payments) and the recovery/outbox worker, selected by sys.argv[1] from one image. All tables live in the single public schema of one database. Data isolation is nevertheless enforced and tested at the privilege layer: booking_lab/schema.sql revokes default public access and creates four roles with table- and column-level grants, and booking_lab/run.py::rights() proves payment_app cannot read bookings, booking_app cannot read audit_events or create tables, and no runtime role can UPDATE or DELETE audit rows. Cross-service communication is over HTTP, not shared tables, with no cross-module joins.",
+          "finding": "booking_lab/service.py holds the booking API, the synthetic payment provider (Handler.payments) and the recovery/outbox worker, selected by sys.argv[1] from one image. All tables live in the single public schema of one database. Data isolation is nevertheless enforced and tested at the privilege layer: booking_lab/schema.sql revokes default public access and creates four roles with table- and column-level grants, and booking_lab/run.py::rights() proves payment_app cannot read bookings, booking_app cannot read audit_events or create tables, and no runtime role can UPDATE or DELETE audit rows. Cross-service communication is over HTTP, not shared tables, with no cross-module joins.",
+          "recommendation": "Promote the existing role grants into per-service schemas (booking, payments, audit) so isolation is structural, and split booking_lab/service.py into packages along the lines the grants already describe. Extract the payment provider into its own repository, image and database - it is already an HTTP boundary with its own credential and table. Do NOT split the booking saga: operations, bookings and outbox must commit in one local transaction for the compensation and crash-recovery guarantees to hold.",
+          "category": "APP",
+          "gap": "Boundaries exist as privilege policy rather than deployable or schema boundaries: all services share one public schema in one database, and the payment provider - an external third party in any operated deployment - is in-process code in the same file as its caller. The three modes cannot be versioned, released, scaled or rolled back independently, and there is no package structure in the 302-line module.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P1",
+          "effort": "Medium",
+          "phase": 2,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Needs Work"
+        },
+        {
+          "question_id": "APP-Q3",
+          "title": "Async vs Sync Communication: Async for audit and recovery; one bounded synchronous provider call remains",
+          "score": 3,
+          "max_score": 4,
+          "description": "Archetype-calibrated (stateful-crud). Async is used where it matters: the transactional outbox decouples audit delivery and the worker's recover() resumes persisted operations without a client. The remaining synchronous dependency is the inline payment() call, deliberately bounded (4s HTTP, 3s connect, 10s statement, 8s lock timeouts) and failing closed to 503 with retry_same_idempotency_key while the durable intent survives. booking_lab/run.py::provider_outage() proves the provider can be stopped mid-flight and the operation still reaches CONFIRMED.",
+          "finding": "Archetype-calibrated (stateful-crud). Async is used where it matters: the transactional outbox decouples audit delivery and the worker's recover() resumes persisted operations without a client. The remaining synchronous dependency is the inline payment() call, deliberately bounded (4s HTTP, 3s connect, 10s statement, 8s lock timeouts) and failing closed to 503 with retry_same_idempotency_key while the durable intent survives. booking_lab/run.py::provider_outage() proves the provider can be stopped mid-flight and the operation still reaches CONFIRMED.",
+          "recommendation": "Publish outbox events to EventBridge or SQS instead of inserting directly into the audit database. Optionally make the payment step fully async (202 plus an operation URI, worker-driven charge) - but this is a deliberate API-contract trade-off, not a defect: synchronous-with-durable-fallback giving an immediate 201 in the normal case is a reasonable choice for a booking API.",
+          "category": "APP",
+          "gap": "Cross-service state propagation to the audit sink goes through a direct second-database insert rather than a managed event bus, so adding a consumer requires code change. The payment call stays in the client-facing path, so provider latency is client-visible even though correctness is preserved.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Low",
+          "priority": "P2",
+          "effort": "Medium",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": true,
+          "score_label": "Partial"
+        },
+        {
+          "question_id": "APP-Q4",
+          "title": "Long-Running Process Handling: Bounded operations with durable async completion but no client status surface",
+          "score": 3,
+          "max_score": 4,
+          "description": "Archetype-calibrated (stateful-crud). No operation can run unbounded: db() sets connect_timeout=3, statement_timeout=10000, lock_timeout=8000; payment() uses a 4s HTTP timeout; dispatch sets an 8s socket timeout. Anything that cannot finish in those bounds is persisted in an intermediate state and completed by the worker - pending() demonstrates a refund outage leaving the operation durably COMPENSATING and the worker driving it to COMPENSATED, and crash()/refund_crash() demonstrate recovery after the API process exits mid-saga.",
+          "finding": "Archetype-calibrated (stateful-crud). No operation can run unbounded: db() sets connect_timeout=3, statement_timeout=10000, lock_timeout=8000; payment() uses a 4s HTTP timeout; dispatch sets an 8s socket timeout. Anything that cannot finish in those bounds is persisted in an intermediate state and completed by the worker - pending() demonstrates a refund outage leaving the operation durably COMPENSATING and the worker driving it to COMPENSATED, and crash()/refund_crash() demonstrate recovery after the API process exits mid-saga.",
+          "recommendation": "Expose a read-only operation-status endpoint backed by operations.status/response_code/response_body, which the data model already supports with no schema change, and document the 503 retry contract alongside it. Add an attempt counter and exponential backoff to recover(), with a terminal state and an alarm for operations exceeding the ceiling.",
+          "category": "APP",
+          "gap": "There is no client-facing status resource: a caller receiving 503 must re-POST with the same Idempotency-Key to learn the outcome; there is no GET /operations/{id} and no callback. recover() is also unprioritised and unbounded in attempts - first 100 pending by id, fixed 0.25s loop, no backoff or ceiling - so a permanently failing operation retries forever and silently.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Low",
+          "priority": "P2",
+          "effort": "Medium",
+          "phase": 3,
+          "core_question": false,
+          "archetype_calibrated": true,
+          "score_label": "Partial"
+        },
+        {
+          "question_id": "APP-Q5",
+          "title": "API Versioning Strategy: No API versioning and no published contract",
+          "score": 1,
+          "max_score": 4,
+          "description": "Routes are unversioned literals plus one regex in Handler.dispatch: /bookings, /bookings/[a-f0-9]{64}, /health/live, /health/ready, plus /charge and /refund on the provider. No /v1/ segment, no Accept-Version or other version header, no version query parameter. The only version marker is the cosmetic server_version='BookingLab/1' header. No OpenAPI/Swagger/AsyncAPI/GraphQL specification and no changelog exists.",
+          "finding": "Routes are unversioned literals plus one regex in Handler.dispatch: /bookings, /bookings/[a-f0-9]{64}, /health/live, /health/ready, plus /charge and /refund on the provider. No /v1/ segment, no Accept-Version or other version header, no version query parameter. The only version marker is the cosmetic server_version='BookingLab/1' header. No OpenAPI/Swagger/AsyncAPI/GraphQL specification and no changelog exists.",
+          "recommendation": "Introduce a version segment (/v1/bookings) before any external consumer exists, keeping current paths as aliases. Publish an OpenAPI document describing the request contract, every error code (400/401/402/403/404/405/409/503), the Idempotency-Key and X-Correlation-ID headers, and the replay semantics - all currently discoverable only by reading Handler.dispatch. Adopting an ASGI framework makes the specification generated rather than hand-maintained.",
+          "category": "APP",
+          "gap": "Any change to request validation or response shape breaks every consumer simultaneously with no negotiation path or deprecation window. The risk is sharper here because the contract is exact - dispatch rejects any payload whose key set is not exactly {itinerary, amount} and whose itinerary does not match [A-Z]{3}-[A-Z]{3} - so even an additive field is breaking, and the Idempotency-Key fingerprint (SHA-256 over the canonicalised payload) means a shape change also invalidates replay equivalence for in-flight keys.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "APP-Q6",
+          "title": "Service Discovery: Endpoints supplied as environment variables with no dynamic discovery",
+          "score": 2,
+          "max_score": 4,
+          "description": "booking_lab/service.py reads os.environ['PAYMENT_URL'] in payment() and DATABASE_URL/AUDIT_DATABASE_URL in db(). booking_lab/run.py::Lab.start materialises them into per-container .env files, resolving the provider as http://{prefix}-payments:8080 via Docker container-name DNS. No AWS Cloud Map/ECS Service Discovery, Consul, Istio or API catalog is used, and there is no client-side resolution, health-aware endpoint selection or retry-across-instances logic.",
+          "finding": "booking_lab/service.py reads os.environ['PAYMENT_URL'] in payment() and DATABASE_URL/AUDIT_DATABASE_URL in db(). booking_lab/run.py::Lab.start materialises them into per-container .env files, resolving the provider as http://{prefix}-payments:8080 via Docker container-name DNS. No AWS Cloud Map/ECS Service Discovery, Consul, Istio or API catalog is used, and there is no client-side resolution, health-aware endpoint selection or retry-across-instances logic.",
+          "recommendation": "Keep configuration-driven endpoints - the right level of indirection for a service with one dependency - but resolve them through a discovery-backed name. On ECS, register the payment service in AWS Cloud Map and point PAYMENT_URL at the service-discovery DNS name; use the RDS endpoint name for DATABASE_URL. Add bounded retry with jitter in payment(), which the provider's advisory-lock-guarded idempotency already makes safe.",
+          "category": "APP",
+          "gap": "The provider is a single fixed address: payment() has no instance-level failover, so if that endpoint is unreachable every charge attempt fails (correctly, into the retryable 503 path) until it is healthy. Endpoints are fixed at container start, so relocating a dependency requires a restart.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Needs Work"
+        },
+        {
+          "question_id": "DATA-Q2",
+          "title": "Unified Data Access Layer: Centralized connection factory but SQL inline in business and handler code",
+          "score": 3,
+          "max_score": 4,
+          "description": "Every connection is created by one factory, booking_lab/service.py::db(name='DATABASE_URL'), which uniformly applies autocommit, dict_row, connect_timeout=3, statement_timeout=10000 and lock_timeout=8000, so no code path can open an unbounded or inconsistently configured connection; the audit sink uses the same factory with a different variable. psycopg is imported in exactly one file, and all queries are parameterised with no interpolation of user input.",
+          "finding": "Every connection is created by one factory, booking_lab/service.py::db(name='DATABASE_URL'), which uniformly applies autocommit, dict_row, connect_timeout=3, statement_timeout=10000 and lock_timeout=8000, so no code path can open an unbounded or inconsistently configured connection; the audit sink uses the same factory with a different variable. psycopg is imported in exactly one file, and all queries are parameterised with no interpolation of user input.",
+          "recommendation": "Extract a thin persistence module exposing intention-named operations (load_operation, insert_operation, set_status, append_outbox, list_bookings_for_principal, claim_undelivered) and keep the saga functions free of SQL. Low effort given the small statement count; it makes the state machine unit-testable without Docker and creates the single place to add tracing instrumentation. Preserve the db() timeout defaults and parameterisation discipline unchanged.",
+          "category": "DATA",
+          "gap": "There is no repository or DAO abstraction above the connection factory: SQL is inline in create(), cancel(), advance(), transition(), result(), recover(), deliver(), in Handler.dispatch (the booking list query and the readiness probe) and in Handler.payments. Table knowledge is spread across the module and the saga state machine cannot be unit-tested without a live database.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Low",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 3,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Partial"
+        },
+        {
+          "question_id": "DATA-Q3",
+          "title": "Database Engine Version and EOL: Engine pinned by digest but major version and EOL status untracked",
+          "score": 3,
+          "max_score": 4,
+          "description": "booking_lab/images.lock.json fixes postgres@sha256:721873c3... and booking_lab/run.py pulls it and records RepoDigests as evidence - stronger than a floating tag since the exact binary is reproducible. The harness also captures SHOW server_version and SHOW synchronous_commit at runtime. No aws_rds_* engine version parameter exists because no managed database exists.",
+          "finding": "booking_lab/images.lock.json fixes postgres@sha256:721873c3... and booking_lab/run.py pulls it and records RepoDigests as evidence - stronger than a floating tag since the exact binary is reproducible. The harness also captures SHOW server_version and SHOW synchronous_commit at runtime. No aws_rds_* engine version parameter exists because no managed database exists.",
+          "recommendation": "Record the human-readable major version alongside the digest in booking_lab/images.lock.json and document a short update procedure (how the digest is refreshed, how the suite validates the new engine, what the rollback is). On the managed database pin engine_version explicitly, enable minor-version auto-upgrade only, and track the community EOL date against the RDS deprecation calendar.",
+          "category": "DATA",
+          "gap": "The digest does not disclose the PostgreSQL major version to a reader of the repository - it must be discovered by running the suite - so EOL status cannot be assessed by inspection and is effectively untracked. There is no documented engine-update procedure covering downtime, rollback or risk acknowledgment, and digest pinning without an update mechanism means base-image security patches are never picked up.",
+          "evidence": {
+            "file": "booking_lab/images.lock.json",
+            "lines": null
+          },
+          "severity": "Low",
+          "priority": "P1",
+          "effort": "Low",
+          "phase": 2,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Partial"
+        },
+        {
+          "question_id": "DATA-Q4",
+          "title": "Stored Procedures and Schema Complexity: Test-only plpgsql trigger plus load-bearing PostgreSQL-specific concurrency constructs",
+          "score": 2,
+          "max_score": 4,
+          "description": "Business logic is in the application layer, but the schema and concurrency design are coupled to PostgreSQL. booking_lab/schema.sql has one CREATE FUNCTION fail_booking_insert() LANGUAGE plpgsql and one BEFORE INSERT trigger, present solely so the test administrator can inject a real insert failure (there is deliberately no HTTP fault endpoint). Beyond those, the engine-specific constructs are load-bearing: session-scoped pg_advisory_lock held across local commits and the external payment call, pg_advisory_xact_lock(17,...) on a separate namespace in the provider, FOR UPDATE SKIP LOCKED, ON CONFLICT DO NOTHING, jsonb, clock_timestamp() and column-level GRANT SELECT(id).",
+          "finding": "Business logic is in the application layer, but the schema and concurrency design are coupled to PostgreSQL. booking_lab/schema.sql has one CREATE FUNCTION fail_booking_insert() LANGUAGE plpgsql and one BEFORE INSERT trigger, present solely so the test administrator can inject a real insert failure (there is deliberately no HTTP fault endpoint). Beyond those, the engine-specific constructs are load-bearing: session-scoped pg_advisory_lock held across local commits and the external payment call, pg_advisory_xact_lock(17,...) on a separate namespace in the provider, FOR UPDATE SKIP LOCKED, ON CONFLICT DO NOTHING, jsonb, clock_timestamp() and column-level GRANT SELECT(id).",
+          "recommendation": "Keep PostgreSQL - this is not a reason to change engines. (1) Document the advisory-lock dependency as an explicit architectural constraint including its incompatibility with transaction-mode pooling, and make it a pre-cutover check for RDS Proxy or PgBouncer. (2) Move the fault-injection function and trigger into a schema.test.sql applied only by the harness so the deployed schema has no test artefacts. (3) Retain SKIP LOCKED and ON CONFLICT - both are supported across RDS/Aurora PostgreSQL.",
+          "category": "DATA",
+          "gap": "No business logic needs extraction - correctly, the saga is in Python - but the correctness model is portable only to PostgreSQL. Advisory locks make 'eight concurrent requests across two replicas produce exactly one charge' true and are the construct most at risk from infrastructure change: a transaction-level connection pooler silently breaks session-scoped advisory locks with no error. The plpgsql trigger also means production and test schemas differ unless it is excluded.",
+          "evidence": {
+            "file": "booking_lab/schema.sql",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P1",
+          "effort": "Medium",
+          "phase": 3,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Needs Work"
+        },
+        {
+          "question_id": "SEC-Q2",
+          "title": "Encryption at Rest: No encryption at rest on any data surface",
+          "score": 1,
+          "max_score": 4,
+          "description": "No encryption at rest is configured. The PostgreSQL data directory is a plain Docker volume mounted at /var/lib/postgresql/data with no volume or filesystem encryption and no aws_kms_key or kms_key_id anywhere. The pg_dump output from dump_restore() is written in cleartext to {work}/workshop.sql, and the per-container .env files written by Lab.env hold the four role passwords, the symmetric JWT_KEY and PAYMENT_TOKEN in cleartext on disk. Filesystem permissions are the only control (work dir mode 0700, dump and .env files 0600).",
+          "finding": "No encryption at rest is configured. The PostgreSQL data directory is a plain Docker volume mounted at /var/lib/postgresql/data with no volume or filesystem encryption and no aws_kms_key or kms_key_id anywhere. The pg_dump output from dump_restore() is written in cleartext to {work}/workshop.sql, and the per-container .env files written by Lab.env hold the four role passwords, the symmetric JWT_KEY and PAYMENT_TOKEN in cleartext on disk. Filesystem permissions are the only control (work dir mode 0700, dump and .env files 0600).",
+          "recommendation": "On the managed database set storage_encrypted=true with a customer-managed KMS key and ensure snapshots inherit it. Move the four role passwords, JWT_KEY and PAYMENT_TOKEN into Secrets Manager so plaintext never reaches disk; inject at task start rather than via --env-file. Encrypt any dump before it leaves the host and write it to an S3 bucket with SSE-KMS and a lifecycle policy. Document a key rotation policy. Keep the existing 0700/0600 discipline as defence in depth, not as the control.",
+          "category": "SEC",
+          "gap": "Payment-adjacent records (principals, itineraries, amounts, charge states, refund counts) and the immutable audit trail sit unencrypted at rest, as do live credentials and the JWT signing key. Permissions-only protection does not survive volume snapshot, host compromise, disk disposal or backup copy, and provides no key rotation or access audit trail.",
+          "evidence": {
+            "file": "booking_lab/run.py",
+            "lines": null
+          },
+          "severity": "High",
+          "priority": "P1",
+          "effort": "Low",
+          "phase": 1,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "SEC-Q3",
+          "title": "API Authentication: Strict per-request JWT auth but no gateway throttling and symmetric keys",
+          "score": 3,
+          "max_score": 4,
+          "description": "Per-request token auth is enforced on every business endpoint and enforced carefully. Handler.dispatch extracts the Bearer value and calls auth.verify with required scope bookings:read for GET and bookings:write otherwise. auth.verify validates HMAC-SHA256 with hmac.compare_digest, rejects any header other than exactly {'alg':'HS256','typ':'JWT'} (closing algorithm confusion and alg:none), and checks iss, aud, exp, nbf, iat and a sub pattern before scope evaluation, returning 403 for insufficient scope versus 401 for invalid tokens. Token length is capped at 4096 bytes and the service refuses to start if JWT_KEY is under 32 characters. The provider independently requires its own bearer compared with compare_digest. run.py::auth() proves rejection of missing, expired, wrong-audience, wrong-issuer, not-yet-valid, wrong-key and insufficient-scope tokens with no charge created; isolation() proves cross-principal reads and cancels are denied.",
+          "finding": "Per-request token auth is enforced on every business endpoint and enforced carefully. Handler.dispatch extracts the Bearer value and calls auth.verify with required scope bookings:read for GET and bookings:write otherwise. auth.verify validates HMAC-SHA256 with hmac.compare_digest, rejects any header other than exactly {'alg':'HS256','typ':'JWT'} (closing algorithm confusion and alg:none), and checks iss, aud, exp, nbf, iat and a sub pattern before scope evaluation, returning 403 for insufficient scope versus 401 for invalid tokens. Token length is capped at 4096 bytes and the service refuses to start if JWT_KEY is under 32 characters. The provider independently requires its own bearer compared with compare_digest. run.py::auth() proves rejection of missing, expired, wrong-audience, wrong-issuer, not-yet-valid, wrong-key and insufficient-scope tokens with no charge created; isolation() proves cross-principal reads and cancels are denied.",
+          "recommendation": "Front the service with API Gateway or an ALB and apply a per-client throttle; keep /health/* reachable only from the load balancer's security group. Move to asymmetric signing (RS256/ES256) with a JWKS endpoint so the API holds only a public key, removing the shared-secret minting risk. Retain the existing claim-validation strictness and the 403-versus-401 distinction verbatim in whatever framework replaces the handler.",
+          "category": "SEC",
+          "gap": "Score 4 requires intentionally public endpoints to sit behind a gateway with throttling and request validation. /health/live and /health/ready are unauthenticated and there is no gateway at all (INF-Q6=1), so there is no throttling, no per-client rate limit and no protection against token-guessing or request floods; /health/ready also opens a database connection on every unauthenticated call, a cheap amplification vector. Tokens are symmetric HS256 on one shared secret, so any holder of JWT_KEY can mint tokens for any principal, and verification is hand-rolled rather than library-backed.",
+          "evidence": {
+            "file": "booking_lab/auth.py",
+            "lines": null
+          },
+          "severity": "Low",
+          "priority": "P2",
+          "effort": "Medium",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Partial"
+        },
+        {
+          "question_id": "SEC-Q4",
+          "title": "Centralized Identity Integration: Application is its own token issuer with no external IdP",
+          "score": 1,
+          "max_score": 4,
+          "description": "booking_lab/auth.py is both issuer (encode(), minting iss='booking-lab', aud='booking-api', 300s lifetime, default scope bookings:read bookings:write) and verifier (verify()), on one symmetric HMAC key supplied as JWT_KEY. booking_lab/run.py generates that key per run and mints tokens for the agent-a and agent-b principals. No aws_cognito_* resource, no OIDC discovery or JWKS endpoint, no SAML, no federation, no SSO. The module docstring states the symmetric JWT is confined to this local lab, so this is an acknowledged scope boundary.",
+          "finding": "booking_lab/auth.py is both issuer (encode(), minting iss='booking-lab', aud='booking-api', 300s lifetime, default scope bookings:read bookings:write) and verifier (verify()), on one symmetric HMAC key supplied as JWT_KEY. booking_lab/run.py generates that key per run and mints tokens for the agent-a and agent-b principals. No aws_cognito_* resource, no OIDC discovery or JWKS endpoint, no SAML, no federation, no SSO. The module docstring states the symmetric JWT is confined to this local lab, so this is an acknowledged scope boundary.",
+          "recommendation": "Introduce a centralised IdP and reduce the application to a verifier only: Amazon Cognito user pools (or an existing enterprise OIDC provider) issuing asymmetrically-signed tokens, with the API validating against the published JWKS and mapping the scope/client_id claim to the existing checks. For the machine-to-machine callers agent-a/agent-b, use the OAuth2 client-credentials flow with per-client scopes so each caller has its own revocable identity. Keep auth.encode() as a test fixture only. Treat PAYMENT_TOKEN similarly - acceptable as a static bearer for a synthetic double, but rotated credentials or SigV4/mTLS for a real provider.",
+          "category": "SEC",
+          "gap": "Because one symmetric key both signs and verifies, any component holding JWT_KEY - including the API itself - can mint a token for an arbitrary principal, so principal attribution in operations.principal and audit_events.principal is only as trustworthy as every key holder. There is no central place to revoke a principal, rotate signing material without a coordinated restart, enforce MFA, apply conditional access or audit token issuance. Scope assignment is a code default rather than IdP policy, and there are no refresh semantics.",
+          "evidence": {
+            "file": "booking_lab/auth.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Medium",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "SEC-Q5",
+          "title": "Secrets Management: No committed plaintext secrets, but env-var delivery with no store or rotation",
+          "score": 2,
+          "max_score": 4,
+          "description": "There are no plaintext credentials committed anywhere: every secret is generated at runtime with secrets.token_hex in booking_lab/run.py::Lab.__init__ (32-byte JWT_KEY, 32-byte PAYMENT_TOKEN, 24-byte passwords for postgres and the four runtime roles), never hard-coded, and .gitignore excludes .env* and .local/. The harness avoids leakage: docker() truncates stderr and never prints container environments or bootstrap SQL, and Handler.log_message is a deliberate no-op so bearer tokens and request bodies are never logged. However secrets are delivered as plaintext environment variables through on-disk .env files (chmod 0600) consumed via docker run --env-file and read from os.environ. No Secrets Manager, Parameter Store or Vault integration exists, and there is no rotation.",
+          "finding": "There are no plaintext credentials committed anywhere: every secret is generated at runtime with secrets.token_hex in booking_lab/run.py::Lab.__init__ (32-byte JWT_KEY, 32-byte PAYMENT_TOKEN, 24-byte passwords for postgres and the four runtime roles), never hard-coded, and .gitignore excludes .env* and .local/. The harness avoids leakage: docker() truncates stderr and never prints container environments or bootstrap SQL, and Handler.log_message is a deliberate no-op so bearer tokens and request bodies are never logged. However secrets are delivered as plaintext environment variables through on-disk .env files (chmod 0600) consumed via docker run --env-file and read from os.environ. No Secrets Manager, Parameter Store or Vault integration exists, and there is no rotation.",
+          "recommendation": "Store the four role passwords, JWT_KEY and PAYMENT_TOKEN in AWS Secrets Manager and inject them into the ECS task definition via secrets/valueFrom so plaintext never reaches a file. Enable managed RDS credential rotation and rotate PAYMENT_TOKEN; for JWT_KEY the asymmetric migration in SEC-Q4 removes the shared secret entirely and is the better fix. Keep runtime generation in run.py for tests, and keep the .gitignore entries, 0600/0700 permissions, stderr truncation and log_message suppression - all genuine strengths.",
+          "category": "SEC",
+          "gap": "Production credentials would live in environment variables and on-disk .env files with no encryption, no rotation, no access audit trail and no revocation path. Environment variables are visible to anything that can read the process environment or inspect the container, and the symmetric JWT_KEY is a token-minting capability, so its blast radius exceeds a normal database password. Because the harness generates fresh secrets per run, nothing exercises rotation, so no rotation path has been designed.",
+          "evidence": {
+            "file": "booking_lab/run.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P1",
+          "effort": "Low",
+          "phase": 1,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Needs Work"
+        },
+        {
+          "question_id": "SEC-Q6",
+          "title": "Compute Hardening and Patching: Strong runtime hardening but no scanning or patch automation",
+          "score": 3,
+          "max_score": 4,
+          "description": "Runtime hardening is thorough: booking_lab/Dockerfile runs non-root (USER 65532:65532), installs with --no-cache-dir, copies only the three needed source files and sets PYTHONDONTWRITEBYTECODE; .dockerignore excludes everything else so no harness, git metadata or local state enters the image. Base images are digest-pinned and the harness records resolved RepoDigests and the built image ID. Containers launch with --read-only --cap-drop=ALL --security-opt=no-new-privileges, a noexec,nosuid tmpfs and memory/CPU/PID limits when cgroups are available, with an explicit message when they are not. Patching and scanning are absent: no .github/dependabot.yml, no renovate.json, no .snyk, no Inspector, no ECR scanning, no pip-audit, no SSM patch baseline.",
+          "finding": "Runtime hardening is thorough: booking_lab/Dockerfile runs non-root (USER 65532:65532), installs with --no-cache-dir, copies only the three needed source files and sets PYTHONDONTWRITEBYTECODE; .dockerignore excludes everything else so no harness, git metadata or local state enters the image. Base images are digest-pinned and the harness records resolved RepoDigests and the built image ID. Containers launch with --read-only --cap-drop=ALL --security-opt=no-new-privileges, a noexec,nosuid tmpfs and memory/CPU/PID limits when cgroups are available, with an explicit message when they are not. Patching and scanning are absent: no .github/dependabot.yml, no renovate.json, no .snyk, no Inspector, no ECR scanning, no pip-audit, no SSM patch baseline.",
+          "recommendation": "Add a dependency-update bot (.github/dependabot.yml for pip and docker) so pinned digests are proposed for refresh rather than frozen, and let the existing E2E suite gate each bump - converting pinning from a liability back into a strength. Enable Amazon ECR enhanced scanning (or Trivy in the pipeline) and add pip-audit as a pipeline step. Consider a distroless or -slim base. Carry every runtime flag into the ECS task definition (readonlyRootFilesystem, dropped capabilities, non-root user, explicit CPU/memory limits) - they translate directly and must not be lost.",
+          "category": "SEC",
+          "gap": "Digest pinning without an update mechanism guarantees reproducibility but also guarantees base-image CVE fixes are never picked up, because nothing watches for a newer digest. There is no vulnerability signal on either the Python base image or psycopg[binary], and the stock python image is used rather than a distroless or minimal variant.",
+          "evidence": {
+            "file": "booking_lab/Dockerfile",
+            "lines": null
+          },
+          "severity": "Low",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Partial"
+        },
+        {
+          "question_id": "SEC-Q7",
+          "title": "Application Security Pipeline: No SAST, dependency or container scanning anywhere",
+          "score": 1,
+          "max_score": 4,
+          "description": "There is no security validation in any pipeline because there is no pipeline. No SAST tool (SonarQube, Semgrep, Bandit, CodeGuru Reviewer), no dependency scanning (pip-audit, Dependabot, Renovate, Snyk - there is no .github/dependabot.yml, renovate.json or .snyk), and no container image scanning. The only automated verification is the functional/durability suite in booking_lab/run.py, which does include real negative security testing (token forgery and expiry rejection in auth(), cross-principal denial in isolation(), privilege containment in rights()) but no vulnerability scanning of code or dependencies.",
+          "finding": "There is no security validation in any pipeline because there is no pipeline. No SAST tool (SonarQube, Semgrep, Bandit, CodeGuru Reviewer), no dependency scanning (pip-audit, Dependabot, Renovate, Snyk - there is no .github/dependabot.yml, renovate.json or .snyk), and no container image scanning. The only automated verification is the functional/durability suite in booking_lab/run.py, which does include real negative security testing (token forgery and expiry rejection in auth(), cross-principal denial in isolation(), privilege containment in rights()) but no vulnerability scanning of code or dependencies.",
+          "recommendation": "Add to the INF-Q11 pipeline, in order: (1) pip-audit against booking_lab/requirements.txt; (2) a SAST step - Bandit as the lowest-friction Python option, or Semgrep with the Python security ruleset - failing on high-severity findings; (3) container image scanning via ECR scan-on-push or Trivy, failing on critical CVEs; (4) Dependabot for pip and docker. Keep the existing security-behaviour tests as the complement to scanning - they verify properties no scanner can, and the two are not substitutes.",
+          "category": "SEC",
+          "gap": "A vulnerability in psycopg[binary]==3.3.6, in the pinned Python base image, or a newly introduced injection or crypto flaw in the hand-rolled JWT verifier would reach a deployment undetected. There is no gate that could block on a critical finding, and the reliance on hand-written security-sensitive code (HMAC verification, path regex matching, SQL construction) is exactly the profile where SAST has the highest yield.",
+          "evidence": {
+            "file": ".github/workflows/",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 1,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "OPS-Q1",
+          "title": "Distributed Tracing: Durable correlation IDs but no tracing SDK and no cross-service propagation",
+          "score": 2,
+          "max_score": 4,
+          "description": "Correlation identity exists and is persisted but there is no tracing instrumentation. Handler.dispatch accepts an X-Correlation-ID header (generating a UUID when absent) and threads it through create() and cancel() into operations.correlation_id, every outbox row via emit() and every audit_events row via deliver(), so a durable queryable correlation trail exists end to end; run.py::happy() asserts the booking.confirmed event's principal and correlation_id match the caller's exactly, and cancellation is deliberately re-attributed to its own request. However no OpenTelemetry or X-Ray SDK is present, no traceparent or X-Amzn-Trace-Id header is read or emitted, and payment() sends only operation_id and amount - the correlation ID is not forwarded, so provider work cannot be joined to the caller's trace.",
+          "finding": "Correlation identity exists and is persisted but there is no tracing instrumentation. Handler.dispatch accepts an X-Correlation-ID header (generating a UUID when absent) and threads it through create() and cancel() into operations.correlation_id, every outbox row via emit() and every audit_events row via deliver(), so a durable queryable correlation trail exists end to end; run.py::happy() asserts the booking.confirmed event's principal and correlation_id match the caller's exactly, and cancellation is deliberately re-attributed to its own request. However no OpenTelemetry or X-Ray SDK is present, no traceparent or X-Amzn-Trace-Id header is read or emitted, and payment() sends only operation_id and amount - the correlation ID is not forwarded, so provider work cannot be joined to the caller's trace.",
+          "recommendation": "Add OpenTelemetry (or the X-Ray SDK) with auto-instrumentation for the HTTP server, the outbound urllib call and psycopg, mapping the existing correlation_id onto the trace as a span attribute so the durable trail and the trace join on one key. Forward the correlation ID and traceparent on the payment() request. Replace the three print() calls with structured JSON logs carrying correlation ID, principal, operation ID and outcome - while preserving the existing discipline of never logging tokens or request bodies.",
+          "category": "OPS",
+          "gap": "There are no spans, no latency attribution and no cross-service trace join. Diagnosing a slow or failing booking requires manually querying operations, outbox and audit_events by correlation ID; time spent inside payment() versus the database is not measurable. Worker recovery carries the original correlation ID but produces no trace, so asynchronous completion is invisible. Logging is minimal by design - log_message is a deliberate no-op and the only output is three unstructured print() lines with no timestamp, level, correlation ID or structure.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Medium",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Needs Work"
+        },
+        {
+          "question_id": "OPS-Q2",
+          "title": "SLO Definitions: No SLOs, alarms or monitoring artifacts in the repository",
+          "score": 1,
+          "max_score": 4,
+          "description": "Gate has_api_surface is true, so this question is evaluated. No monitoring artifacts of any kind exist - no CloudWatch alarms (there is no IaC to define them), no latency or error-rate thresholds, no SLO definition file, no error-budget tracking, no dashboard. The service exposes /health/live and /health/ready (the latter proving database reachability with a real query and returning 503 when the database is down), a correct liveness/readiness split, but nothing consumes them outside the harness and a health probe is not an SLO. The timeouts in code (4s payment, 8s socket, 10s statement) are protective limits, not declared objectives. The only durable quality measurements are test-run artifacts: per-case duration_seconds and five correctness invariants asserted to be zero.",
+          "finding": "Gate has_api_surface is true, so this question is evaluated. No monitoring artifacts of any kind exist - no CloudWatch alarms (there is no IaC to define them), no latency or error-rate thresholds, no SLO definition file, no error-budget tracking, no dashboard. The service exposes /health/live and /health/ready (the latter proving database reachability with a real query and returning 503 when the database is down), a correct liveness/readiness split, but nothing consumes them outside the harness and a health probe is not an SLO. The timeouts in code (4s payment, 8s socket, 10s statement) are protective limits, not declared objectives. The only durable quality measurements are test-run artifacts: per-case duration_seconds and five correctness invariants asserted to be zero.",
+          "recommendation": "Define three SLOs and alarm on them once IaC exists: availability and p99 latency for POST /bookings; saga completion (zero operations pending beyond a defined age); and audit freshness (zero outbox rows undelivered beyond a defined age). Promote the five invariant queries from run.py into continuously evaluated CloudWatch custom metrics, since they are already written and already proven to be the right correctness signals. Track an error budget against the availability objective.",
+          "category": "OPS",
+          "gap": "There is no declared availability or latency target for POST /bookings, the critical user journey, so there is no way to know whether the service is meeting expectations or degrading. The properties that actually matter operationally are already measurable but not monitored: operations stuck in ('NEW','CHARGED','COMPENSATING','CANCELLING') and undelivered outbox rows are exactly the saga and audit degradation signals, and both have working queries sitting unused in the harness.",
+          "evidence": {
+            "file": "booking_lab/run.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "OPS-Q3",
+          "title": "Business Metrics: No metrics emitted at all",
+          "score": 1,
+          "max_score": 4,
+          "description": "The service publishes no metrics, business or infrastructure. There is no cloudwatch.put_metric_data call, no StatsD/Prometheus client, no metrics endpoint and no metrics library in booking_lab/requirements.txt. Runtime output is three unstructured print() lines (request_retry_pending, worker_retry_pending, recovery_pending), none counted or aggregated. Business-relevant quantities all exist in the database and are queried by the test harness only: bookings confirmed, charges captured versus refunded, declined payments, operations by status, audit event counts.",
+          "finding": "The service publishes no metrics, business or infrastructure. There is no cloudwatch.put_metric_data call, no StatsD/Prometheus client, no metrics endpoint and no metrics library in booking_lab/requirements.txt. Runtime output is three unstructured print() lines (request_retry_pending, worker_retry_pending, recovery_pending), none counted or aggregated. Business-relevant quantities all exist in the database and are queried by the test harness only: bookings confirmed, charges captured versus refunded, declined payments, operations by status, audit event counts.",
+          "recommendation": "Emit custom CloudWatch metrics where the saga already knows the outcome - in result() and at the 201 return in advance() - for booking created, payment declined, booking compensated, booking cancelled, and 503 retry returned. Add gauges from the worker loop for pending-operation and undelivered-outbox depth. Dimension by status only; avoid principal as a dimension to prevent cardinality explosion. Build one dashboard combining these with the OPS-Q2 SLOs.",
+          "category": "OPS",
+          "gap": "None of the outcomes that define whether this service is working - booking success rate, payment decline rate, compensation (refund-after-failed-booking) rate, cancellation rate, saga pending depth, audit delivery lag - is emitted anywhere. The compensation rate is especially important and especially invisible: a rising rate of COMPENSATED operations means customers are charged and refunded rather than served, a business-visible failure no current signal would surface.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "OPS-Q4",
+          "title": "Anomaly Detection and Alerting: No alerting of any kind; handled failures are silent to operators",
+          "score": 1,
+          "max_score": 4,
+          "description": "No alerting exists. There are no CloudWatch alarms (no IaC), no anomaly detectors, no composite alarms, no SNS topic and no PagerDuty/OpsGenie integration. Failure handling is in-process and silent: Handler.dispatch catches RuntimeError/psycopg.Error/OSError and returns 503 after one unstructured print; the worker loop catches every exception and prints worker_retry_pending; recover() prints recovery_pending per failed operation and continues. Nothing escalates, counts or notifies.",
+          "finding": "No alerting exists. There are no CloudWatch alarms (no IaC), no anomaly detectors, no composite alarms, no SNS topic and no PagerDuty/OpsGenie integration. Failure handling is in-process and silent: Handler.dispatch catches RuntimeError/psycopg.Error/OSError and returns 503 after one unstructured print; the worker loop catches every exception and prints worker_retry_pending; recover() prints recovery_pending per failed operation and continues. Nothing escalates, counts or notifies.",
+          "recommendation": "Once IaC exists, alarm on: API 5xx rate and p99 latency; /health/ready failures; pending-operation count above a threshold or age; undelivered-outbox count above a threshold or age; and payment decline-rate deviation. Use CloudWatch anomaly detection for latency and error rate rather than fixed thresholds, since booking traffic is likely diurnal. Route to SNS with an on-call destination. Replace the print() statements with structured logs and derive metric filters so the existing failure-detection logic becomes an alerting source.",
+          "category": "OPS",
+          "gap": "Every failure mode the service is engineered to survive is also invisible while it is happening. A payment provider outage, a database outage, a permanently stuck saga operation, or a blocked audit delivery (exactly the audit_outage() scenario, where audit_writer loses INSERT and the outbox silently backs up) would all be handled correctly and reported to nobody. Because the worker retries indefinitely with no attempt ceiling, an operation that can never complete produces an unbounded stream of identical prints and no signal.",
+          "evidence": {
+            "file": "booking_lab/service.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 2,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        },
+        {
+          "question_id": "OPS-Q6",
+          "title": "Integration Testing: Exceptional integration coverage that never runs automatically",
+          "score": 2,
+          "max_score": 4,
+          "description": "booking_lab/run.py builds the real image, starts a real PostgreSQL container, real payment provider, two real API replicas and a real worker on isolated per-run Docker networks, then runs 17 integration cases against live HTTP and live SQL: token rejection across issuer/audience/expiry/nbf/signature/scope; happy-path create with correlation attribution; idempotent replay and payload-conflict detection across replicas; cross-principal isolation and identity-scoped idempotency; eight concurrent requests across two replicas yielding exactly one charge and one booking; real insert failure after charge refunding with no orphan; refund-provider outage leaving durable COMPENSATING state with worker recovery; crash after external commit reconciling without double charge; provider outage retaining intent; crash after refund without a second refund; declined payment creating no booking; cancel/refund idempotency preserving the original create response; audit delivery failure with durable outbox drain; redelivery deduplication; runtime-role inability to rewrite audit or cross-service tables; database outage failing closed with volume survival; and a real pg_dump/restore verified by per-table row hashes. It closes with five global invariant assertions and emits machine-readable evidence. Nothing is mocked - fault injection uses a real database trigger and real process exits. But there is no CI pipeline, so none of it runs automatically.",
+          "finding": "booking_lab/run.py builds the real image, starts a real PostgreSQL container, real payment provider, two real API replicas and a real worker on isolated per-run Docker networks, then runs 17 integration cases against live HTTP and live SQL: token rejection across issuer/audience/expiry/nbf/signature/scope; happy-path create with correlation attribution; idempotent replay and payload-conflict detection across replicas; cross-principal isolation and identity-scoped idempotency; eight concurrent requests across two replicas yielding exactly one charge and one booking; real insert failure after charge refunding with no orphan; refund-provider outage leaving durable COMPENSATING state with worker recovery; crash after external commit reconciling without double charge; provider outage retaining intent; crash after refund without a second refund; declined payment creating no booking; cancel/refund idempotency preserving the original create response; audit delivery failure with durable outbox drain; redelivery deduplication; runtime-role inability to rewrite audit or cross-service tables; database outage failing closed with volume survival; and a real pg_dump/restore verified by per-table row hashes. It closes with five global invariant assertions and emits machine-readable evidence. Nothing is mocked - fault injection uses a real database trigger and real process exits. But there is no CI pipeline, so none of it runs automatically.",
+          "recommendation": "Wire python3 booking_lab/run.py e2e --output .local/db-e2e.json into a pull-request pipeline on a Docker-capable runner and fail the build on non-zero exit - this alone moves the score to 4 and is small work, because the harness is already self-isolating (unique resource prefix, loopback-only ephemeral ports, no global prune) and already emits an artifact to upload. Add a case-name filter argument for debugging. Then add unit tests for advance() and auth.verify() against a fake store so fast feedback does not require Docker.",
+          "category": "OPS",
+          "gap": "The rubric's discriminator between 4 and 2 is pipeline execution, and that is the entire gap: the suite is never run consistently or automatically, so it provides no regression protection on change. Secondary gaps: no unit tests, so the saga state machine cannot be exercised without Docker and a full environment build; and the suite is all-or-nothing with no way to run a single case while debugging.",
+          "evidence": {
+            "file": "booking_lab/run.py",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P1",
+          "effort": "Low",
+          "phase": 1,
+          "core_question": true,
+          "archetype_calibrated": false,
+          "score_label": "Needs Work"
+        },
+        {
+          "question_id": "OPS-Q8",
+          "title": "Observability Ownership: No observability assets and no ownership attribution",
+          "score": 1,
+          "max_score": 4,
+          "description": "There is no observability ownership of any kind because there are no observability assets to own. No dashboard definitions, no alarms, no SLO files and no CODEOWNERS file exist anywhere. There is no team attribution, no owner metadata and no on-call reference. booking_lab/README.md describes how to run the acceptance suite and what each source file does, but names no owner, escalation path or monitoring responsibility.",
+          "finding": "There is no observability ownership of any kind because there are no observability assets to own. No dashboard definitions, no alarms, no SLO files and no CODEOWNERS file exist anywhere. There is no team attribution, no owner metadata and no on-call reference. booking_lab/README.md describes how to run the acceptance suite and what each source file does, but names no owner, escalation path or monitoring responsibility.",
+          "recommendation": "Add a CODEOWNERS file covering booking_lab/ and, once created, the IaC and observability directories, so monitoring configuration has a named reviewer. Define the service's dashboard and alarms in the same IaC stack as the service so ownership follows the code, and tag both resources and alarms with Owner and Team. Record the owning team, escalation path and the OPS-Q2 SLOs in the README alongside the existing run instructions.",
+          "category": "OPS",
+          "gap": "Nobody is identified as responsible for detecting or responding to degradation of this service. There is no per-service dashboard, no alarm with a named owner and no SLO with team attribution - so even once monitoring exists (OPS-Q2, OPS-Q4), signals would have no defined recipient.",
+          "evidence": {
+            "file": "booking_lab/README.md",
+            "lines": null
+          },
+          "severity": "Medium",
+          "priority": "P2",
+          "effort": "Low",
+          "phase": 3,
+          "core_question": false,
+          "archetype_calibrated": false,
+          "score_label": "Not Ready"
+        }
+      ],
+      "report_path": "${HOME}/.atxct/sources/mit-moda-20261016/agentic-readiness/runs/01M52RMNGR77M5PG3VPWBNJ9QJ/mit-moda-20261016-booking-mit-cb1cd3e504197212/modernization-readiness-analysis/booking-mit-mod-report.md",
+      "agent_minutes": 80.38
+    }
+  },
+  "portfolio_ara_summary": null,
+  "portfolio_mod_summary": null,
+  "bridge_summary": null,
+  "started_at": "2026-10-16T16:27:36.344Z",
+  "completed_at": "2026-10-16T16:51:06.580Z",
+  "findings_count": 31,
+  "run_type": {
+    "kind": "on_demand",
+    "infrastructure": "customer_managed"
+  }
+}

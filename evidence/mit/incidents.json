@@ -1,0 +1,44 @@
+{
+  "failed_attempts": [
+    {
+      "analysis_id": "01M52NJ3F87P2G8G66AGM7234T",
+      "ct_status": "complete",
+      "accepted": false,
+      "reason": "Internal service error; no report artifacts",
+      "interrupt_history": [
+        {
+          "interruptReason": "An internal server error occurred",
+          "interruptTime": "2026-10-16T15:50:45.537Z"
+        }
+      ],
+      "session_metadata_sha256": "9254811396364151b673fbdab828fdce9f5ba1d7df8666511f206ac613878539",
+      "ct_state_sha256": "638d8068af149f0e45d1ef36c7c1b784a3b7f6b35a88436d34f010b8c39b95ad"
+    },
+    {
+      "analysis_id": "01M52PQ865PSNWRJPWACQA9X12",
+      "ct_status": "complete",
+      "accepted": false,
+      "reason": "Internal service error; no report artifacts",
+      "interrupt_history": [
+        {
+          "interruptReason": "An internal server error occurred",
+          "interruptTime": "2026-10-16T16:25:43.547Z"
+        }
+      ],
+      "session_metadata_sha256": "bdebdb0c4cec2768fff581bdd9d1a50851dcc2b233c92b2c1afb689a18100bd2",
+      "ct_state_sha256": "4de58dcfc08a44a35afc1849d1d6693860e658a7802b8633668d94e0d635feee"
+    }
+  ],
+  "recovery": {
+    "analysis_id": "01M52RMNGR77M5PG3VPWBNJ9QJ",
+    "same_source_commit": "0de82bb93ace5949e4e817e28fc8417017f526c9",
+    "same_context_verified": true,
+    "concurrent_analyses": 0,
+    "accepted": true,
+    "artifacts_verified": 4,
+    "findings": 31,
+    "questions_represented": 37,
+    "finished_at_utc": "2026-10-16T16:51:12.779Z"
+  },
+  "public_incident_handling": "CLI complete alone is insufficient; verify the report bundle and counts."
+}

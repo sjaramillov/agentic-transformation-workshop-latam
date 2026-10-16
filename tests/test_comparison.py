@@ -30,3 +30,14 @@ class ComparisonTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             p=Path(t)/'report.json';p.write_text(json.dumps({}))
             with self.assertRaises(ValueError): compare(p,p,'mod')
+
+    def test_moda_keeps_pass_score_and_newly_evaluated_questions(self):
+        root=Path(__file__).resolve().parents[1]/'evidence/mit'
+        result=compare(root/'before/moda/booking-mit-mod-report.json',
+                       root/'after/moda/booking-mit-mod-report.json','mod',37)
+        self.assertTrue(result['same_question_set'])
+        rows={r['question_id']:r for r in result['questions']}
+        self.assertEqual(rows['DATA-Q1']['score_before'],4)
+        self.assertEqual(rows['DATA-Q1']['score_after'],1)
+        self.assertEqual(rows['OPS-Q5']['before'],'not_evaluated_surface_flag')
+        self.assertEqual(rows['OPS-Q5']['after'],'High')

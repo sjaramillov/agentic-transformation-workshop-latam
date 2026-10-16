@@ -1,0 +1,12 @@
+{
+  "LICENSE": "498bd8d5de305a7c4cd061178b58c19062604de3dfbed9953e536cac74b14768",
+  "booking_lab/.dockerignore": "add95371febe3e805d8ff30a695cb9ed8e72746cd06140881dcf3bae2d6fb279",
+  "booking_lab/Dockerfile": "9743445a9d1d3a78a792ea6c29f8d3b94dee384795a54d46c3e49255997d210c",
+  "booking_lab/README.md": "f8cc53be335c1e21cfa90971cf4da16ffd1778f54264433d0fefe6101e8ae8d4",
+  "booking_lab/auth.py": "be5697b45b26bbc157be8a2e86d0f3118a608c38e0911d76c672cfe03d277f00",
+  "booking_lab/images.lock.json": "1f61102e10a0e14d4b1cb78bf5c37c1fa47071d526f7cbdea028ef223b1e72a0",
+  "booking_lab/requirements.txt": "281f4fe5b5deb728449e2e3c762b88249931daebc04f65a098c757ac3f37d80f",
+  "booking_lab/run.py": "0dbabe0e877f6d2bcc65c69c48590e775d12d8a018ddedc178b75d5b5e6f6be2",
+  "booking_lab/schema.sql": "609d859f6db317669ca56a81ad55bbf624e8ced5b133e963c554f920770ae598",
+  "booking_lab/service.py": "2c83762d78bdde43db1dade324e0e28d8072c55e464f2d8756c745b3d553508f"
+}

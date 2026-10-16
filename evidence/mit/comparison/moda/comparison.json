@@ -1,0 +1,391 @@
+{
+  "kind": "mod",
+  "before_classification": {
+    "tier": "Remediation Required",
+    "high_count": 4,
+    "medium_count": 19,
+    "low_count": 8,
+    "rule_matched": "2-11 High → Remediation Required",
+    "classification_consistency_check": "consistent",
+    "rationale": "4 High, 19 Medium, 8 Low findings (31 total). MOD classification is deliberately softer than ARA on a single High: in ARA one High is an agent-deployment gate, in MOD one High is typically a single modernization gap and maps to Pilot-Ready. This repo reaches Remediation Required because four independent core-question gaps (self-managed database, zero IaC, zero CI/CD, no encryption at rest) each sit at the lowest score."
+  },
+  "after_classification": {
+    "tier": "Remediation Required",
+    "high_count": 5,
+    "medium_count": 19,
+    "low_count": 11,
+    "rule_matched": "2-11 High → Remediation Required",
+    "classification_consistency_check": "consistent"
+  },
+  "overall_score_before": 2.02,
+  "overall_score_after": 1.99,
+  "same_question_set": true,
+  "questions": [
+    {
+      "question_id": "APP-Q1",
+      "title": "Programming Languages",
+      "before": "Low",
+      "after": "Low",
+      "changed": false,
+      "score_before": 3,
+      "score_after": 3
+    },
+    {
+      "question_id": "APP-Q2",
+      "title": "Monolith vs Microservices",
+      "before": "Medium",
+      "after": "Low",
+      "changed": true,
+      "score_before": 2,
+      "score_after": 3
+    },
+    {
+      "question_id": "APP-Q3",
+      "title": "Async vs Sync Communication",
+      "before": "Low",
+      "after": "Low",
+      "changed": false,
+      "score_before": 3,
+      "score_after": 3
+    },
+    {
+      "question_id": "APP-Q4",
+      "title": "Long-Running Process Handling",
+      "before": "Low",
+      "after": "Low",
+      "changed": false,
+      "score_before": 3,
+      "score_after": 3
+    },
+    {
+      "question_id": "APP-Q5",
+      "title": "API Versioning Strategy",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "APP-Q6",
+      "title": "Service Discovery",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 2,
+      "score_after": 2
+    },
+    {
+      "question_id": "DATA-Q1",
+      "title": "Unstructured Data Storage",
+      "before": "pass",
+      "after": "High",
+      "changed": true,
+      "score_before": 4,
+      "score_after": 1
+    },
+    {
+      "question_id": "DATA-Q2",
+      "title": "Unified Data Access Layer",
+      "before": "Low",
+      "after": "Low",
+      "changed": false,
+      "score_before": 3,
+      "score_after": 3
+    },
+    {
+      "question_id": "DATA-Q3",
+      "title": "Database Engine Version and EOL",
+      "before": "Low",
+      "after": "Low",
+      "changed": false,
+      "score_before": 3,
+      "score_after": 3
+    },
+    {
+      "question_id": "DATA-Q4",
+      "title": "Stored Procedures and Schema Complexity",
+      "before": "Medium",
+      "after": "Low",
+      "changed": true,
+      "score_before": 2,
+      "score_after": 3
+    },
+    {
+      "question_id": "INF-Q1",
+      "title": "Managed Compute",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 2,
+      "score_after": 2
+    },
+    {
+      "question_id": "INF-Q10",
+      "title": "Infrastructure as Code Coverage",
+      "before": "High",
+      "after": "Medium",
+      "changed": true,
+      "score_before": 1,
+      "score_after": 2
+    },
+    {
+      "question_id": "INF-Q11",
+      "title": "CI/CD Automation",
+      "before": "High",
+      "after": "High",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "INF-Q2",
+      "title": "Managed Databases",
+      "before": "High",
+      "after": "High",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "INF-Q3",
+      "title": "Workflow Orchestration",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 2,
+      "score_after": 2
+    },
+    {
+      "question_id": "INF-Q4",
+      "title": "Async Messaging and Streaming",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 2,
+      "score_after": 2
+    },
+    {
+      "question_id": "INF-Q5",
+      "title": "Network Security",
+      "before": "Low",
+      "after": "Low",
+      "changed": false,
+      "score_before": 3,
+      "score_after": 3
+    },
+    {
+      "question_id": "INF-Q6",
+      "title": "API Entry Point",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "INF-Q7",
+      "title": "Auto-Scaling",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "INF-Q8",
+      "title": "Backup and Recovery",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 2,
+      "score_after": 2
+    },
+    {
+      "question_id": "INF-Q9",
+      "title": "High Availability and Fault Isolation",
+      "before": "not_evaluated_surface_flag",
+      "after": "Medium",
+      "changed": true,
+      "score_before": null,
+      "score_after": 1
+    },
+    {
+      "question_id": "OPS-Q1",
+      "title": "Distributed Tracing",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 2,
+      "score_after": 2
+    },
+    {
+      "question_id": "OPS-Q2",
+      "title": "SLO Definitions",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "OPS-Q3",
+      "title": "Business Metrics",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "OPS-Q4",
+      "title": "Anomaly Detection and Alerting",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "OPS-Q5",
+      "title": "Deployment Strategy",
+      "before": "not_evaluated_surface_flag",
+      "after": "High",
+      "changed": true,
+      "score_before": null,
+      "score_after": 1
+    },
+    {
+      "question_id": "OPS-Q6",
+      "title": "Integration Testing",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 2,
+      "score_after": 2
+    },
+    {
+      "question_id": "OPS-Q7",
+      "title": "Incident Response Automation",
+      "before": "not_evaluated_surface_flag",
+      "after": "Low",
+      "changed": true,
+      "score_before": null,
+      "score_after": 3
+    },
+    {
+      "question_id": "OPS-Q8",
+      "title": "Observability Ownership",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "OPS-Q9",
+      "title": "Resource Tagging Governance",
+      "before": "not_evaluated_surface_flag",
+      "after": "not_evaluated_surface_flag",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "SEC-Q1",
+      "title": "Audit Logging",
+      "before": "not_evaluated_surface_flag",
+      "after": "not_evaluated_surface_flag",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "SEC-Q2",
+      "title": "Encryption at Rest",
+      "before": "High",
+      "after": "High",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "SEC-Q3",
+      "title": "API Authentication",
+      "before": "Low",
+      "after": "Low",
+      "changed": false,
+      "score_before": 3,
+      "score_after": 3
+    },
+    {
+      "question_id": "SEC-Q4",
+      "title": "Centralized Identity Integration",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    },
+    {
+      "question_id": "SEC-Q5",
+      "title": "Secrets Management",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 2,
+      "score_after": 2
+    },
+    {
+      "question_id": "SEC-Q6",
+      "title": "Compute Hardening and Patching",
+      "before": "Low",
+      "after": "Low",
+      "changed": false,
+      "score_before": 3,
+      "score_after": 3
+    },
+    {
+      "question_id": "SEC-Q7",
+      "title": "Application Security Pipeline",
+      "before": "Medium",
+      "after": "Medium",
+      "changed": false,
+      "score_before": 1,
+      "score_after": 1
+    }
+  ],
+  "report_bundle_verification": [
+    {
+      "valid_bundle_and_counts": true,
+      "kind": "mod",
+      "reported_tier": "Remediation Required",
+      "findings": 31,
+      "artifact_sha256": {
+        "booking-mit-mod-report.json": "932cd27ae40530b0697011e39eb5198defee2dca1ae8a7c5e5ae5a2de3c06a12",
+        "booking-mit-mod-report.md": "67f0f967451f98ec716572a82142557547f001cb90d2a9c3903fe100eac6f9d8",
+        "booking-mit-mod-report.html": "9b08cfd7b111bb0f5f86b48941359a32eafdf3584c4ee7c4684d45b3a573c19d",
+        "booking-mit-mod-report.metadata.json": "41c120cb9f1d78c2af912279ff304896144cd8cc1908cbc3101a09ba345b600f"
+      },
+      "errors": [],
+      "runtime_validated": false,
+      "rubric_judgments_independently_verified": false
+    },
+    {
+      "valid_bundle_and_counts": true,
+      "kind": "mod",
+      "reported_tier": "Remediation Required",
+      "findings": 35,
+      "artifact_sha256": {
+        "booking-mit-mod-report.json": "65543cd98b339ac2bd1ee67395d7bb9a751085e578aad465c961f262ece6fe94",
+        "booking-mit-mod-report.md": "00eb85781213c6f29f1e5f63a4aa89f07034e34d088fa1d6cc3868f86345c028",
+        "booking-mit-mod-report.html": "11fa082e0c4ff2dc965dcd587c7610ad8d8afc20d769a0c34aaa004cb6ea4800",
+        "booking-mit-mod-report.metadata.json": "41c120cb9f1d78c2af912279ff304896144cd8cc1908cbc3101a09ba345b600f"
+      },
+      "errors": [],
+      "runtime_validated": false,
+      "rubric_judgments_independently_verified": false
+    }
+  ],
+  "interpretation": "Evaluator judgments; scope, source changes and runtime proof require separate review."
+}

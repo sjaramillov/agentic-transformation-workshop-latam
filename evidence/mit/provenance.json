@@ -29,5 +29,10 @@
     "registered": true,
     "remediation_executed_with_td": false
   },
-  "corrections_method": "original implementation, reviewed and tested; AWS managed ARA/MODA used for assessment"
+  "corrections_method": "original implementation, reviewed and tested; AWS managed ARA/MODA used for assessment",
+  "complete_comparison_archive_sha256": "21782ab65194639b7721265c9f20743c40a50674d23463538fcec73d5048e633",
+  "before_public_source_commit": "e338a6b99cba389cbb5d96ca21a12d660071b28d",
+  "before_analysis_source_commit": "0de82bb93ace5949e4e817e28fc8417017f526c9",
+  "all_four_run_contexts_verified_identical_to_public_files": true,
+  "before_source_manifest": "before/source-sha256.json"
 }

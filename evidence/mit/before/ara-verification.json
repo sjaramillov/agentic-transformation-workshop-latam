@@ -1,0 +1,15 @@
+{
+  "valid_bundle_and_counts": true,
+  "kind": "ara",
+  "reported_tier": "Remediation Required",
+  "findings": 29,
+  "artifact_sha256": {
+    "booking-mit-ara-report.json": "d7e920bc71421f1175dee5f09ea200171c41ea396b90d6e0236813d42ee1c404",
+    "booking-mit-ara-report.md": "2469ba9169ffc5a75e1281998304c0d96ec233773c3be53c66df8828951b937e",
+    "booking-mit-ara-report.html": "4b2a9e23d3f47b635409ccab5d1cb0ce2a065b7d77fd57ae0c95bbaefb6ab877",
+    "booking-mit-ara-report.metadata.json": "9cdd8d77e2f61ef31baaf91530cd73bedb1b60026d5c59ddab2214383963c0dc"
+  },
+  "errors": [],
+  "runtime_validated": false,
+  "rubric_judgments_independently_verified": false
+}

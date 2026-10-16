@@ -64,3 +64,9 @@ python3 scripts/cleanup_lab.py --review .local/db-lab-ID/review.json --remove-st
 ```
 
 El primer comando muestra el alcance. El segundo conserva logs y volúmenes, rechaza cualquier contenedor activo y nunca usa `--force`, `--volumes` ni un prune global. Verifica `df -h /` antes de iniciar otra corrida. En un clon aislado de análisis, `review.json` estará dentro de su propia `.local/`; pasa esa ruta al mismo script.
+
+## Persistencia y frontera del entorno
+
+AWS documenta [cifrado en reposo para CloudShell](https://docs.aws.amazon.com/cloudshell/latest/userguide/data-encryption.html) y [almacenamiento persistente en `$HOME`](https://docs.aws.amazon.com/cloudshell/latest/userguide/limits.html). El volumen Docker del laboratorio vive en el almacenamiento del daemon: conserva los backups y la evidencia antes de que el entorno se recicle. El cifrado del servicio no sustituye permisos, rotación o archivo independiente de auditoría.
+
+Las [preguntas de seguridad de AWS](https://docs.aws.amazon.com/cloudshell/latest/userguide/cloudshell-security-faqs.html) aclaran que el usuario de CloudShell dispone de root y que sus contenedores son una conveniencia operativa, no una frontera de seguridad frente a ese usuario. Por eso el E2E distingue el administrador SQL de la aplicación del administrador del host.

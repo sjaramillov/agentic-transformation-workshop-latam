@@ -1,0 +1,38 @@
+question_id,title,before,after,changed,score_before,score_after
+APP-Q1,Programming Languages,Low,Low,False,3,3
+APP-Q2,Monolith vs Microservices,Medium,Low,True,2,3
+APP-Q3,Async vs Sync Communication,Low,Low,False,3,3
+APP-Q4,Long-Running Process Handling,Low,Low,False,3,3
+APP-Q5,API Versioning Strategy,Medium,Medium,False,1,1
+APP-Q6,Service Discovery,Medium,Medium,False,2,2
+DATA-Q1,Unstructured Data Storage,pass,High,True,4,1
+DATA-Q2,Unified Data Access Layer,Low,Low,False,3,3
+DATA-Q3,Database Engine Version and EOL,Low,Low,False,3,3
+DATA-Q4,Stored Procedures and Schema Complexity,Medium,Low,True,2,3
+INF-Q1,Managed Compute,Medium,Medium,False,2,2
+INF-Q10,Infrastructure as Code Coverage,High,Medium,True,1,2
+INF-Q11,CI/CD Automation,High,High,False,1,1
+INF-Q2,Managed Databases,High,High,False,1,1
+INF-Q3,Workflow Orchestration,Medium,Medium,False,2,2
+INF-Q4,Async Messaging and Streaming,Medium,Medium,False,2,2
+INF-Q5,Network Security,Low,Low,False,3,3
+INF-Q6,API Entry Point,Medium,Medium,False,1,1
+INF-Q7,Auto-Scaling,Medium,Medium,False,1,1
+INF-Q8,Backup and Recovery,Medium,Medium,False,2,2
+INF-Q9,High Availability and Fault Isolation,not_evaluated_surface_flag,Medium,True,,1
+OPS-Q1,Distributed Tracing,Medium,Medium,False,2,2
+OPS-Q2,SLO Definitions,Medium,Medium,False,1,1
+OPS-Q3,Business Metrics,Medium,Medium,False,1,1
+OPS-Q4,Anomaly Detection and Alerting,Medium,Medium,False,1,1
+OPS-Q5,Deployment Strategy,not_evaluated_surface_flag,High,True,,1
+OPS-Q6,Integration Testing,Medium,Medium,False,2,2
+OPS-Q7,Incident Response Automation,not_evaluated_surface_flag,Low,True,,3
+OPS-Q8,Observability Ownership,Medium,Medium,False,1,1
+OPS-Q9,Resource Tagging Governance,not_evaluated_surface_flag,not_evaluated_surface_flag,False,,
+SEC-Q1,Audit Logging,not_evaluated_surface_flag,not_evaluated_surface_flag,False,,
+SEC-Q2,Encryption at Rest,High,High,False,1,1
+SEC-Q3,API Authentication,Low,Low,False,3,3
+SEC-Q4,Centralized Identity Integration,Medium,Medium,False,1,1
+SEC-Q5,Secrets Management,Medium,Medium,False,2,2
+SEC-Q6,Compute Hardening and Patching,Low,Low,False,3,3
+SEC-Q7,Application Security Pipeline,Medium,Medium,False,1,1

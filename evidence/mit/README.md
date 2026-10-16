@@ -4,13 +4,17 @@ Esta carpeta permite revisar los resultados sin acceder a la cuenta CCS. [Conclu
 
 | Medición | JSON | Markdown | HTML | Procedencia / validación |
 | --- | --- | --- | --- | --- |
-| ARA antes | [JSON](before/ara/booking-mit-ara-report.json) | [MD](before/ara/booking-mit-ara-report.md) | [HTML](before/ara/booking-mit-ara-report.html) | [Hashes](before/ara-provenance.json) |
+| ARA antes | [JSON](before/ara/booking-mit-ara-report.json) | [MD](before/ara/booking-mit-ara-report.md) | [HTML](before/ara/booking-mit-ara-report.html) | [Hashes](before/ara-provenance.json), [verificación](before/ara-verification.json) |
 | ARA después | [JSON](after/ara/booking-mit-ara-report.json) | [MD](after/ara/booking-mit-ara-report.md) | [HTML](after/ara/booking-mit-ara-report.html) | [Hashes](after/ara-provenance.json), [verificación](after/ara-verification.json) |
+| MODA antes | [JSON](before/moda/booking-mit-mod-report.json) | [MD](before/moda/booking-mit-mod-report.md) | [HTML](before/moda/booking-mit-mod-report.html) | [Hashes](before/moda-provenance.json), [verificación](before/moda-verification.json) |
 | MODA después | [JSON](after/moda/booking-mit-mod-report.json) | [MD](after/moda/booking-mit-mod-report.md) | [HTML](after/moda/booking-mit-mod-report.html) | [Hashes](after/moda-provenance.json), [verificación](after/moda-verification.json) |
 
-La metadata original acompaña cada informe. La sanitización sustituye únicamente el directorio del usuario de CloudShell por `${HOME}`; la procedencia conserva hashes del archivo crudo y publicado. No se cambian los hallazgos ni las puntuaciones.
+La metadata original acompaña cada informe. `LOCAL` identifica el modo de ejecución en CloudShell y las rutas `${HOME}` identifican los clones de análisis; el código de entrada corresponde a los commits públicos indicados. La sanitización sustituye únicamente el directorio del usuario de CloudShell por `${HOME}`; la procedencia conserva hashes del archivo crudo y publicado. No se cambian los hallazgos ni las puntuaciones.
 
+- [Comparación MODA JSON](comparison/moda/comparison.json) y [CSV](comparison/moda/comparison.csv): 37 preguntas; cambios de alcance y de almacenes explicados en la guía.
+- [Incidentes y recuperación](incidents.json): dos fallos internos de MODA y el tercer intento válido.
 - [Comparación ARA JSON](comparison/ara/comparison.json) y [CSV](comparison/ara/comparison.csv): 43 preguntas, dos cierres por código y dos variaciones en preguntas extendidas.
+- [Clon nuevo desde GitHub](public-clone-verification.json): 39 pruebas aprobadas y preparación con hashes idénticos a CCS.
 - [Fuente y contexto](provenance.json), [hashes de fuente](source-sha256.json), [hashes de contexto](context-sha256.json).
 - [E2E CCS aprobado](runtime/final-db-e2e-02.json) y [fallo anterior por falta de espacio](runtime/final-db-e2e.json).
 - [E2E GitHub Actions](runtime/github-actions-db-e2e.json).

@@ -1,0 +1,40 @@
+{
+  "checked_public_commit": "15e92a154200363f48b6d90aea09a48134cd6747",
+  "clone_url": "https://github.com/sjaramillov/agentic-transformation-workshop-latam.git",
+  "clone_kind": "fresh shallow HTTPS clone",
+  "public_unit_tests": {
+    "passed": 39,
+    "skipped": 0
+  },
+  "prepared_application_hashes_match_ccs": true,
+  "prepared_context_hashes_match_ccs": true,
+  "event_archive_required": false,
+  "source_commit_evaluated_in_ccs": "401e5317567f3500843bc722893bf6d22b733390",
+  "ci": {
+    "conclusion": "success",
+    "headSha": "15e92a154200363f48b6d90aea09a48134cd6747",
+    "url": "https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/38932711091",
+    "jobs": [
+      {
+        "name": "database-e2e",
+        "result": "success"
+      },
+      {
+        "name": "public-checks (ubuntu-latest, 3.14)",
+        "result": "success"
+      },
+      {
+        "name": "public-checks (macos-latest, 3.11)",
+        "result": "success"
+      },
+      {
+        "name": "public-checks (macos-latest, 3.14)",
+        "result": "success"
+      },
+      {
+        "name": "public-checks (ubuntu-latest, 3.11)",
+        "result": "success"
+      }
+    ]
+  }
+}

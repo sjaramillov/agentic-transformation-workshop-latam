@@ -1,4 +1,4 @@
-> **Evidencia inicial, anterior al ledger independiente.** Consulta [la evidencia vigente](../CCS_DATABASE_E2E.md).
+> **Archivo histórico: evidencia inicial, anterior al ledger independiente.** Consulta [la evidencia vigente](../CCS_DATABASE_E2E.md).
 
 # Validación E2E de la réplica MIT en CCS
 

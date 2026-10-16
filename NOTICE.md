@@ -2,7 +2,7 @@
 
 ## Material propio
 
-La guía resumida en español y los cinco diagramas de `diagramas/` son contribuciones originales de este repositorio y están bajo MIT.
+La guía resumida en español, los scripts de `scripts/`, las pruebas de `tests/` y los cinco diagramas de `diagramas/` son contribuciones originales de este repositorio y están bajo MIT.
 
 ## AWS y Workshop Studio
 

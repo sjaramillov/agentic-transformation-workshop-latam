@@ -6,10 +6,18 @@ Una guía práctica, en español, para estudiar y volver a recorrer el taller de
 
 ## Empieza aquí
 
+- **[Inicio rápido y práctica offline](INICIO_RAPIDO.md)**: restaura el paquete y recorre A–C sin AWS.
+- [Auditoría E2E](AUDITORIA_E2E.md): correcciones, evidencia y pruebas pendientes.
+- [Ejecución AWS](EJECUCION_AWS.md): acceso, rutas, publicación de TD y aceptación.
 - [Guía de réplica](GUIA_REPLICACION.md): requisitos, secuencia de módulos, comandos y puntos de verificación.
 - [Tableros visuales](diagramas/README.md): cinco diagramas originales tipo post-it sobre el flujo y sus controles.
+- [Prompts reutilizables](PROMPTS.md): mapeo, priorización y comparación con evidencia.
 - [Fuentes y recursos](RECURSOS.md): páginas del evento y referencias de AWS/Kiro.
 - [Alcance de licencias y atribución](NOTICE.md).
+
+## Estado de reproducción
+
+La restauración y el recorrido offline A–C se verifican con la captura real. El repositorio incluye scripts de recuperación, inventarios con hashes y pruebas automatizadas. Los análisis AWS y las remediaciones H–I no se han vuelto a ejecutar en una cuenta nueva: consulta el alcance exacto en la auditoría.
 
 ## Tableros
 

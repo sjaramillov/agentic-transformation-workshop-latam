@@ -4,7 +4,7 @@
 
 La captura local `resources/agentic-workshop-materials-2026-10-15.tar.gz` incluye `apps/travelcorp-portfolio`, el directorio `orchestrator` del IDE de esa sesión y los informes existentes al capturar. Contiene código de ejemplo, resultados precomputados y estado de ejercicios A–C; no incluye credenciales de AWS. El archivo sigue en la carpeta local original, pero está excluido del repositorio público: no se encontró una licencia de redistribución para TravelCorp y no se le aplica la MIT de esta guía.
 
-El informe ARA activo clasifica `booking-service` como `Not Agent-Integrable` con 5 bloqueadores; la página muestra un ejemplo estático con 6. El análisis MODA en vivo aún estaba ejecutándose al capturar, por lo que no había resultado MODA consolidado en el directorio de informes. El paquete sí contiene un baseline precomputado; no tomarlo por resultado de una nueva réplica. Su checksum local está en [`CHECKSUMS.txt`](CHECKSUMS.txt).
+El informe ARA activo clasifica `booking-service` como `Not Agent-Integrable` con 5 bloqueadores; la página muestra un ejemplo estático con 6. No había MODA consolidado en `reports/`, pero la auditoría encontró su conjunto de cuatro artefactos dentro de `src/booking-service/services/booking-service/modernization-readiness-analysis/`. La consulta posterior al IDE mostró la ejecución anterior como `complete`. Ese JSON declara `Not Ready` por puntuación y `Remediation Required` por conteo, con una marca explícita de divergencia: conserva ambas lecturas, no normalices el dato. El paquete también contiene un baseline precomputado; ninguno de estos informes es resultado de una nueva réplica. Su checksum local está en [`CHECKSUMS.txt`](CHECKSUMS.txt).
 
 ## Repositorio público de AWS
 
@@ -49,3 +49,13 @@ Estas páginas pertenecen al evento `Agentic Transformation Workshop for LATAM p
 ## Diagramas originales del módulo J y tableros de esta guía
 
 La página vincula cinco PNG bajo `workshop/static/images/operating-model/`; sus rutas y descripciones están en [`assets/README.md`](assets/README.md). La ruta directa entregó una página del sitio y la navegación del evento devolvió “Page not found” al momento de la captura; no se guardaron respuestas HTML como imágenes. Esta guía incluye tableros explicativos originales en [`diagramas/`](diagramas/README.md); no son copias de esos PNG.
+
+## Referencias contrastadas durante la auditoría
+
+- [Prerequisitos de continuous modernization](https://docs.aws.amazon.com/transform/latest/userguide/ct-getting-started.html)
+- [Fuentes, análisis, IDs y remediación](https://docs.aws.amazon.com/transform/latest/userguide/ct-working-with.html)
+- [Publicación y versiones de TD](https://docs.aws.amazon.com/transform/latest/userguide/custom-workflows.html)
+- [Categorías de TD](https://docs.aws.amazon.com/transform/latest/userguide/custom.html)
+- [Diagnóstico de ATX](https://docs.aws.amazon.com/transform/latest/userguide/ct-troubleshooting.html)
+
+La documentación pública y el CLI del evento pueden diferir. Conserva `atx --version` y consulta `--help` antes de incorporar un flag nuevo.

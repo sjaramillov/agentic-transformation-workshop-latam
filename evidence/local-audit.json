@@ -1,0 +1,52 @@
+{
+  "status": "passed_local_only",
+  "recorded_at_utc": "2026-10-16T01:57:50.031045+00:00",
+  "platform": "macOS arm64",
+  "archive_sha256": "adb4440ce3a709a2b4f6718beb1115bf56f443c82b4cce8200b7d867b47271ce",
+  "archive_entries": 855,
+  "test_runs": [
+    {
+      "python": "3.11.15",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "python": "3.14.0",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "cli_flow": {
+    "restore": true,
+    "doctor_offline": true,
+    "rehearse_A_B_C": true,
+    "captured_report_files": 12,
+    "precomputed_report_files": 32
+  },
+  "private_archive_required": true,
+  "aws_D_to_I_rerun": false,
+  "runtime_deployment_tested": false,
+  "browser_mobile_visual_tested": false,
+  "source_sha256": {
+    "scripts/lab.py": "170f303830389748a0f7443b35307e1c0d8574d4ac3f601763f123f967865021",
+    "tests/test_lab.py": "9fe6881bab40e010a3f79d1a34d2283b344b3272790dc1cb5055b921daa7b230",
+    "tests/test_docs.py": "fd7ae3a15d4a5e4b7da7da26f9c21b51425c2ba53248807c61a7f161440866e7"
+  },
+  "clean_clone_cli_flow": {
+    "passed": true,
+    "steps": [
+      "public-tests",
+      "restore",
+      "doctor",
+      "rehearse",
+      "collect-captured",
+      "collect-precomputed",
+      "private-archive-tests"
+    ],
+    "working_tree_clean_after": true
+  }
+}

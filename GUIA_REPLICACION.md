@@ -1,5 +1,7 @@
 # Guía para replicar el Agentic Transformation Workshop
 
+> **Ruta recomendada:** empieza por [INICIO_RAPIDO.md](INICIO_RAPIDO.md). Esta guía explica A–J; [EJECUCION_AWS.md](EJECUCION_AWS.md) reúne la preparación operativa y los criterios de aceptación.
+
 ## 1. Alcance del taller
 
 El taller sigue una cadena completa sobre TravelCorp, una compañía ficticia de viajes. A–C modelan el proceso y diseñan un agente; D–E miden las aplicaciones con Agentic Readiness Analysis (ARA) y Modernization Readiness Analysis (MODA); F escala las mediciones a todos los repositorios; G organiza el trabajo; H aplica dos cambios acotados mediante Transformation Definitions (TD); I vuelve a medirlos; J describe cómo operar ese ciclo en una organización.
@@ -12,7 +14,7 @@ El caso principal es `booking-service`, un monolito PHP heredado. El diseño de 
 
 ### Cuenta y entorno
 
-Para reproducirlo se necesita una cuenta AWS propia con permisos de administración o los permisos específicos de `static/iam_policy.json` si ese archivo está disponible en el paquete oficial del taller. Este repositorio no lo incluye. Se recomienda usar una cuenta no productiva y una región donde estén disponibles AWS Transform y los servicios usados. El evento usaba `us-east-1`; sus cuentas temporales se reciclaban al terminar.
+Para ejecutar D–I se necesita una cuenta AWS con los permisos específicos documentados por AWS Transform. No hace falta una cuenta AWS para A–C offline. La política `static/iam_policy.json` mencionada por el evento no está incluida en esta copia; no asumir que se necesita administración para todos los pasos. Se recomienda usar una cuenta no productiva y una región donde estén disponibles AWS Transform y los servicios usados. El evento usaba `us-east-1`; sus cuentas temporales se reciclaban al terminar.
 
 El entorno original usaba un IDE VS Code Server en EC2 detrás de CloudFront. El stack `VsCodeServerIDE` creaba VPC, subred, gateway, `t3.large`, rol de instancia, parámetro SSM y distribución CloudFront. En una réplica propia, revisar primero la arquitectura, permisos, costos y estado actual de AWS Transform. La página del taller daba una estimación orientativa de USD 3–5 para una sesión de 3 horas, principalmente por Bedrock y la instancia; no usar esa cifra como cotización actual.
 
@@ -20,9 +22,12 @@ El entorno original usaba un IDE VS Code Server en EC2 detrás de CloudFront. El
 
 ### Herramientas y archivos
 
-El IDE del evento ya tenía el CLI `atx`, Kiro CLI, AWS CLI, Python 3.11, Docker, el paquete Python `strands`, el material TravelCorp y el orquestador. Confirma disponibilidad antes de empezar:
+El IDE del evento ya tenía el CLI `atx`, Kiro CLI, AWS CLI, Python 3.11, Docker, el paquete Python `strands`, el material TravelCorp y el orquestador. Para la práctica offline bastan Python 3.11+ y Bash. Para la ejecución AWS se necesitan además Git, Node.js 22+, jq, ATX, AWS CLI y Kiro; Strands/boto3 solo para las conversaciones de A–C en vivo. Docker corresponde al trabajo con contenedores, no a leer informes. Confirma las herramientas de la ruta elegida:
 
 ```bash
+git --version
+node --version
+jq --version
 atx --version
 kiro-cli --version
 aws --version
@@ -47,9 +52,9 @@ Solo `src/` se registra como fuente de análisis; así los directorios de soport
 
 ### Acceso a AWS Transform y Kiro
 
-1. En la consola AWS, selecciona `us-east-1` y habilita la aplicación web de AWS Transform con **Quick start**. La guía advertía que algunas decisiones de **Manual setup** no se pueden cambiar después de habilitar el servicio.
+1. En la cuenta del evento, selecciona `us-east-1` y habilita la aplicación web de AWS Transform con **Quick start**. La guía advertía que algunas decisiones de **Manual setup** no se pueden cambiar después de habilitar el servicio.
 2. Abre la URL de la aplicación web que aparece en Service management y entra en **Continuous modernization**. El dashboard puede decir que no hay análisis hasta que corra el primero; la lista CLI confirma la fuente.
-3. No ejecutes el instalador CLI que la consola pueda mostrar: el IDE del taller ya tenía `atx` configurado.
+3. El IDE del evento ya tenía `atx` configurado. En un equipo nuevo, instala el CLI según la guía oficial y comprueba su ayuda; evita reemplazar a ciegas la versión preinstalada del evento.
 4. Para Kiro CLI usa el flujo de dispositivo con un AWS Builder ID:
 
 ```bash
@@ -82,14 +87,22 @@ Los slugs esperados son `travelcorp::booking-service`, `travelcorp::notification
 
 Una cuenta nueva puede mostrar en AWS Transform una página para desplegar dispatcher, scheduler y cómputo de análisis/remediación en AWS Batch. Ese modo remoto sirve para ejecutar análisis a escala y con programación; no se necesita para las corridas manuales del taller. La configuración de Batch exige subredes privadas con salida mediante NAT o VPC endpoints y DNS habilitado en la VPC. `atx ct remote network discover` informa si una red existente cumple; `atx ct remote network create` crea una VPC y sí aprovisiona recursos. Antes de desplegarlo en una cuenta propia, confirma permisos, arquitectura y costos con las instrucciones vigentes de AWS Transform.
 
+### Ruta para los comandos siguientes
+
+En cada terminal Bash define la raíz de tu entorno (el IDE usa `~/environment`; la práctica local usa el destino de restauración):
+
+```bash
+export LAB_ENV="${LAB_ENV:-$HOME/environment}"
+```
+
 ## 3. Módulos A–C: modelar y diseñar
 
-Las tres primeras fases usan un facilitador de sala simulado. Cada fase genera su propio archivo de tablero Markdown, JSON de transferencia y decisiones en `run-manifest.json`. Mantén la terminal del facilitador abierta; abre una segunda terminal para editar o previsualizar el tablero.
+Las tres primeras fases usan un facilitador de sala simulado. Agrega `--offline` a cada comando para usar diálogos predeterminados sin Bedrock. La ruta automatizada y aislada está en el inicio rápido. Cada fase genera su propio archivo de tablero Markdown, JSON de transferencia y decisiones en `run-manifest.json`. Mantén la terminal del facilitador abierta; abre una segunda terminal para editar o previsualizar el tablero.
 
 ### A. Modelar el proceso
 
 ```bash
-cd ~/environment/apps/travelcorp-portfolio/exercises
+cd "$LAB_ENV/apps/travelcorp-portfolio/exercises"
 python3 -m agentstorming.facilitate
 ```
 
@@ -122,7 +135,7 @@ python3 -m agentstorming.facilitate --phase 3
 
 Construye cuatro carriles: sistemas externos, datos, agente y persona. En el ejemplo, un evento inicia el proceso; el agente reúne opciones y redacta una recomendación; Step Functions espera la decisión de la persona; tras la aprobación se registra y notifica; CloudWatch mide duración y frecuencia de anulaciones. Marca cada endpoint como **Tool** si produce efectos o **Resource** si solo consulta datos.
 
-Los artefactos son `workflow-design-output.md`, `atx-config-ara.yaml` y `atx-config-mod.yaml`. El módulo D y el módulo H usan el contexto ARA; los módulos E y G usan la intención de modernización. Cierra las previsualizaciones anteriores antes de cada fase para no confundir tableros.
+El tablero `workflow-design-output.md` queda en `exercises/`; `atx-config-ara.yaml`, `atx-config-mod.yaml` y `run-manifest.json` se escriben en el directorio padre `travelcorp-portfolio/`. El módulo D y el módulo H usan el contexto ARA; los módulos E y G usan la intención de modernización. Cierra las previsualizaciones anteriores antes de cada fase para no confundir tableros.
 
 ## 4. Módulos D–G: medir, relacionar y priorizar
 
@@ -136,7 +149,7 @@ atx ct analysis run \
   --repo travelcorp::booking-service \
   --source travelcorp \
   --agent-scope write-enabled \
-  --context "$(bash ~/environment/apps/travelcorp-portfolio/exercises/build-atx-context.sh ara)"
+  --context "$(bash "$LAB_ENV/apps/travelcorp-portfolio/exercises/build-atx-context.sh" ara)"
 ```
 
 `--agent-scope write-enabled` evalúa el servicio como una API que puede registrar o modificar reservas. El contexto del ejercicio A–C personaliza la evaluación a los endpoints del agente; si se saltan esas fases, el escaneo puede correrse sin ese contexto. ARA es una evaluación: no incluye una transformación que arregle automáticamente sus hallazgos.
@@ -144,20 +157,23 @@ atx ct analysis run \
 ARA puede tardar 15–25 minutos. Consulta el estado desde otra terminal:
 
 ```bash
-atx ct analysis list --type agentic-readiness --json \
-  | jq -r '.[0] | "\(.status) \(.analysis_type) \(.completed_at // "running")"'
+atx ct analysis list --type agentic-readiness --json
+# Usa el ID de tu ejecución; el primer elemento puede ser de otra corrida.
+atx ct analysis get --id ID --json
 ```
 
-El CLI hace un resumen de portafolio después del análisis de un repositorio. En una corrida individual, que esa etapa no encuentre informe agregado no significa que el informe ARA haya fallado. Si sigue `running` por más de 25 minutos sin avance, inspecciona el ID antes de cancelar y reintentar; una ejecución zombi puede bloquear una relectura posterior.
+El CLI hace un resumen de portafolio después del análisis de un repositorio. Verifica por separado el estado del ID de análisis y sus artefactos; no ignores errores genéricamente porque parezcan del rollup. Si sigue `running` por más de 25 minutos sin avance, inspecciona el ID antes de cancelar y reintentar; una ejecución zombi puede bloquear una relectura posterior.
 
-Consolida y lee el informe:
+Conserva primero una copia en un directorio nuevo con `lab.py collect` (inicio rápido). El siguiente es el comando original, reservado al IDE: puede eliminar reportes previos y terminar el proceso del puerto 9090 antes de iniciar un servidor. Lee su código antes de reutilizarlo en otra máquina.
+
+Consolidación original del evento:
 
 ```bash
-bash ~/environment/apps/travelcorp-portfolio/exercises/consolidate-reports.sh \
+bash "$LAB_ENV/apps/travelcorp-portfolio/exercises/consolidate-reports.sh" \
   --repo booking-service
 ```
 
-La salida se guarda en `~/environment/reports/ara/` como Markdown, JSON, HTML y metadatos. Para la clasificación automatizada, inspecciona el JSON (`.classification`); para evidencia, ruta de código y razonamiento, usa el Markdown/HTML. En el estado de ejemplo, la corrida write-enabled señalaba seis bloqueadores: autenticación de máquina, auditoría, contrato API, idempotencia, clasificación de datos y compensación transaccional.
+La salida se guarda en `~/environment/reports/ara/` como Markdown, JSON, HTML y metadatos. Para la clasificación automatizada, inspecciona el JSON (`.classification`); para evidencia, ruta de código y razonamiento, usa el Markdown/HTML. El baseline precomputado tiene seis bloqueadores; la captura de ARA tiene cinco. No son el mismo resultado. El ejemplo estático enumera: autenticación de máquina, auditoría, contrato API, idempotencia, clasificación de datos y compensación transaccional.
 
 ### E. MODA para `booking-service`
 
@@ -168,7 +184,7 @@ atx ct analysis run \
   --type modernization-readiness \
   --repo travelcorp::booking-service \
   --source travelcorp \
-  --context "$(bash ~/environment/apps/travelcorp-portfolio/exercises/build-atx-context.sh mod)" \
+  --context "$(bash "$LAB_ENV/apps/travelcorp-portfolio/exercises/build-atx-context.sh" mod)" \
   --prefer eks \
   --avoid self-managed-mysql,manual-deployments,monolith-in-place
 ```
@@ -186,10 +202,10 @@ Al omitir `--repo`, el CLI examina todos los repositorios descubiertos y agrega 
 ```bash
 atx ct analysis run --type agentic-readiness --source travelcorp \
   --agent-scope write-enabled \
-  --context "$(bash ~/environment/apps/travelcorp-portfolio/exercises/build-atx-context.sh ara)"
+  --context "$(bash "$LAB_ENV/apps/travelcorp-portfolio/exercises/build-atx-context.sh" ara)"
 
 atx ct analysis run --type modernization-readiness --source travelcorp \
-  --context "$(bash ~/environment/apps/travelcorp-portfolio/exercises/build-atx-context.sh mod)" \
+  --context "$(bash "$LAB_ENV/apps/travelcorp-portfolio/exercises/build-atx-context.sh" mod)" \
   --prefer eks \
   --avoid self-managed-mysql,manual-deployments,monolith-in-place
 ```
@@ -200,7 +216,7 @@ En el ejemplo, `payment-gateway` sirve como referencia más moderna; `booking-se
 
 Kiro lee las salidas A–C, ambos informes y los dos archivos de mapeo. Pídele enumerar todos los bloqueadores ARA y pathways MODA activados, asociarlos con agentes y servicios, y agruparlos en cuatro fases: victorias rápidas, despejar el camino del agente prioritario, resto de remediaciones y desbloqueos de datos con posible equipo dueño.
 
-Guarda el resultado como `prioritized-roadmap.md`. Revisa con criterio humano el orden, la capacidad de los equipos y los puntos donde las tareas compiten por las mismas personas. El ejemplo pone primero `booking-service`, porque el agente de rebooking depende de él y necesita resolver `INF-Q1` y `AUTH-Q1`.
+Puedes usar las plantillas de [PROMPTS.md](PROMPTS.md). Guarda el resultado como `prioritized-roadmap.md`. Revisa con criterio humano el orden, la capacidad de los equipos y los puntos donde las tareas compiten por las mismas personas. El ejemplo pone primero `booking-service`, porque el agente de rebooking depende de él y necesita resolver `INF-Q1` y `AUTH-Q1`.
 
 ## 5. Módulos H–I: cambiar y comprobar
 
@@ -211,7 +227,7 @@ El taller publica dos TD personalizados:
 - `workshop-containerize-to-eks`: genera Dockerfile, manifiestos Kubernetes y externaliza configuración para preparar PHP/Apache para EKS.
 - `workshop-booking-service-fix-blockers`: añade identidad de máquina y controles de API, auditoría, datos y consistencia para la ruta del agente.
 
-Se publican con `atx custom def publish` desde `~/environment`. Antes de `remediation create`, inspecciona `git status`, conserva cualquier informe y confirma que no haya cambios sin revisar. La guía original propone limpiar artefactos de informes dentro del repositorio, pero esa limpieza borra la carpeta `services/`; no ejecutes comandos `rm -rf` sin inspeccionar la ruta y guardar lo que necesites.
+Los comandos completos de publicación, compatibles con la ayuda disponible, están en [EJECUCION_AWS.md](EJECUCION_AWS.md). Antes de `remediation create`, inspecciona `git status`, conserva cualquier informe y confirma que no haya cambios sin revisar. La guía original propone limpiar artefactos de informes dentro del repositorio, pero esa limpieza borra la carpeta `services/`; no ejecutes comandos `rm -rf` sin inspeccionar la ruta y guardar lo que necesites.
 
 Contenerización:
 
@@ -224,7 +240,7 @@ atx ct remediation create \
   --local
 ```
 
-Luego verifica estado y diff de la rama `atx/*`. `--local` crea cambios locales y no un PR ni recursos AWS. Los archivos Docker/Kubernetes por sí solos no limpian `INF-Q1`: la plantilla de infraestructura debe dejar de apuntar a EC2 y el pipeline debe desplegar en el clúster compartido `cluster-x`. Los archivos `platform-team/` del paquete describen ese pipeline y la plantilla posterior. Revisa el diff y decide manualmente si se integra a `main`.
+Consulta `atx ct remediation status --id ID --json` y revisa el diff de la rama exacta devuelta por esa remediación. No elijas la rama más reciente: los análisis también pueden dejar ramas temporales. `--local` crea cambios locales y no un PR ni recursos AWS. Los archivos Docker/Kubernetes por sí solos no limpian `INF-Q1`: la plantilla de infraestructura debe dejar de apuntar a EC2 y el pipeline debe desplegar en el clúster compartido `cluster-x`. Los archivos `platform-team/` del paquete describen ese pipeline y la plantilla posterior. Revisa el diff y decide manualmente si se integra a `main`.
 
 Para la ruta de desbloqueo de ARA, requiere `atx-config-ara.yaml` de C:
 
@@ -234,7 +250,7 @@ atx ct remediation create \
   --source travelcorp \
   --transformation-name workshop-booking-service-fix-blockers \
   --name fix-auth-blockers \
-  -g file://apps/travelcorp-portfolio/atx-config-ara.yaml \
+  -g "file://$LAB_ENV/apps/travelcorp-portfolio/atx-config-ara.yaml" \
   --local
 ```
 
@@ -247,14 +263,14 @@ Guarda informes “antes” y confirma que los cambios aprobados están en `main
 Consolidación selectiva:
 
 ```bash
-bash ~/environment/apps/travelcorp-portfolio/exercises/consolidate-reports.sh \
+bash "$LAB_ENV/apps/travelcorp-portfolio/exercises/consolidate-reports.sh" \
   --repo booking-service --only moda
 
-bash ~/environment/apps/travelcorp-portfolio/exercises/consolidate-reports.sh \
+bash "$LAB_ENV/apps/travelcorp-portfolio/exercises/consolidate-reports.sh" \
   --repo booking-service --only ara
 ```
 
-En el ejemplo, MODA deja de activar **Move to Containers** cuando `INF-Q1` se resuelve, aunque su tier permanece `Remediation Required` por otros hallazgos. ARA pasa a `Pilot-Ready` cuando desaparece el conjunto de bloqueadores write-enabled. Compara findings concretos y pathways, no solo totales: la remediación es una hipótesis hasta que el nuevo análisis la confirma.
+El resultado esperado por el ejercicio es que MODA deje de activar **Move to Containers** cuando `INF-Q1` se resuelve, aunque su tier permanece `Remediation Required` por otros hallazgos. El ejercicio espera que ARA llegue a `Pilot-Ready` al resolver los bloqueadores write-enabled; una salida generativa no garantiza ese resultado y debe comprobarse. Compara findings concretos y pathways, no solo totales: la remediación es una hipótesis hasta que el nuevo análisis la confirma.
 
 ## 6. Módulo J: operar el ciclo en una organización
 
@@ -277,6 +293,6 @@ aws cloudformation delete-stack --stack-name VsCodeServerIDE
 aws cloudformation wait stack-delete-complete --stack-name VsCodeServerIDE
 ```
 
-Este comando elimina la pila completa y el IDE. Ejecutarlo solo en tu propia cuenta, después de verificar el nombre de pila y respaldar todo lo que quieras conservar. No se ejecutó como parte de esta captura.
+Este comando elimina esa pila y el IDE, pero puede dejar otras pilas creadas para ATX remoto o despliegues. Inventaría los recursos antes y después; no asumas que terminaron todos los cargos. Ejecutarlo solo en tu propia cuenta, después de verificar el nombre de pila y respaldar todo lo que quieras conservar. No se ejecutó como parte de esta captura.
 
 La copia local conserva una guía de trabajo, enlaces de referencia, el paquete TravelCorp del IDE y el repositorio público del orquestador. No conserva el sandbox AWS activo ni sus credenciales. Antes de una réplica real, confirma disponibilidad regional, modelo de Bedrock, versión CLI, permisos IAM, costos y cualquier cambio reciente en la documentación oficial.

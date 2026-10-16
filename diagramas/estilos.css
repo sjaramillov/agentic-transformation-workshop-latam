@@ -34,6 +34,7 @@ h2 { margin: .35rem 0 .4rem; font-size: clamp(1.45rem, 3vw, 2rem); line-height: 
 .board-copy p { max-width: 850px; margin: .4rem 0 .8rem; color: var(--muted); }
 .board-copy a { color: var(--white); background: var(--blue); }
 .board-copy a:hover, .board-copy a:focus-visible { outline: 3px solid #e7bf58; outline-offset: 2px; background: #1d3f59; }
+.board-scroll { overflow-x: auto; overscroll-behavior-x: contain; }
 .board-card img { display: block; width: 100%; height: auto; margin-top: .7rem; }
 footer { border-top: 1px solid var(--line); padding: 1.25rem; text-align: center; color: var(--muted); }
 footer a { color: var(--blue); }
@@ -42,6 +43,7 @@ footer a { color: var(--blue); }
   .hero { padding-top: 2.4rem; }
   main { width: min(100% - 1rem, 1320px); margin-top: 1rem; }
   .board-card { border-radius: 12px; }
+  .board-card img { min-width: 1100px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

@@ -9,6 +9,9 @@ Una guía práctica, en español, para estudiar y volver a recorrer el taller de
 - **[Inicio rápido y práctica offline](INICIO_RAPIDO.md)**: restaura el paquete y recorre A–C sin AWS.
 - [Auditoría E2E](AUDITORIA_E2E.md): correcciones, evidencia y pruebas pendientes.
 - [Ejecución AWS](EJECUCION_AWS.md): acceso, rutas, publicación de TD y aceptación.
+- [Pruebas del contenedor](RUNTIME_LOCAL.md): detectar y corregir fallos de empaquetado y sondas.
+- [Preparación con CloudShell](CLOUDSHELL.md): recorrido comprobado para una cuenta propia.
+- [Revisión de las TD](LIMITACIONES_TD.md): problemas de los ejemplos y criterios para aceptar una remediación.
 - [Guía de réplica](GUIA_REPLICACION.md): requisitos, secuencia de módulos, comandos y puntos de verificación.
 - [Tableros visuales](diagramas/README.md): cinco diagramas originales tipo post-it sobre el flujo y sus controles.
 - [Prompts reutilizables](PROMPTS.md): mapeo, priorización y comparación con evidencia.
@@ -17,7 +20,7 @@ Una guía práctica, en español, para estudiar y volver a recorrer el taller de
 
 ## Estado de reproducción
 
-La restauración y el recorrido offline A–C se verifican con la captura real. El repositorio incluye scripts de recuperación, inventarios con hashes y pruebas automatizadas. Los análisis AWS y las remediaciones H–I no se han vuelto a ejecutar en una cuenta nueva: consulta el alcance exacto en la auditoría.
+La restauración y el recorrido offline A–C se verifican con la captura real. También se ejecutaron análisis nuevos en una cuenta propia y se probaron contenedores generados por AWS Transform: aparecieron fallos que el estado `completed` no detectaba. Consulta [la evidencia de CCS](CCS_E2E.md), las correcciones reproducibles y los límites de aceptación; una clasificación del analizador no certifica un despliegue.
 
 ## Tableros
 

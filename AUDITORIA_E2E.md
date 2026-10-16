@@ -1,12 +1,12 @@
 # Auditoría de reproducción
 
-Fecha de revisión: **15 de octubre de 2026 (America/Bogota)**. Base revisada: commit `870b5f7`. Esta auditoría incorpora las correcciones y herramientas publicadas junto a este documento.
+Fecha de revisión inicial: **15 de octubre de 2026 (America/Bogota)**. Base revisada: commit `870b5f7`. La ejecución posterior del 16 de octubre UTC está documentada en [CCS_E2E.md](CCS_E2E.md); las secciones siguientes preservan el alcance y las observaciones de la auditoría inicial.
 
 ## Dictamen
 
 **La práctica local es reproducible con la captura autorizada. La réplica AWS completa aún no está certificada de extremo a extremo.** La versión inicial era una referencia útil, pero no traía restauración, pruebas ni instrucciones suficientes para reconstruir una cuenta nueva.
 
-El repositorio ahora ofrece un recorrido local A–C con una entrada verificable, salidas nuevas y criterios de éxito. Para D–I se completaron instrucciones y se contrastó la sintaxis; falta una nueva ejecución de análisis, remediación y medición en el entorno de destino. Un clon público no incluye el paquete TravelCorp por su alcance de licencia.
+El repositorio ofrece un recorrido local A–C con una entrada verificable, salidas nuevas y criterios de éxito. La ejecución posterior en CCS añadió análisis reales y comprobaciones del código generado, con fallos documentados y correcciones del empaquetado. Un clon público no incluye el paquete TravelCorp por su alcance de licencia.
 
 ## Hallazgos y correcciones
 
@@ -52,7 +52,7 @@ El número y resultado final de las pruebas locales se guardan en [evidence/loca
 
 No se corrige manualmente el informe de AWS para hacerlo coincidir con el resultado esperado. Los prompts de [PROMPTS.md](PROMPTS.md) preservan esas discrepancias al elaborar mapeos y comparaciones.
 
-## Qué falta para declarar E2E AWS aprobado
+## Pendientes identificados en la revisión inicial
 
 1. Preparar una cuenta y versión de herramientas concretas; verificar IAM, región y modelos. Falta la plantilla self-paced original del evento.
 2. Ejecutar D–E con ID, commit y contexto registrados; comprobar que los artefactos corresponden a cada ejecución.
@@ -60,7 +60,7 @@ No se corrige manualmente el informe de AWS para hacerlo coincidir con el result
 4. Repetir I con el mismo alcance y explicar discrepancias. No basta con que la remediación tenga estado `complete`.
 5. Si se pretende desplegar, comprobar plataforma, imagen, IaC, identidad, escrituras, compensación, revisión humana, observabilidad y rollback en el runtime real.
 
-En esta revisión no se aprovisionó infraestructura, no se ejecutaron remediaciones cloud y no se probó una aplicación TravelCorp desplegada. Por tanto, **no se garantiza ausencia de errores en AWS ni se presenta la práctica offline como validación de ese entorno**.
+En la revisión inicial no se aprovisionó infraestructura, no se ejecutaron remediaciones cloud y no se probó una aplicación TravelCorp desplegada. Los avances posteriores y sus límites se registran en CCS_E2E.md. **No se garantiza ausencia de errores en AWS ni se presenta la práctica offline como validación de ese entorno**.
 
 ## Repetir la auditoría local
 

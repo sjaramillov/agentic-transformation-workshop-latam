@@ -1,6 +1,6 @@
 # Recorrido AWS: preparación y criterios de aceptación
 
-Este recorrido ejecuta servicios AWS y puede generar cargos. **No se ejecutó de nuevo D–I durante la auditoría**. Se contrastaron comandos con la guía del evento, con `--help` del ATX instalado y con documentación oficial. El entorno del evento tenía ATX 3.9.0; la documentación pública puede describir opciones posteriores.
+Este recorrido ejecuta servicios AWS y puede generar cargos. Se contrastaron comandos con la guía del evento, con `--help` del ATX instalado y con documentación oficial. La [ejecución posterior en CCS](CCS_E2E.md) registra qué pasos se ejecutaron y qué fallos se observaron. El evento tenía ATX 3.9.0 y CCS utilizó 3.19.0; conserva la versión junto a los resultados.
 
 ## 1. Entorno y acceso
 
@@ -9,6 +9,8 @@ La opción más directa es continuar en el IDE ya preparado del evento mientras 
 La plantilla `VsCodeServerIDE` y la política IAM del evento **no están en esta copia**. Una cuenta nueva no queda lista solo con restaurar el tar. Puedes usar ejecución local de ATX en un equipo compatible preparado con la guía oficial; Batch/EKS no son requisitos para ejecutar los análisis locales. EKS aparece como destino de diseño de la remediación, no como un clúster que esta réplica haya creado.
 
 En el evento se usó `us-east-1` y Quick start para la aplicación web. En una cuenta propia define primero el acceso y almacenamiento con sus responsables. No sustituyas esa decisión por los valores del evento. Instala ATX solo si falta; en el IDE evita reemplazar la versión preinstalada sin revisar compatibilidad.
+
+El procedimiento observado para una cuenta propia está en [CLOUDSHELL.md](CLOUDSHELL.md). Antes de ejecutar H, revisa los hallazgos sobre las definiciones originales en [LIMITACIONES_TD.md](LIMITACIONES_TD.md).
 
 ## 2. Fija rutas y revisa el estado
 
@@ -160,13 +162,13 @@ cp "$PORTFOLIO/platform-team/booking-service-eks.yaml" infrastructure/booking-se
 git diff -- infrastructure/
 ```
 
-Estas copias modifican dos archivos locales. Revisa antes de confirmar el commit. El pipeline contiene supuestos de plataforma, permisos y recursos: cambiar IaC para que un analizador detecte EKS no demuestra que `cluster-x` exista ni que un deploy haya funcionado.
+Estas copias modifican dos archivos locales. La plantilla de pipeline capturada falla dos reglas de cfn-lint (fuente vacía y artefacto de entrada ausente); consulta [la validación ejecutada](LIMITACIONES_TD.md). Se usa aquí como declaración de arquitectura del ejercicio y requiere completar sus conexiones antes de cualquier despliegue. Revisa antes de confirmar el commit. El pipeline contiene supuestos de plataforma, permisos y recursos: cambiar IaC para que un analizador detecte EKS no demuestra que `cluster-x` exista ni que un deploy haya funcionado.
 
 ## 7. Aceptación de I y de un despliegue real
 
 Repite discovery y los análisis sobre `main`, manteniendo contexto y alcance. Guarda IDs, hashes y diffs de hallazgos; la salida de las TD es variable. No exijas un tier predeterminado ni ajustes código solo para hacer desaparecer una etiqueta.
 
-Para certificar un servicio desplegado también harían falta: build de la imagen, validación de IaC, autenticación positiva/negativa, reintentos idempotentes, compensación ante fallos, comprobación de PII, callback humano con timeout/rechazo, logs y rollback. **Esas pruebas de runtime no forman parte de la evidencia actual.** El taller diseña el workflow; no entrega un agente de rebooking desplegado por completar A–I.
+Para certificar un servicio desplegado también harían falta: build de la imagen, validación de IaC, autenticación positiva/negativa, reintentos idempotentes, compensación ante fallos, comprobación de PII, callback humano con timeout/rechazo, logs y rollback. En CCS se ejecutaron build, sintaxis PHP, HTTP sin DB y cfn-lint; consulta [los resultados](CCS_E2E.md). **Las pruebas completas de negocio y del despliegue siguen pendientes.** El taller diseña el workflow; no entrega un agente de rebooking desplegado por completar A–I.
 
 ## 8. Cierre
 

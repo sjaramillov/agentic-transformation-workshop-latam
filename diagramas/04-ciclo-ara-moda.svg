@@ -13,7 +13,7 @@
   <path d="M0 0H1600V140H0Z" fill="#17283b" />
   <text x="42" y="38" class="kicker" style="fill:#a8d9e6">CONTINUOUS MODERNIZATION · D–I</text>
   <text x="42" y="83" class="title white" style="fill:#fffdfa">Medir, cambiar y comprobar</text>
-  <text x="42" y="115" class="subtitle" style="fill:#d8e3eb">La remediación solo es una hipótesis hasta que una nueva medición confirma el resultado.</text>
+  <text x="42" y="115" class="subtitle" style="fill:#d8e3eb">Cada cambio necesita revisión, pruebas de runtime y una nueva medición comparable.</text>
   <text x="1554" y="48" text-anchor="end" class="tiny" style="fill:#c6d5df">ARA Y MODA SON LECTURAS DISTINTAS</text>
 
 
@@ -55,7 +55,7 @@
   <g>
     <circle cx="105" cy="837" r="18" fill="#ffe49b" /><text x="105" y="843" text-anchor="middle" class="tiny">1</text><text x="136" y="833" class="body white" style="fill:#fffdfa">Mismo alcance y rama</text><text x="136" y="856" class="tiny" style="fill:#d3dee7">La herramienta analiza la rama por defecto.</text>
     <circle cx="604" cy="837" r="18" fill="#cfe8f0" /><text x="604" y="843" text-anchor="middle" class="tiny">2</text><text x="635" y="833" class="body white" style="fill:#fffdfa">Comparar hallazgos concretos</text><text x="635" y="856" class="tiny" style="fill:#d3dee7">Tiers y pathways antes que totales agregados.</text>
-    <circle cx="1100" cy="837" r="18" fill="#d9ecdc" /><text x="1100" y="843" text-anchor="middle" class="tiny">3</text><text x="1131" y="833" class="body white" style="fill:#fffdfa">Verificar el informe nuevo</text><text x="1131" y="856" class="tiny" style="fill:#d3dee7">Markdown/JSON si el HTML parece desactualizado.</text>
+    <circle cx="1100" cy="837" r="18" fill="#d9ecdc" /><text x="1100" y="843" text-anchor="middle" class="tiny">3</text><text x="1131" y="833" class="body white" style="fill:#fffdfa">Verificar informe y runtime</text><text x="1131" y="856" class="tiny" style="fill:#d3dee7">Un tier no demuestra el comportamiento.</text>
   </g>
   <text x="50" y="960" class="tiny muted">Fuente conceptual: módulos D–I. ARA y MODA no comparten el mismo tipo de hallazgo ni el mismo criterio de éxito.</text>
 <polygon points="269.00,327.00 260.00,331.00 260.00,323.00" fill="#687887" stroke="none" aria-hidden="true" /><polygon points="487.00,327.00 478.00,331.00 478.00,323.00" fill="#687887" stroke="none" aria-hidden="true" /><polygon points="705.00,327.00 696.00,331.00 696.00,323.00" fill="#687887" stroke="none" aria-hidden="true" /><polygon points="923.00,327.00 914.00,331.00 914.00,323.00" fill="#687887" stroke="none" aria-hidden="true" /><polygon points="1141.00,327.00 1132.00,331.00 1132.00,323.00" fill="#687887" stroke="none" aria-hidden="true" /><polygon points="1359.00,327.00 1350.00,331.00 1350.00,323.00" fill="#687887" stroke="none" aria-hidden="true" /><polygon points="800.00,448.00 804.00,457.00 796.00,457.00" fill="#536575" stroke="none" aria-hidden="true" /></svg>

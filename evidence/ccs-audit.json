@@ -1,0 +1,107 @@
+{
+  "date_utc": "2026-10-16",
+  "scope": "one isolated booking-service copy",
+  "source_commit": "2ef490d9a411a5f0edd1b497553dcb3def5dd580",
+  "tool_versions": {
+    "node": "22.23.3",
+    "atx": "3.19.0",
+    "python": "3.13.15",
+    "cfn_lint": "1.57.2"
+  },
+  "new_contexts_sha256": {
+    "ara": "44c0f8cfa06ff4d64e55a8340eb3ff15cb400d597ea79b26bdc6d4ce9b2ffb2a",
+    "mod": "2ae53b9bd0b768a203e30c67ed5f2e7c9aebebf18cc3bbbca76d0d47f061e180"
+  },
+  "baseline": {
+    "ara": {
+      "tier": "Not Agent-Integrable",
+      "counts": {
+        "high": 17,
+        "medium": 15,
+        "low": 5,
+        "total": 37,
+        "blocker": 5,
+        "risk_safety": 12,
+        "risk_quality": 15,
+        "info": 5,
+        "na": 0,
+        "not_evaluated_extended": 0,
+        "pass": 6,
+        "questions_total": 43
+      }
+    },
+    "mod": {
+      "classification": {
+        "tier": "Remediation Required",
+        "high_count": 7,
+        "medium_count": 25,
+        "low_count": 2,
+        "rule_matched": "2-11 High \u2192 Remediation Required",
+        "classification_consistency_check": "consistent"
+      },
+      "overall_score": 1.59
+    }
+  },
+  "runtime_generated": {
+    "build": "passed",
+    "php_syntax": "passed",
+    "root_without_database": {
+      "http_status": 200,
+      "body": "PHP fatal database connection error"
+    },
+    "docker_health": "healthy_false_positive",
+    "api_bookings": 404,
+    "git_config_exposed": true
+  },
+  "cloud_deployment_executed": false,
+  "raw_reports": "kept private",
+  "runtime_corrected": {
+    "image_id": "sha256:67fe05788be41a199142e1e9378318e8fa73529a5267c8104022b749574a8aa6",
+    "base_reference": "php:8.2-apache@sha256:06617d90f29b57b2aa200a9df03b3bafbfa5c66d2e2913fbb2b5f775a8358465",
+    "build": "passed_after_scoped_cache_cleanup",
+    "php_readiness_syntax": "passed",
+    "liveness_http": 200,
+    "readiness_without_db_http": 503,
+    "git_config_http": 403,
+    "bookings_without_db_http": 500,
+    "full_database_business_flow_tested": false
+  },
+  "remediation": {
+    "containerize": {
+      "status": "completed",
+      "agent_minutes_reported": 10.59,
+      "generated_commit": "c2845031def372a63b871e54216edfa5bb7fcc3c"
+    },
+    "blockers": {
+      "status": "completed",
+      "agent_minutes_reported": 20.2,
+      "generated_commit": "b9be8dcf2f1a2173b5dca849ab481fb9ee1cafd3",
+      "php_syntax_external_check": "passed",
+      "shutdown_probe_before": "failed_on_closed_connection",
+      "shutdown_probe_after": "passed_after_original_patch",
+      "probe_scope": "fake mysqli; PHP callback ordering only",
+      "cfn_lint_errors": [
+        "E3691"
+      ],
+      "cfn_lint_warnings": [
+        "W2501"
+      ]
+    }
+  },
+  "public_suite": {
+    "python": "3.14.0",
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "private_archive_used": true,
+    "recorded_at_utc": "2026-10-16T03:14:12.485433+00:00"
+  },
+  "original_helpers_sha256": {
+    "scripts/probe_shutdown_order.php": "3af70b738032a9c9ee936c28a8b85472e89de557a893e6f25daa9727dcea1065",
+    "scripts/container_runtime_files.py": "fb6751a4ed2899090f968468040701c94768a2e88409441c1be5cfb7bf067eeb",
+    "scripts/verify_reports.py": "a090cbf611d9037ed9cf008064d8820cba76930cba093172e775ddc7516a64e4",
+    "scripts/fix_shutdown_order.py": "c73efcbb35fde5cdbe3504d81ccbf12537b8a029e70e27e6039adf6f44a62be4",
+    "scripts/lab.py": "170f303830389748a0f7443b35307e1c0d8574d4ac3f601763f123f967865021"
+  }
+}

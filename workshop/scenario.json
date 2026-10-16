@@ -1,0 +1,14 @@
+{
+  "name": "Booking MIT — reservas recuperables",
+  "actors": ["viajero", "agente de reservas", "operador"],
+  "events": ["reserva solicitada", "pago capturado", "reserva confirmada", "cancelación solicitada", "pago reembolsado", "reserva cancelada"],
+  "exceptions": ["cobro confirmado y proceso interrumpido", "fallo al persistir reserva", "proveedor de pagos no disponible", "auditoría temporalmente no disponible"],
+  "opportunities": [
+    {"id":"booking-assistant", "value":5, "feasibility":4, "risk":3, "autonomy":"propose-and-confirm", "reason":"Preparar la reserva; ejecutar creación o cancelación tras confirmación explícita del viajero."},
+    {"id":"audit-assistant", "value":3, "feasibility":5, "risk":1, "autonomy":"read-only", "reason":"Explicar el estado de una operación sin modificarlo."}
+  ],
+  "selected": "booking-assistant",
+  "invariants": ["una reserva confirmada implica un cobro capturado", "un fallo posterior al cobro exige compensación durable", "la misma clave y sujeto no duplican efectos", "cada sujeto solo accede a sus reservas", "transiciones y auditoría comparten transacción local"],
+  "workflow": ["recoger itinerario e importe sintéticos", "mostrar propuesta y obtener confirmación", "crear reserva con identidad y clave de idempotencia", "consultar estado y reintentar con la misma clave ante respuesta ambigua", "si se solicita cancelar, confirmar y reembolsar idempotentemente", "reconciliar y revisar auditoría"],
+  "roles": {"product":"acepta la intención y límites de autonomía", "engineering":"implementa contrato y recuperación", "security":"revisa identidad, scopes y auditoría", "operations":"observa, restaura y reconcilia"}
+}

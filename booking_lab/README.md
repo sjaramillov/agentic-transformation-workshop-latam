@@ -14,4 +14,11 @@ Requisitos: Python 3.11+, Docker y acceso al daemon. La guía completa, el contr
 - `run.py`: creación aislada del entorno y aceptación E2E con DB real.
 - `requirements.txt`, `images.lock.json`, `Dockerfile`: versiones e imágenes fijadas.
 
-Los casos no requieren AWS Transform. Para estudiar ARA/MODA, analiza este servicio como un repositorio propio y conserva sus resultados por separado de los informes históricos del PHP.
+Para una sesión interactiva usa `python3 booking_lab/run.py demo --output .local/demo.json` y `client.py` como explica la guía. Para ARA/MODA sigue [Ejecución AWS](../EJECUCION_AWS.md).
+
+
+## Security and audit changes
+
+Creation requires `bookings:write`; cancellation requires the independent `bookings:cancel` scope. All reads are constrained to the authenticated subject. The operator fixture issues five-minute tokens and rejects non-finite or boolean NumericDate values.
+
+The authoritative audit ledger is a separate process and volume with append-only endpoints, SHA256 chaining and HMAC signatures. See [AUDIT.md](AUDIT.md) for retention, externally retained checkpoints, tamper detection and the trust boundary. PostgreSQL `audit_events` is a query projection. The E2E includes real PostgreSQL recovery and an independent audit restore.

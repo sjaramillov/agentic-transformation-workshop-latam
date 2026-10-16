@@ -26,14 +26,21 @@ class Links(HTMLParser):
 
 
 class DocumentationTests(unittest.TestCase):
+    @staticmethod
+    def docs():
+        paths=list(ROOT.glob('*.md'))
+        for folder in ('diagramas','assets','booking_lab','workshop','historico'):
+            paths.extend((ROOT/folder).rglob('*.md'))
+        return paths
+
     def test_bash_snippets_parse(self):
-        for path in ROOT.glob("*.md"):
+        for path in self.docs():
             for index, snippet in enumerate(re.findall(r"```bash\n(.*?)```", path.read_text(), re.S)):
                 result = subprocess.run(["bash", "-n"], input=snippet, capture_output=True, text=True)
                 self.assertEqual(result.returncode, 0, f"{path.name} bloque {index}: {result.stderr}")
 
     def test_markdown_local_links(self):
-        for path in [*ROOT.glob("*.md"), *ROOT.glob("diagramas/*.md"), *ROOT.glob("assets/*.md")]:
+        for path in self.docs():
             for link in re.findall(r"\]\(([^)]+)\)", path.read_text()):
                 parts = urlsplit(link.strip("<>"))
                 if not parts.scheme and parts.path:

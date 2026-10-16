@@ -1,16 +1,29 @@
-# Recursos del taller
+# Recursos públicos del workshop
 
-## Paquete local del IDE (no publicado)
+Todos los materiales de la réplica están versionados:
 
-La captura local `resources/agentic-workshop-materials-2026-10-15.tar.gz` incluye `apps/travelcorp-portfolio`, el directorio `orchestrator` del IDE de esa sesión y los informes existentes al capturar. Contiene código de ejemplo, resultados precomputados y estado de ejercicios A–C; no incluye credenciales de AWS. El archivo sigue en la carpeta local original, pero está excluido del repositorio público: no se encontró una licencia de redistribución para TravelCorp y no se le aplica la MIT de esta guía.
+| Recurso | Ubicación | Uso |
+| --- | --- | --- |
+| Aplicación, DB y E2E | [booking_lab](booking_lab/README.md) | Crear, consultar, cancelar, compensar y auditar |
+| Caso y ejercicios A–C | [scenario.json](workshop/scenario.json) | Facilitar y modificar el ejemplo resuelto |
+| Preparador | [workshop.py](scripts/workshop.py) | Generar práctica y repositorios de análisis |
+| Contexto ARA | [ara.txt](workshop/contexts/ara.txt) | Alcance de agentes con escritura |
+| Contexto MODA | [moda.txt](workshop/contexts/moda.txt) | Modernización sin infraestructura asumida |
+| Transformación | [hardening](workshop/transformations/hardening/transformation_definition.md) | Corregir hallazgos y demostrar invariantes |
+| Decisiones y comparación | [decisión](workshop/templates/decision.md), [CSV](workshop/templates/comparison.csv) | Trazabilidad de G–I |
+| Tableros post-it | [galería](diagramas/README.md) | Explicación visual de A–J |
+| Evidencia | [DB](CCS_DATABASE_E2E.md), [ARA/MODA](CCS_E2E.md) | Mediciones observadas en CCS |
 
-El informe ARA activo clasifica `booking-service` como `Not Agent-Integrable` con 5 bloqueadores; la página muestra un ejemplo estático con 6. No había MODA consolidado en `reports/`, pero la auditoría encontró su conjunto de cuatro artefactos dentro de `src/booking-service/services/booking-service/modernization-readiness-analysis/`. La consulta posterior al IDE mostró la ejecución anterior como `complete`. Ese JSON declara `Not Ready` por puntuación y `Remediation Required` por conteo, con una marca explícita de divergencia: conserva ambas lecturas, no normalices el dato. El paquete también contiene un baseline precomputado; ninguno de estos informes es resultado de una nueva réplica. Su checksum local está en [`CHECKSUMS.txt`](CHECKSUMS.txt).
+## Fuentes oficiales
 
-## Repositorio público de AWS
-
-[AWS Samples: Portfolio Analysis Orchestrator](https://github.com/aws-samples/sample-agentic-readiness-analysis-orchestrator) es un proyecto complementario. La copia local consultada estaba en el commit `b48fd5ee1c94e56a7da76513ec388b6e00e886e5` (14 de octubre de 2026); este repositorio enlaza al upstream en vez de duplicarlo.
-
-La versión pública capturada contiene una carpeta `advisor/`; el IDE del evento contenía una carpeta `orchestrator/` distinta. El paquete local conserva la versión que acompañaba al taller.
+- [AWS Transform: preparación](https://docs.aws.amazon.com/transform/latest/userguide/ct-getting-started.html)
+- [Fuentes, análisis y remediación](https://docs.aws.amazon.com/transform/latest/userguide/ct-working-with.html)
+- [Transformaciones personalizadas](https://docs.aws.amazon.com/transform/latest/userguide/custom-workflows.html)
+- [Precios de Transform](https://aws.amazon.com/transform/pricing/)
+- [PostgreSQL: locks](https://www.postgresql.org/docs/16/explicit-locking.html)
+- [PostgreSQL: pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html)
+- [Psycopg: instalación](https://www.psycopg.org/psycopg3/docs/basic/install.html)
+- [AWS Samples: Portfolio Analysis Orchestrator](https://github.com/aws-samples/sample-agentic-readiness-analysis-orchestrator)
 
 ## Páginas del evento
 
@@ -46,16 +59,5 @@ Estas páginas pertenecen al evento `Agentic Transformation Workshop for LATAM p
 - [Precios de Amazon Bedrock](https://aws.amazon.com/bedrock/pricing/)
 - [Precios de Amazon CloudFront](https://aws.amazon.com/cloudfront/pricing/)
 
-## Diagramas originales del módulo J y tableros de esta guía
 
-La página vincula cinco PNG bajo `workshop/static/images/operating-model/`; sus rutas y descripciones están en [`assets/README.md`](assets/README.md). La ruta directa entregó una página del sitio y la navegación del evento devolvió “Page not found” al momento de la captura; no se guardaron respuestas HTML como imágenes. Esta guía incluye tableros explicativos originales en [`diagramas/`](diagramas/README.md); no son copias de esos PNG.
-
-## Referencias contrastadas durante la auditoría
-
-- [Prerequisitos de continuous modernization](https://docs.aws.amazon.com/transform/latest/userguide/ct-getting-started.html)
-- [Fuentes, análisis, IDs y remediación](https://docs.aws.amazon.com/transform/latest/userguide/ct-working-with.html)
-- [Publicación y versiones de TD](https://docs.aws.amazon.com/transform/latest/userguide/custom-workflows.html)
-- [Categorías de TD](https://docs.aws.amazon.com/transform/latest/userguide/custom.html)
-- [Diagnóstico de ATX](https://docs.aws.amazon.com/transform/latest/userguide/ct-troubleshooting.html)
-
-La documentación pública y el CLI del evento pueden diferir. Conserva `atx --version` y consulta `--help` antes de incorporar un flag nuevo.
+Las páginas del evento son referencias de procedencia. El recorrido público A–J está explicado en [GUIA_REPLICACION.md](GUIA_REPLICACION.md) y funciona con los archivos de este repositorio.

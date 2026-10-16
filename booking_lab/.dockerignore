@@ -4,3 +4,4 @@
 !auth.py
 !service.py
 !schema.sql
+!audit.py

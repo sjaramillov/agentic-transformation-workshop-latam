@@ -15,8 +15,6 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s tests -v
-      # The private workshop capture is deliberately absent. Public CI verifies
-      # our helpers/docs; RealArchiveE2E explicitly reports a skip, never a pass.
   database-e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 15

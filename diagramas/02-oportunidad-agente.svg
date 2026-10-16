@@ -11,7 +11,7 @@
   </defs>
   <rect width="1440" height="960" fill="#f4f1e9" /><rect width="1440" height="960" fill="url(#grid)" opacity=".6" />
   <path d="M0 0H1440V140H0Z" fill="#17283b" />
-  <text x="42" y="38" class="kicker" style="fill:#a8d9e6">TRAVELCORP · OPORTUNIDAD · B</text>
+  <text x="42" y="38" class="kicker" style="fill:#a8d9e6">BOOKING MIT · OPORTUNIDAD · B</text>
   <text x="42" y="83" class="title white" style="fill:#fffdfa">¿Dónde ayuda un agente?</text>
   <text x="42" y="115" class="subtitle" style="fill:#d8e3eb">La oportunidad aparece donde hay juicio y los datos necesarios están al alcance.</text>
   <text x="1397" y="48" text-anchor="end" class="tiny" style="fill:#c6d5df">UBICACIONES CUALITATIVAS · SIN PUNTUACIÓN</text>
@@ -47,7 +47,7 @@
       <rect x="582" y="255" width="334" height="100" rx="8" fill="#ffe49b" />
       <path d="M884 255H916V287Z" fill="#f2d36e" />
       <text x="600" y="280" class="tag">POSTURA P · CANDIDATO</text>
-      <text x="600" y="307" class="note-title">Rebooking</text>
+      <text x="600" y="307" class="note-title">Crear una reserva</text>
       <text x="600" y="333" class="body">Prepara opciones; una persona aprueba.</text>
     </g>
     <g transform="rotate(-.4 735 416)">

@@ -12,7 +12,7 @@
   </defs>
   <rect width="1650" height="980" fill="#f4f1e9" /><rect width="1650" height="980" fill="url(#grid)" opacity=".55" />
   <path d="M0 0H1650V140H0Z" fill="#17283b" />
-  <text x="42" y="38" class="kicker" style="fill:#a8d9e6">TRAVELCORP · DISEÑO PROPUESTO · C</text>
+  <text x="42" y="38" class="kicker" style="fill:#a8d9e6">BOOKING MIT · DISEÑO PROPUESTO · C</text>
   <text x="42" y="83" class="title white" style="fill:#fffdfa">Proponer, esperar, actuar</text>
   <text x="42" y="115" class="subtitle" style="fill:#d8e3eb">La persona conserva la decisión antes de cualquier escritura sobre la reserva.</text>
   <text x="1605" y="48" text-anchor="end" class="tiny" style="fill:#c6d5df">FLUJO EXPLICATIVO · LA APROBACIÓN ES EXPLÍCITA</text>
@@ -27,11 +27,11 @@
     <rect x="22" y="170" width="188" height="124" rx="12" fill="#d9eaf0" /><rect x="22" y="302" width="188" height="124" rx="12" fill="#dceadf" />
     <rect x="22" y="434" width="188" height="124" rx="12" fill="#e7def2" /><rect x="22" y="566" width="188" height="124" rx="12" fill="#f4e7b8" />
     <rect x="22" y="698" width="188" height="124" rx="12" fill="#dce5eb" />
-    <text x="42" y="220" class="lane">EXTERNO</text><text x="42" y="247" class="tiny muted">Aerolínea · viajero</text>
+    <text x="42" y="220" class="lane">EXTERNO</text><text x="42" y="247" class="tiny muted">Viajero · operador</text>
     <text x="42" y="352" class="lane">DATOS / SERVICIO</text><text x="42" y="379" class="tiny muted">booking · reglas</text>
     <text x="42" y="484" class="lane">AGENTE</text><text x="42" y="511" class="tiny muted">prepara, no aprueba</text>
     <text x="42" y="616" class="lane">PERSONA</text><text x="42" y="643" class="tiny muted">revisa y decide</text>
-    <text x="42" y="748" class="lane">ORQUESTACIÓN</text><text x="42" y="775" class="tiny muted">pausa · callback · telemetría</text>
+    <text x="42" y="748" class="lane">ORQUESTACIÓN</text><text x="42" y="775" class="tiny muted">saga · recuperación · auditoría</text>
   </g>
 
 
@@ -53,14 +53,14 @@
 
 
   <g filter="url(#shadow)">
-    <g><rect x="236" y="190" width="150" height="84" rx="9" fill="#cfe8f0" /><path d="M356 190H386V220Z" fill="#add6e2" /><text x="251" y="215" class="tag">INICIO</text><text x="251" y="241" class="note-title">Vuelo cancelado</text><text x="251" y="261" class="body">Evento de aerolínea</text></g>
-    <g><rect x="492" y="318" width="200" height="88" rx="9" fill="#d9ecdc" /><path d="M662 318H692V348Z" fill="#b9d9bf" /><text x="508" y="343" class="tag">LECTURA</text><text x="508" y="370" class="note-title">Reserva + alternativas</text><text x="508" y="391" class="body">Datos y reglas disponibles</text></g>
-    <g><rect x="794" y="448" width="198" height="92" rx="9" fill="#e4d8f0" /><path d="M962 448H992V478Z" fill="#cbb8e1" /><text x="810" y="474" class="tag">AGENT · POSTURA P</text><text x="810" y="501" class="note-title">Borrador de rebooking</text><text x="810" y="523" class="body">Opciones + explicación</text></g>
-    <g><rect x="1052" y="582" width="156" height="82" rx="9" fill="#ffe8a4" /><path d="M1178 582H1208V612Z" fill="#f1d373" /><text x="1067" y="607" class="tag">HUMAN REVIEW</text><text x="1067" y="634" class="note-title">Revisar propuesta</text><text x="1067" y="653" class="body">Editar o aprobar</text></g>
-    <g><rect x="1270" y="309" width="178" height="84" rx="9" fill="#cfe8f0" /><path d="M1418 309H1448V339Z" fill="#add6e2" /><text x="1285" y="334" class="tag">SOLO SI APRUEBA</text><text x="1285" y="360" class="note-title">Actualizar booking</text><text x="1285" y="381" class="body">Contrato idempotente</text></g>
-    <g><rect x="1474" y="190" width="142" height="84" rx="9" fill="#d9ecdc" /><path d="M1586 190H1616V220Z" fill="#b9d9bf" /><text x="1488" y="215" class="tag">CIERRE</text><text x="1488" y="241" class="note-title">Avisar al viajero</text><text x="1488" y="261" class="body">Registrar resultado</text></g>
-    <g><rect x="865" y="728" width="312" height="72" rx="9" fill="#e4d8f0" /><text x="885" y="755" class="tag">STEP FUNCTIONS</text><text x="885" y="780" class="note-title">Pausa durable + callback humano</text></g>
-    <g><rect x="1282" y="728" width="290" height="72" rx="9" fill="#d9ecdc" /><text x="1302" y="755" class="tag">OPERACIÓN</text><text x="1302" y="780" class="note-title">Trazas · alarmas · métricas</text></g>
+    <g><rect x="236" y="190" width="150" height="84" rx="9" fill="#cfe8f0" /><path d="M356 190H386V220Z" fill="#add6e2" /><text x="251" y="215" class="tag">INICIO</text><text x="251" y="241" class="note-title">Nueva reserva</text><text x="251" y="261" class="body">Intención del viajero</text></g>
+    <g><rect x="492" y="318" width="200" height="88" rx="9" fill="#d9ecdc" /><path d="M662 318H692V348Z" fill="#b9d9bf" /><text x="508" y="343" class="tag">LECTURA</text><text x="508" y="370" class="note-title">Itinerario + importe</text><text x="508" y="391" class="body">Datos y reglas disponibles</text></g>
+    <g><rect x="794" y="448" width="198" height="92" rx="9" fill="#e4d8f0" /><path d="M962 448H992V478Z" fill="#cbb8e1" /><text x="810" y="474" class="tag">AGENT · POSTURA P</text><text x="810" y="501" class="note-title">Borrador de reserva</text><text x="810" y="523" class="body">Opciones + explicación</text></g>
+    <g><rect x="1052" y="582" width="156" height="82" rx="9" fill="#ffe8a4" /><path d="M1178 582H1208V612Z" fill="#f1d373" /><text x="1067" y="607" class="tag">HUMAN REVIEW</text><text x="1067" y="634" class="note-title">Revisar y decidir</text><text x="1067" y="653" class="body">Editar o aprobar</text></g>
+    <g><rect x="1270" y="309" width="178" height="84" rx="9" fill="#cfe8f0" /><path d="M1418 309H1448V339Z" fill="#add6e2" /><text x="1285" y="334" class="tag">SOLO SI APRUEBA</text><text x="1285" y="360" class="note-title">Crear o cancelar</text><text x="1285" y="381" class="body">Contrato idempotente</text></g>
+    <g><rect x="1474" y="190" width="142" height="84" rx="9" fill="#d9ecdc" /><path d="M1586 190H1616V220Z" fill="#b9d9bf" /><text x="1488" y="215" class="tag">CIERRE</text><text x="1488" y="241" class="note-title">Ver resultado</text><text x="1488" y="261" class="body">Registrar resultado</text></g>
+    <g><rect x="865" y="728" width="312" height="72" rx="9" fill="#e4d8f0" /><text x="885" y="755" class="tag">ESTADO DURABLE</text><text x="885" y="780" class="note-title">Operación + outbox + worker</text></g>
+    <g><rect x="1282" y="728" width="290" height="72" rx="9" fill="#d9ecdc" /><text x="1302" y="755" class="tag">OPERACIÓN</text><text x="1302" y="780" class="note-title">Eventos atribuibles</text></g>
   </g>
   <g>
     <polygon points="1266,585 1308,627 1266,669 1224,627" fill="#ffe8a4" stroke="#b8852f" stroke-width="2" />

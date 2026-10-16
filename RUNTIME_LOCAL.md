@@ -1,69 +1,32 @@
-# Verificar el contenedor antes de aceptar la remediación
+# Runtime reproducible: Docker y PostgreSQL
 
-**Ruta vigente de la réplica original:** [LABORATORIO_MIT.md](LABORATORIO_MIT.md) valida el flujo completo con PostgreSQL. Este documento conserva los fallos y ayudantes del PHP generado en la ejecución anterior.
-
-La ejecución de CCS del 16 de octubre de 2026 mostró que la primera TD puede terminar como `completed` y producir una imagen que compila, aunque el servicio falle:
-
-| Prueba sobre la imagen generada | Resultado observado |
-| --- | --- |
-| `docker build` | Éxito |
-| `php -l index.php` | Sin errores de sintaxis |
-| `GET /` sin DB | HTTP 200 con error fatal `mysqli_sql_exception` |
-| HEALTHCHECK original | `healthy` pese al error anterior |
-| `GET /api/bookings` | 404 de Apache: no hay regla de entrada al PHP |
-| `GET /.git/config` | HTTP 200: `COPY .` incluyó el repositorio en el directorio servido |
-
-Las pruebas se hicieron con publicación del puerto **solo en `127.0.0.1`** y datos de laboratorio. No se desplegó EKS.
-
-## Archivos originales para repetir la prueba
-
-El ayudante [container_runtime_files.py](scripts/container_runtime_files.py) añade seis archivos a una copia PHP aislada. Rechaza sobrescribir archivos y conserva `index.php` tal cual. Incluye:
-
-- `Dockerfile.runtime`: copia explícita de los tres PHP necesarios.
-- `.dockerignore`: excluye Git, reportes y configuración local del contexto.
-- `apache-workshop.conf`: enruta URLs hacia `index.php`, desactiva el listado de directorios y deniega rutas ocultas.
-- `php-workshop.ini`: envía los errores al log sin devolver trazas al cliente.
-- `health-live.php`: comprueba que PHP atiende peticiones.
-- `health-ready.php`: devuelve 200 si puede hacer `SELECT 1`, o 503 sin exponer el error de conexión.
+El runtime se implementa en [booking_lab/run.py](booking_lab/run.py), con imágenes fijadas en [images.lock.json](booking_lab/images.lock.json). El mismo comando sirve en Linux con Docker, macOS con Docker y CloudShell con Docker disponible:
 
 ```bash
-python3 scripts/container_runtime_files.py /ruta/a/copia/booking-service
-cd /ruta/a/copia/booking-service
-docker build -f Dockerfile.runtime -t booking-runtime:review .
-docker run -d --name booking-runtime-review \
-  -p 127.0.0.1:18081:80 booking-runtime:review
-curl -i http://127.0.0.1:18081/health-live.php
-curl -i http://127.0.0.1:18081/health-ready.php
-curl -i http://127.0.0.1:18081/.git/config
+python3 booking_lab/run.py e2e --output .local/db-e2e.json
 ```
 
-Sin DB, se espera **200 / 503 / 403**, respectivamente. Estos tres resultados se observaron en CCS tras reconstruir la imagen corregida; `/api/bookings` pasó a llegar a PHP y respondió 500 por la DB ausente. No uses `healthy` como prueba de readiness: la salud del proceso y la conexión a la DB son controles distintos. En Kubernetes, asigna las rutas correspondientes a `livenessProbe` y `readinessProbe`. Con DB disponible falta validar el esquema, los endpoints de negocio y sus fallos.
+## Qué se crea
 
-La imagen base conserva `php:8.2-apache` del ejercicio; el digest de base observado fue `sha256:06617d90f29b57b2aa200a9df03b3bafbfa5c66d2e2913fbb2b5f775a8358465`. Registra el digest resuelto y revisa soporte y vulnerabilidades antes de un uso posterior. El ayudante corrige el empaquetado para pruebas, **no implementa autenticación M2M, idempotencia correcta, compensación durable ni una plataforma AWS desplegable**. Los criterios restantes están en [LIMITACIONES_TD.md](LIMITACIONES_TD.md).
+- PostgreSQL con un volumen exclusivo y roles separados.
+- Dos instancias API, un proveedor de pagos sintéticos y un worker.
+- Una red interna para DB/pagos y otra para los puertos de API publicados en loopback.
+- Archivos privados por ejecución en `.local/db-lab-<id>/` con permisos restringidos.
 
-## Espacio y limpieza acotada
+La API corre como usuario no root, sin capacidades, con sistema de archivos de solo lectura y tmpfs. Los límites de CPU/memoria/PID se aplican cuando el daemon los soporta. CloudShell observado no los soporta; el resultado lo registra.
 
-La segunda construcción en CloudShell agotó el volumen raíz de 16 GiB y devolvió `no space left on device`. Revisa `df -h /`, `docker system df` y el espacio de tu entorno antes de construir; tener 1 GiB de almacenamiento personal no garantiza espacio suficiente para las capas Docker.
+## Fallos reproducidos y corregidos durante la construcción
 
-La limpieza de tres registros concretos de la caché propia y de la imagen intermedia liberó 2.2 GiB. El contador lógico de caché mostraba pocos KiB, por lo que en este entorno no era una estimación fiable del espacio físico recuperable.
+| Fallo | Corrección incorporada | Evidencia |
+| --- | --- | --- |
+| CloudShell rechaza límites cgroup | Detectar capacidades antes de pasar flags | `resource_limits_available` en el JSON |
+| Red interna sin puerto de host utilizable | Red de entrada separada, publicación solo en loopback | Pruebas HTTP de ambas API |
+| Bloqueo entre pago y reserva | Namespaces distintos de advisory locks | Concurrencia y recuperación E2E |
+| El puerto cambia tras reiniciar | Redescubrir bindings después de restart | Escenarios de caída de proceso y DB |
+| Servidor temporal de init se confunde con DB lista | Comprobar TCP y permisos antes de arrancar API | Preparación y prueba de permisos |
 
-Conserva evidencias antes de retirar los contenedores de tu prueba. Evita limpiezas globales en entornos compartidos. Docker permite seleccionar registros concretos de caché con [buildx prune y su filtro id](https://docs.docker.com/reference/cli/docker/buildx/prune/).
+## Aceptación
 
-## Regresión del callback de idempotencia
+El JSON debe contener `result: passed`, todos los casos aprobados, invariantes cero y `test_containers_running: 0`. Se conserva un dump sintético y se restaura realmente en otra base, comparando filas de seis tablas. [CCS_DATABASE_E2E.md](CCS_DATABASE_E2E.md) describe la evidencia inicial; [CCS_E2E.md](CCS_E2E.md) documenta el ciclo nuevo de análisis y correcciones.
 
-[probe_shutdown_order.php](scripts/probe_shutdown_order.php) ejecuta el PHP transformado con una clase `mysqli` falsa, usando `php -n` para desactivar la extensión real. Simula un DELETE y falla si el callback intenta persistir la respuesta después de cerrar la conexión. **Solo prueba el orden de esas operaciones; no prueba SQL, concurrencia ni una base de datos.**
-
-```bash
-php -n scripts/probe_shutdown_order.php /ruta/a/copia/booking-service/index.php
-```
-
-Un resultado satisfactorio debe tener exit code 0 y el marcador `PROBE_RESPONSE_PERSISTENCE_REACHED`. Si falta el marcador, la prueba no acredita persistencia. No publiques este archivo como un endpoint web.
-
-En CCS la salida original de la segunda TD produjo el error `response persistence attempted after connection close`. Se retiró el cierre prematuro al final del PHP y se dejó que PHP libere la conexión después de los callbacks. El mismo probe terminó con exit code 0 y el marcador esperado. Para aplicar exactamente esa corrección en otra copia compatible:
-
-```bash
-python3 scripts/fix_shutdown_order.py /ruta/a/copia/booking-service/index.php
-php -n scripts/probe_shutdown_order.php /ruta/a/copia/booking-service/index.php
-```
-
-El ayudante verifica el patrón observado, rechaza versiones distintas y registra hashes antes/después. Esta corrección no resuelve la delimitación de la clave por identidad/operación, su recuperación tras fallos ni la atomicidad entre el efecto de negocio y su registro de idempotencia.
+La arquitectura del ejercicio usa una sola instancia de PostgreSQL. Las garantías probadas cubren los fallos inyectados y la restauración documentada; un despliegue público requiere su identidad, TLS, observabilidad y política de recuperación operativa.

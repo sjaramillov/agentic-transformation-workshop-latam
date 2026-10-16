@@ -18,11 +18,32 @@ No necesitas la captura del evento, instalar paquetes Python en el host, crear I
 
 El runner crea nombres únicos, descubre puertos libres y publica la API en `127.0.0.1`. PostgreSQL y pagos están en una red Docker interna sin puertos publicados. Usa contraseñas aleatorias y credenciales distintas por servicio; los archivos `.env` privados tienen modo 0600. Al terminar detiene únicamente sus contenedores y conserva el volumen, el dump y los logs en `.local/db-lab-*/` para revisión. Repetir el comando crea un laboratorio nuevo. No publica tokens, contraseñas ni identificadores AWS en la evidencia.
 
-## Cómo se corrigen los dos bloqueadores
+## Explorar el servicio manualmente
+
+En una primera terminal inicia la demo:
+
+```bash
+python3 booking_lab/run.py demo --output .local/demo.json
+```
+
+Espera `DEMO_READY`. Copia la ruta `session=...` en una segunda terminal del mismo host. Esa sesión es un fixture privado del operador del laboratorio; el cliente genera tokens efímeros y nunca los imprime.
+
+```bash
+export DEMO_SESSION=/ruta/mostrada/session.json
+python3 booking_lab/client.py --session "$DEMO_SESSION" create --key reserva-001
+python3 booking_lab/client.py --session "$DEMO_SESSION" list
+python3 booking_lab/client.py --session "$DEMO_SESSION" --subject agent-b list
+# Copia el id de la reserva de agent-a:
+python3 booking_lab/client.py --session "$DEMO_SESSION" cancel ID_DE_RESERVA
+```
+
+Repite `create` con la misma clave y cuerpo para observar el replay. Cambia `--amount` con la misma clave para recibir 409. La lista de agent-b no muestra reservas de agent-a. Termina con Ctrl+C en la primera terminal; los contenedores se detienen y sus datos quedan disponibles para revisión. La demo es interactiva; el comando `e2e` produce la evidencia automatizada.
+
+## Integridad y atribución
 
 | Brecha | Implementación original | Prueba |
 | --- | --- | --- |
-| AUTH-Q6: atribución y durabilidad | Token firmado validado; principal y correlación persistidos; evento outbox en la misma transacción que el cambio; entrega idempotente a tabla de auditoría; roles de runtime sin UPDATE/DELETE sobre esa tabla | Identidad cruzada rechazada, evento atribuible, permiso de entrega retirado, reinicio del worker, cola drenada y redelivery sin duplicados |
+| AUTH-Q6: atribución y durabilidad | Token firmado validado; principal y correlación persistidos; evento outbox en la misma transacción que el cambio; entrega idempotente a ledger independiente firmado y proyección PostgreSQL; runtime sin UPDATE/DELETE | Identidad cruzada rechazada, evento atribuible, permiso de entrega retirado, reinicio del worker, cola drenada y redelivery sin duplicados |
 | STATE-Q1: cobro seguido de fallo de reserva | Intención guardada antes del cobro, clave estable en el proveedor, estado COMPENSATING persistido, refund idempotente y reconciliador | Trigger PostgreSQL hace fallar realmente el INSERT después del cobro; no queda reserva ni cargo huérfano; reembolso caído se recupera; proceso muerto después del cobro no duplica cargos y proceso muerto después del reembolso no duplica devoluciones |
 
 La reserva, su respuesta de idempotencia y su evento se confirman en una transacción PostgreSQL. El cobro es una transacción externa del simulador: no se supone una transacción distribuida ni se promete entrega exactamente una vez. La recuperación y las claves idempotentes resuelven reintentos. Un fallo ambiguo de COMMIT exige volver a leer el estado antes de reembolsar.
@@ -52,7 +73,7 @@ flowchart LR
 | POST `/bookings` | `bookings:write` | `{"itinerary":"BOG-MDE","amount":12500}`; requiere `Idempotency-Key`; 201 al confirmar |
 | GET `/bookings` | `bookings:read` | Solo reservas del principal autenticado |
 | GET `/bookings/{id}` | `bookings:read` | Detalle propio o 404 |
-| DELETE `/bookings/{id}` | `bookings:write` | Cancelación y reembolso; repetir no duplica el reembolso |
+| DELETE `/bookings/{id}` | `bookings:cancel` | Cancelación y reembolso; repetir no duplica el reembolso |
 
 `amount` es entero en unidades mínimas de la moneda del laboratorio. Una clave se delimita por principal y operación; el cuerpo se canoniza y compara por hash. Cambiar el cuerpo con la misma clave da 409. La misma solicitud enviada en paralelo a dos instancias produce una reserva y un cobro. Se conserva la respuesta original del POST después de cancelar; GET muestra el estado actual.
 
@@ -64,9 +85,9 @@ El emisor del laboratorio firma tokens HS256 de cinco minutos con clave aleatori
 
 El archivo `review.json` privado identifica el prefijo del laboratorio y sus puertos. Los logs y el dump contienen solo los datos sintéticos de la ejecución. Las credenciales de los archivos `.env` son locales y no deben subirse a Git. Guarda el directorio privado si necesitas retomar la sesión. Para volver a probar desde cero utiliza el comando inicial; no hace falta borrar un laboratorio anterior.
 
-Las tablas comparten un único clúster PostgreSQL con roles distintos. El administrador de la DB puede alterar la auditoría; la protección probada es frente a los roles de runtime, no WORM ni resistencia a un administrador comprometido. El outbox conserva eventos durante una caída del destino; una caída permanente requiere intervención operativa. El reconciliador debe ejecutarse para resolver estados pendientes, y las garantías del proveedor real deben verificarse antes de sustituir el simulador.
+El registro de auditoría autoritativo vive en un servicio y volumen separados, con cadena de hashes y firmas HMAC; PostgreSQL conserva una proyección consultable. El administrador de la DB de reservas no recibe el volumen ni la clave del ledger. La retención, verificación y frontera de confianza están descritas en [AUDIT.md](booking_lab/AUDIT.md). El outbox conserva eventos durante una caída del destino; una caída permanente requiere intervención operativa. El reconciliador debe ejecutarse para resolver estados pendientes, y las garantías del proveedor real deben verificarse antes de sustituir el simulador.
 
-Los informes ARA/MODA anteriores describen el PHP del evento. No se editan sus conteos: esta réplica original tiene otro código y su aceptación se apoya en sus propias pruebas y evidencia. Para una nueva evaluación de AWS, analiza `booking_lab/` como servicio distinto y conserva sus commit, contexto, ID y resultados.
+La evaluación de esta implementación y su comparación están en [CCS_E2E.md](CCS_E2E.md). Para repetirla sigue [Ejecución AWS](EJECUCION_AWS.md); el preparador crea las fuentes desde el código público y conserva commit y hashes.
 
 ## Compatibilidad comprobada con CloudShell
 

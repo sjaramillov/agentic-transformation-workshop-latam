@@ -8,4 +8,4 @@ PostgreSQL, Python y Psycopg se instalan como dependencias externas y conservan 
 
 El repositorio [AWS Samples: Portfolio Analysis Orchestrator](https://github.com/aws-samples/sample-agentic-readiness-analysis-orchestrator) es un proyecto separado; su licencia y avisos se consultan en el upstream.
 
-Los archivos privados e informes históricos del evento se conservan para trazabilidad y no son necesarios para ejecutar la réplica MIT. No se incorporó código TravelCorp al nuevo servicio. Los contenidos externos enlazados mantienen sus términos y atribuciones.
+Los antecedentes de la primera evaluación se conservan en `historico/`. Los recursos del recorrido vigente están incluidos en Git y son reutilizables bajo MIT. Los contenidos externos enlazados conservan su atribución.

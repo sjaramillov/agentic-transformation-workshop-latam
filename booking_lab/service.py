@@ -165,6 +165,15 @@ def deliver():
             return
         with db('AUDIT_DATABASE_URL') as sink, sink.transaction():
             for row in rows:
+                # Authoritative ledger is outside this PostgreSQL instance. Its signed,
+                # append-only record must commit before projection/outbox acknowledgement.
+                event={k:str(row[k]) for k in ('id','operation_id','principal','correlation_id','event_type','created_at')}
+                request=Request(os.environ['AUDIT_URL']+'/events',data=json.dumps(event).encode(),
+                    headers={'Content-Type':'application/json','Authorization':'Bearer '+os.environ['AUDIT_WRITE_TOKEN']})
+                with urlopen(request,timeout=4) as response:
+                    receipt=json.load(response)
+                if receipt.get('event')!=event:
+                    raise RuntimeError('invalid audit receipt')
                 sink.execute('INSERT INTO audit_events(id,operation_id,principal,correlation_id,event_type,created_at) VALUES(%s,%s,%s,%s,%s,%s) ON CONFLICT(id) DO NOTHING',
                              tuple(row[k] for k in ('id','operation_id','principal','correlation_id','event_type','created_at')))
         # Delivery may repeat after a crash here. Sink event UUID deduplicates.
@@ -208,7 +217,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.payments()
             if self.path != '/bookings' and not re.fullmatch(r'/bookings/[a-f0-9]{64}', self.path):
                 return self.send(404, {'error': 'not_found'})
-            required = 'bookings:read' if self.command == 'GET' else 'bookings:write'
+            required = {'GET':'bookings:read','POST':'bookings:write','DELETE':'bookings:cancel'}.get(self.command,'bookings:write')
             token = self.headers.get('Authorization', '')
             principal, code = verify(token.removeprefix('Bearer ') if token.startswith('Bearer ') else '',
                                      os.environ['JWT_KEY'], required)

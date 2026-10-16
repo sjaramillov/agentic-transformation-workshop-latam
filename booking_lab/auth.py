@@ -3,6 +3,7 @@ import base64
 import hashlib
 import hmac
 import json
+import math
 import re
 import time
 
@@ -11,7 +12,7 @@ def b64(data):
     return base64.urlsafe_b64encode(data).rstrip(b'=').decode()
 
 
-def encode(key, subject='agent-a', scope='bookings:read bookings:write', **overrides):
+def encode(key, subject='agent-a', scope='bookings:read bookings:write bookings:cancel', **overrides):
     now = int(time.time())
     payload = dict(iss='booking-lab', aud='booking-api', sub=subject, scope=scope,
                    iat=now, nbf=now-1, exp=now+300)
@@ -24,7 +25,7 @@ def encode(key, subject='agent-a', scope='bookings:read bookings:write', **overr
 
 def verify(token, key, required):
     try:
-        if len(token) > 4096:
+        if not isinstance(key, str) or len(key) < 32 or len(token) > 4096:
             raise ValueError()
         head, body, signature = token.split('.')
         expected = b64(hmac.new(key.encode(), (head+'.'+body).encode(), hashlib.sha256).digest())
@@ -35,10 +36,14 @@ def verify(token, key, required):
             raise ValueError()
         p = decode(body)
         now = time.time()
+        # JSON accepts NaN/Infinity in Python; reject non-finite and boolean dates.
+        for claim in ('exp', 'nbf', 'iat'):
+            value = p[claim]
+            if type(value) not in (int, float) or not math.isfinite(value):
+                raise ValueError()
         if (p['iss'] != 'booking-lab' or p['aud'] != 'booking-api'
-                or not isinstance(p['exp'], (int, float)) or p['exp'] <= now
-                or not isinstance(p['nbf'], (int, float)) or p['nbf'] > now
-                or not isinstance(p['iat'], (int, float)) or p['iat'] > now
+                or p['exp'] <= now or p['nbf'] > now or p['iat'] > now
+                or p['exp'] <= p['iat'] or p['exp'] - p['iat'] > 300
                 or not re.fullmatch(r'[a-zA-Z0-9_-]{1,64}', p['sub'])):
             raise ValueError()
         if required not in p['scope'].split():

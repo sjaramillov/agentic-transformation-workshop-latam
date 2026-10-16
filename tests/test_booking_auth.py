@@ -22,3 +22,20 @@ class AuthenticationTests(unittest.TestCase):
         self.assertEqual(auth.verify(auth.encode('x'*64),key,'bookings:write'),(None,401))
         for token in ('','a.b.c','a'*5000):
             self.assertEqual(auth.verify(token,key,'bookings:write'),(None,401))
+
+    def test_nonfinite_boolean_dates_and_excess_lifetime_rejected(self):
+        key='k'*64
+        for claim in ('exp','nbf','iat'):
+            for value in (float('nan'),float('inf'),float('-inf'),True,False):
+                with self.subTest(claim=claim,value=value):
+                    self.assertEqual(auth.verify(auth.encode(key,**{claim:value}),key,'bookings:read'),(None,401))
+        self.assertEqual(auth.verify(auth.encode(key,exp=9999999999),key,'bookings:read'),(None,401))
+        self.assertEqual(auth.verify(auth.encode('short'),'short','bookings:read'),(None,401))
+
+    def test_cancel_is_separate_from_create(self):
+        key='k'*64
+        create=auth.encode(key,scope='bookings:read bookings:write')
+        self.assertEqual(auth.verify(create,key,'bookings:cancel'),(None,403))
+        cancel=auth.encode(key,scope='bookings:read bookings:cancel')
+        self.assertEqual(auth.verify(cancel,key,'bookings:cancel'),('agent-a',200))
+        self.assertEqual(auth.verify(cancel,key,'bookings:write'),(None,403))

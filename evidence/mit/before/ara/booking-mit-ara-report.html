@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<title>booking-mit - Agentic Readiness Analysis Report</title><style>
+body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;background:#f6f7f9;color:#16191f}
+.wrap{max-width:1080px;margin:0 auto;padding:24px}
+h1{margin:0 0 4px} .sub{color:#5f6b7a;margin-bottom:24px}
+section{background:#fff;border:1px solid #e3e6ea;border-radius:8px;padding:20px;margin-bottom:20px}
+h2{margin-top:0;font-size:18px;border-bottom:1px solid #e3e6ea;padding-bottom:8px}
+.stats{display:flex;gap:12px;flex-wrap:wrap}
+.stat{flex:1 1 200px;background:#fff;border:1px solid #e3e6ea;border-radius:8px;padding:16px}
+.stat .n{font-size:30px;font-weight:700} .stat .l{color:#5f6b7a;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid #e3e6ea;vertical-align:top}
+th{background:#f0f2f5}
+.badge{padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.s-high{background:#c0392b} .s-med{background:#d68910} .s-low{background:#5f6b7a}
+.card{border:1px solid #e3e6ea;border-radius:8px;padding:16px;margin-bottom:14px}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.card h3{margin:0;font-size:15px} .card h4{margin:12px 0 4px;font-size:11px;letter-spacing:.08em;color:#5f6b7a}
+.card p{margin:0;font-size:14px;line-height:1.5}
+.meta{color:#5f6b7a;font-size:12px;margin-top:8px}
+.tier{font-size:20px;font-weight:700;margin:8px 0}
+footer{color:#5f6b7a;font-size:12px;text-align:center;padding:16px}
+.ready{color:#1e8449;font-weight:700} .needs{color:#b9770e;font-weight:700} .blocked{color:#c0392b;font-weight:700}
+</style></head><body><div class="wrap">
+<h1>booking-mit - Agentic Readiness Analysis Report</h1>
+<div class="sub">2026-10-16 &middot; Python 3.11+ &middot; 743 LOC &middot; Portfolio: ccs-mit-analysis-20261016</div>
+
+<section><h2>Executive Summary</h2>
+<p>This report evaluates whether the booking service is safe to be called by autonomous agents, across eight dimensions: API &amp; Tooling,
+Authentication &amp; Authorization, State &amp; Memory, Human-in-the-Loop, Data Access, Discovery &amp; Documentation, Observability and
+Engineering Practices. The repository is a write-bearing stateful-CRUD application (Python standard-library HTTP API, durable saga with a
+transactional outbox, synthetic payment provider and a recovery/audit worker over PostgreSQL) assessed at <strong>write-enabled</strong> agent
+scope: agents create, read and cancel their own bookings.</p>
+<p>Transactional integrity is strong and backed by executable tests — identity-scoped idempotency, saga compensation with refund, cross-replica
+advisory locking and durable attributed audit events all pass. The gating defect is that the audit trail, while attributed and durable, is not
+immutable or tamper-evident. Remaining safety work concentrates on identity lifecycle and blast-radius containment; quality work concentrates on
+a published versioned contract, observability and deployment maturity. The current runtime binds API ports to localhost; an externally exposed
+deployment would additionally require the rate limiting, IaC, encryption-at-rest and alerting gaps below to be closed.</p>
+<div class="tier">&#128992; Significant Remediation Required</div>
+<p><strong>Quick Stats:</strong> Total Findings: 29 &middot; By Severity: 10 High, 11 Medium, 8 Low &middot; Estimated Remediation: 60&ndash;180 days</p>
+<p>Classification rationale: 1 BLOCKER and 9 RISK-SAFETY findings &rarr; rule "1-2 BLOCKER &rarr; Remediation Required".</p>
+</section>
+
+<section><h2>Quick Stats</h2><div class="stats">
+<div class="stat"><div class="n">29</div><div class="l">Total Findings — across all dimensions</div></div>
+<div class="stat"><div class="n">10</div><div class="l">High Severity — critical findings</div></div>
+<div class="stat"><div class="n">11</div><div class="l">Medium Severity — important findings</div></div>
+<div class="stat"><div class="n">8</div><div class="l">Low Severity — minor findings</div></div>
+</div></section>
+
+<section><h2>Repository Details — Technology Stack</h2><table>
+<tr><th>Attribute</th><th>Value</th></tr>
+<tr><td>Language</td><td>Python 3.11+</td></tr>
+<tr><td>Lines of Code</td><td>743</td></tr>
+<tr><td>Framework</td><td>Python standard library http.server (ThreadingHTTPServer) with psycopg 3 / PostgreSQL</td></tr>
+<tr><td>Architecture</td><td>Single-service HTTP/JSON API with a durable saga state machine, transactional outbox to a separate audit sink, a recovery/audit worker process, and an in-lab synthetic HTTP payment provider; containerised with digest-pinned base images</td></tr>
+<tr><td>Repo Type</td><td>application (auto-detected)</td></tr>
+<tr><td>Service Archetype</td><td>stateful-crud (auto-detected)</td></tr>
+<tr><td>Agent Scope</td><td>write-enabled (user-provided)</td></tr>
+</table></section>
+
+<section><h2>Findings by Dimension</h2><table>
+<tr><th>Dimension</th><th>Total Findings</th><th>High</th><th>Medium</th><th>Low</th><th>Status</th></tr>
+<tr><td>API &amp; Tooling</td><td>4</td><td>0</td><td>1</td><td>3</td><td class="needs">Needs Work</td></tr><tr><td>Authentication &amp; Authorization</td><td>5</td><td>5</td><td>0</td><td>0</td><td class="blocked">Blocked</td></tr><tr><td>State &amp; Memory</td><td>3</td><td>3</td><td>0</td><td>0</td><td class="needs">Needs Work</td></tr><tr><td>Human-in-the-Loop</td><td>2</td><td>2</td><td>0</td><td>0</td><td class="needs">Needs Work</td></tr><tr><td>Data Access</td><td>5</td><td>0</td><td>3</td><td>2</td><td class="needs">Needs Work</td></tr><tr><td>Discovery &amp; Documentation</td><td>3</td><td>0</td><td>1</td><td>2</td><td class="needs">Needs Work</td></tr><tr><td>Observability</td><td>3</td><td>0</td><td>2</td><td>1</td><td class="needs">Needs Work</td></tr><tr><td>Engineering Practices</td><td>4</td><td>0</td><td>4</td><td>0</td><td class="needs">Needs Work</td></tr>
+</table></section>
+
+<section><h2>Detailed Findings</h2><div class="card">
+<div class="card-head"><h3>AUTH-Q3: Action-Level Authorization</h3><span class="badge s-high">High</span></div>
+<div class="meta">Section: AUTH &middot; Dimension: Authentication &amp; Authorization &middot; Native: RISK-SAFETY &middot; Priority: P1</div>
+<h4>FINDING</h4><p>Authorization is scope-based: dispatch() requires bookings:read for GET and bookings:write for every mutating method (service.py lines 211-217), and verify() rejects a token whose scope claim lacks the required value with 403 (auth.py lines 43-45). run.py proves a bookings:read token cannot create a booking. But POST /bookings and DELETE /bookings/{id} share the single bookings:write scope, so a create-only agent identity cannot be expressed — any identity able to book is also able to cancel and trigger a refund.</p>
+<h4>GAP</h4><p>No action-level separation within the write surface: there is no bookings:cancel (or delete-specific) scope, and no per-method permission matrix, so read/write is the only granularity available.</p>
+<h4>RECOMMENDATION</h4><p>Split the write scope into bookings:create and bookings:cancel (or add a per-method required-scope map in dispatch()) so an agent can be granted booking creation without cancellation/refund authority.</p>
+<div class="meta">Effort: Low (30 days)<br>File: booking_lab/service.py<br>Lines: 211-217</div>
+</div><div class="card">
+<div class="card-head"><h3>AUTH-Q4: Identity Propagation and Delegation</h3><span class="badge s-high">High</span></div>
+<div class="meta">Section: AUTH &middot; Dimension: Authentication &amp; Authorization &middot; Native: RISK-SAFETY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>The token carries a single sub claim that becomes the principal and is used for both authorization and data scoping (auth.py lines 39-46, service.py lines 218-234). There is no delegation dimension: no act/on-behalf-of claim, no token exchange, and no way to distinguish an agent acting as itself from an agent acting for a named human user. Downstream propagation is absent as well — payment() authenticates to the provider with a single static shared bearer token (PAYMENT_TOKEN) and forwards only operation_id and amount, so the provider cannot attribute a charge to the calling principal, and X-Correlation-ID is not forwarded either (service.py lines 36-50).</p>
+<h4>GAP</h4><p>No identity propagation or delegation model: one flat principal, no subject/actor separation, and a shared service credential on the only outbound call, so neither the payment provider nor its audit trail can see which principal caused a charge.</p>
+<h4>RECOMMENDATION</h4><p>Add an actor/subject distinction to the token (e.g. sub = end user, act.sub = agent) enforced in verify(), and propagate principal plus X-Correlation-ID to the payment provider so charges are attributable end to end.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/auth.py<br>Lines: 39-46</div>
+</div><div class="card">
+<div class="card-head"><h3>AUTH-Q5: Credential Management</h3><span class="badge s-high">High</span></div>
+<div class="meta">Section: AUTH &middot; Dimension: Authentication &amp; Authorization &middot; Native: RISK-SAFETY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>No credentials are hardcoded: DATABASE_URL, AUDIT_DATABASE_URL, PAYMENT_TOKEN and JWT_KEY are all read from the environment (service.py lines 20-22, 36-42, 215) and run.py generates per-run random secrets into mode-0600 env files and never prints container environments (run.py lines 37-45, 24-29, 86-90). .gitignore excludes .env*. What is missing is any managed secret: there is no Secrets Manager/Vault/SSM reference anywhere in the repository, no rotation path, and the JWT secret is symmetric HS256 shared between issuer and verifier (auth.py lines 20-26, 30-34), so any component holding JWT_KEY can mint a token for any principal, including agent identities it does not own. There is also no key id/rotation overlap, so rotating JWT_KEY invalidates all live agent tokens at once.</p>
+<h4>GAP</h4><p>Secrets are environment-injected with no managed store, no rotation and no separation between signing and verification authority; the symmetric JWT key is a forge-any-principal credential held by the API process itself.</p>
+<h4>RECOMMENDATION</h4><p>Store JWT_KEY, PAYMENT_TOKEN and the database URLs in a managed secret store with rotation, and move token issuance to asymmetric signing (RS256/ES256 with kid + JWKS) so the API only holds verification material and keys can be rotated with overlap.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/auth.py<br>Lines: 20-34</div>
+</div><div class="card">
+<div class="card-head"><h3>AUTH-Q6: Immutable Audit Logging</h3><span class="badge s-high">High</span></div>
+<div class="meta">Section: AUTH &middot; Dimension: Authentication &amp; Authorization &middot; Native: BLOCKER &middot; Priority: P1</div>
+<h4>FINDING</h4><p>Every write is attributed: operations, outbox and audit_events all persist principal and correlation_id (schema.sql lines 2-24), events are written in the same local transaction as the state change via emit() and drained to a separate audit sink by deliver() (service.py lines 28-31, 158-170). Runtime roles are append-only on the sink: audit_writer holds only INSERT plus SELECT(id), and booking_app has no access at all (schema.sql lines 40-46); run.py asserts that no runtime role can DELETE or UPDATE audit_events (run.py, rights case). However nothing in the repository makes the trail tamper-evident: there is no hash chaining or signature over audit_events rows, no WORM/object-lock or log-file-validation equivalent, no retention policy, and no IaC configuring an independent immutable store. AUDIT_DATABASE_URL in run.py points at the same PostgreSQL instance as the application database, so the bootstrap owner (postgres) can rewrite history undetected.</p>
+<h4>GAP</h4><p>Attribution and durability are implemented and tested, but immutability/tamper-evidence is not: audit_events is an ordinary table in the same database, protected only by GRANTs that a superuser or a compromised bootstrap role can revoke, with no cryptographic integrity and no retention control.</p>
+<h4>RECOMMENDATION</h4><p>Move the audit sink out of the application database into an append-only store (e.g. a separate account/instance with object-lock or CloudTrail-style log file validation), add a per-principal hash chain or signature over (operation_id, principal, correlation_id, event_type, created_at) written by deliver(), and define a retention policy. Keep the existing outbox so delivery remains durable.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/schema.sql<br>Lines: 19-46</div>
+</div><div class="card">
+<div class="card-head"><h3>AUTH-Q7: Agent Identity Suspension</h3><span class="badge s-high">High</span></div>
+<div class="meta">Section: AUTH &middot; Dimension: Authentication &amp; Authorization &middot; Native: RISK-SAFETY &middot; Priority: P1</div>
+<h4>FINDING</h4><p>There is no revocation surface. verify() accepts any correctly signed, unexpired token and consults no denylist, no jti and no principal status (auth.py lines 28-46); there is no admin endpoint, no key-per-principal, and no principal table. The only containment is the 300-second exp (auth.py line 16) and rotating the shared JWT_KEY, which invalidates every agent identity simultaneously and therefore cannot isolate one misbehaving agent.</p>
+<h4>GAP</h4><p>No per-identity suspension or revocation mechanism: a compromised agent token remains valid until expiry, and the only kill switch (rotating the shared symmetric key) is platform-wide.</p>
+<h4>RECOMMENDATION</h4><p>Add a principal registry with an enabled flag checked in verify(), include a jti in issued tokens, and expose a revocation path (denylist or per-principal key) so a single agent identity can be disabled without affecting others.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/auth.py<br>Lines: 28-46</div>
+</div><div class="card">
+<div class="card-head"><h3>STATE-Q4: Circuit Breakers and Resilience</h3><span class="badge s-high">High</span></div>
+<div class="meta">Section: STATE &middot; Dimension: State &amp; Memory &middot; Native: RISK-SAFETY &middot; Priority: P1</div>
+<h4>FINDING</h4><p>Timeouts are set everywhere: psycopg connect_timeout=3 with statement_timeout=10s and lock_timeout=8s (service.py lines 20-22), urlopen(timeout=4) on the payment call, and connection.settimeout(8) per request (service.py lines 43, 196). Failures fail closed - OSError/HTTPError are converted to a retryable 503 with retry_same_idempotency_key (service.py lines 44-50, 246-248) and the operation stays in a resumable state so the worker finishes it (recover(), service.py lines 146-156). What is absent is any circuit breaker or backoff: the worker loop re-drives up to 100 pending operations every 250 ms unconditionally (service.py lines 275-283), so a sustained payment-provider or audit-sink outage produces a tight unbounded retry against the failing dependency with no half-open state, no jitter and no shedding.</p>
+<h4>GAP</h4><p>No circuit breaker and no exponential backoff on the payment provider or audit sink; retries are a fixed 250 ms hot loop, so a dependency outage is amplified rather than damped.</p>
+<h4>RECOMMENDATION</h4><p>Add exponential backoff with jitter and an attempt counter per operation in recover()/deliver(), plus a circuit breaker around payment() that fast-fails to 503 while open.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/service.py<br>Lines: 275-283</div>
+</div><div class="card">
+<div class="card-head"><h3>STATE-Q5: Rate Limiting and Throttling</h3><span class="badge s-high">High</span></div>
+<div class="meta">Section: STATE &middot; Dimension: State &amp; Memory &middot; Native: RISK-SAFETY &middot; Priority: P1</div>
+<h4>FINDING</h4><p>No rate limiting exists at any layer. The API is a bare ThreadingHTTPServer bound in-process (service.py lines 288-291) with no throttling middleware, no connection or concurrency cap, no per-principal request budget, and no gateway in front of it - the repository contains no IaC, no API Gateway usage plan and no WAF configuration (searched for *.tf, *.cfn.*, template.yaml, docker-compose*, k8s manifests and rate-limit middleware in requirements.txt: none present). run.py binds the API to 127.0.0.1 only (run.py line 89), which limits exposure in the lab but is not a rate control. A runaway agent loop calling POST /bookings is bounded only by database locks and connection exhaustion.</p>
+<h4>GAP</h4><p>No request-rate or concurrency limiting anywhere in the service or its deployment definition; the only backpressure is PostgreSQL lock and connection contention, which degrades the whole service rather than the offending caller.</p>
+<h4>RECOMMENDATION</h4><p>Enforce per-principal rate limits in dispatch() (token-bucket keyed on the verified principal) and, for any externally exposed deployment, place an API Gateway usage plan or WAF rate rule in front of the service and declare it in IaC.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/service.py<br>Lines: 288-291</div>
+</div><div class="card">
+<div class="card-head"><h3>STATE-Q6: Blast Radius and Transaction Limits</h3><span class="badge s-high">High</span></div>
+<div class="meta">Section: STATE &middot; Dimension: State &amp; Memory &middot; Native: RISK-SAFETY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>There is one business cap: a single booking amount must be an int in (0, 10000000] (service.py lines 221-226) and the schema enforces amount &gt; 0 on bookings and charges (schema.sql lines 10-12, 25-28). There are no per-principal or per-session limits - nothing caps bookings per principal per hour, cumulative captured amount per principal, or cancellations/refunds per session, and there is no bulk endpoint or configurable limit table. An agent holding a valid bookings:write token can create unlimited distinct bookings (each with a fresh Idempotency-Key) and refund them, each one a real captured charge against the provider, with no business-domain ceiling.</p>
+<h4>GAP</h4><p>No configurable per-caller business transaction limits: only a per-request amount ceiling exists, so cumulative agent blast radius (total spend, booking count, refund count per principal) is unbounded.</p>
+<h4>RECOMMENDATION</h4><p>Add a per-principal limits table (max bookings/hour, max cumulative amount/session, max cancellations/hour) checked inside create() and cancel() before the saga advances, and reject over-limit requests with a distinct terminal error code.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/service.py<br>Lines: 221-226</div>
+</div><div class="card">
+<div class="card-head"><h3>HITL-Q1: Draft/Pending State</h3><span class="badge s-high">High</span></div>
+<div class="meta">Section: HITL &middot; Dimension: Human-in-the-Loop &middot; Native: RISK-SAFETY &middot; Priority: P1</div>
+<h4>FINDING</h4><p>The operations table has a rich status machine (NEW, CHARGED, CONFIRMED, COMPENSATING, COMPENSATED, DECLINED, CANCELLING, CANCELLED - schema.sql lines 2-7), but every state is a saga step, not an approval point: advance() drives NEW straight through charge to CONFIRMED within the same request (service.py lines 64-86) and create() calls advance() immediately after inserting the operation (service.py lines 113-130). There is no DRAFT/PENDING_REVIEW status, no create-then-confirm two-step API, and no approval endpoint, so an agent-initiated booking captures payment and is confirmed with no reviewable intermediate state.</p>
+<h4>GAP</h4><p>No draft or pending-approval state that an agent can write to before a human commits; the first durable effect of POST /bookings is an external payment capture.</p>
+<h4>RECOMMENDATION</h4><p>Add a PENDING_APPROVAL status and an opt-in two-step flow (POST /bookings creates the operation without calling payment(); a separate confirm action advances the saga) so agent-proposed bookings can be reviewed before any charge.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/service.py<br>Lines: 113-130</div>
+</div><div class="card">
+<div class="card-head"><h3>HITL-Q2: Configurable Approval Gates</h3><span class="badge s-high">High</span></div>
+<div class="meta">Section: HITL &middot; Dimension: Human-in-the-Loop &middot; Native: RISK-SAFETY &middot; Priority: P1</div>
+<h4>FINDING</h4><p>No approval gating exists in the application. dispatch() executes every authorized request immediately (service.py lines 193-248); there is no per-operation configuration surface, no approval table or endpoint, no amount threshold that diverts a request to review, and no feature-flag/config file in the repository (only env vars consumed by service.py). Cancellation, which triggers a refund, is likewise executed inline (cancel(), service.py lines 133-144).</p>
+<h4>GAP</h4><p>No configurable, operation-type-level human approval gate: high-value bookings and cancellations cannot be routed to review at the application layer.</p>
+<h4>RECOMMENDATION</h4><p>Introduce a per-operation policy (e.g. amount or operation-type thresholds) that parks a request in PENDING_APPROVAL and requires an explicit approve call before advance() proceeds, with the approver recorded in the outbox event.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/service.py<br>Lines: 193-248</div>
+</div><div class="card">
+<div class="card-head"><h3>API-Q2: Machine-Readable API Specification</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: API &middot; Dimension: API &amp; Tooling &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>No machine-readable specification exists. Searched for openapi.*, swagger.*, *.graphql, *.gql, *.smithy, asyncapi.* across the repository and for spec-generating libraries in requirements.txt (which pins only psycopg[binary]==3.3.6): none found. The contract is implicit in dispatch() routing and validation (service.py lines 193-248) and informally in run.py&#x27;s request helper. booking_lab/README.md points to ../LABORATORIO_MIT.md for the API contract, but that file is not present in this repository.</p>
+<h4>GAP</h4><p>No OpenAPI/AsyncAPI/GraphQL/Smithy artifact, so agent tool definitions for POST /bookings, GET /bookings, GET /bookings/{id} and DELETE /bookings/{id} must be hand-authored and will drift from service.py.</p>
+<h4>RECOMMENDATION</h4><p>Publish an OpenAPI 3 document covering the four booking routes plus /health/live and /health/ready, including the Idempotency-Key and X-Correlation-ID headers, the error bodies and the 402/409/503 semantics, and validate it in CI against service.py.</p>
+<div class="meta">Effort: Low (30 days)<br>File: booking_lab/README.md<br>Lines: n/a</div>
+</div><div class="card">
+<div class="card-head"><h3>DATA-Q3: Selective Query Support</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: DATA &middot; Dimension: Data Access &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>GET /bookings returns every booking belonging to the principal with no bounds: the query is SELECT id,itinerary,amount,status FROM bookings WHERE principal=%s ORDER BY id with no LIMIT, and no limit/offset/cursor/filter/sort parameter is parsed anywhere (service.py lines 235-242). Single-item retrieval is implemented by fetching the whole list and filtering it in Python (service.py lines 238-240), so per-item reads also scale with the principal&#x27;s total booking count. Column projection is explicit and narrow, which is good, but result-set size is unbounded.</p>
+<h4>GAP</h4><p>No pagination, filtering or sorting on the list endpoint, and per-id reads fan out over the full result set, so an agent with many bookings receives an unbounded response that can exhaust its context window.</p>
+<h4>RECOMMENDATION</h4><p>Add limit (default and maximum) plus a cursor or offset and a status filter to GET /bookings, push the id predicate into SQL for the single-item route, and return the applied limit in the response envelope.</p>
+<div class="meta">Effort: Low (30 days)<br>File: booking_lab/service.py<br>Lines: 235-242</div>
+</div><div class="card">
+<div class="card-head"><h3>DATA-Q4: Input Validation and Schema Enforcement</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: DATA &middot; Dimension: Data Access &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>Validation at the boundary is strict and systematic: body() rejects non-JSON content types, empty bodies and bodies over 8192 bytes and requires a JSON object (service.py lines 184-191); the booking payload must match exactly {itinerary, amount} with amount a Python int in (0, 10000000] and itinerary matching [A-Z]{3}-[A-Z]{3} (service.py lines 221-226); Idempotency-Key must match [A-Za-z0-9_-]{1,100}; the path is matched against /bookings/[a-f0-9]{64}; X-Correlation-ID must parse as a UUID; all SQL uses psycopg parameter binding. The weakness is the rejection signal: every validation failure collapses into a single generic 400 {&quot;error&quot;:&quot;invalid_request&quot;} (service.py lines 244-245) with no field name, no constraint and no accepted format, so an agent cannot tell which field it got wrong.</p>
+<h4>GAP</h4><p>Validation errors are unstructured and undifferentiated - one opaque 400 for malformed JSON, a bad itinerary, an out-of-range amount, a bad idempotency key and a bad correlation id alike - forcing agents into blind retry loops.</p>
+<h4>RECOMMENDATION</h4><p>Return field-level validation errors, e.g. {&quot;error&quot;:&quot;invalid_request&quot;,&quot;errors&quot;:[{&quot;field&quot;:&quot;itinerary&quot;,&quot;constraint&quot;:&quot;pattern&quot;,&quot;expected&quot;:&quot;AAA-BBB&quot;}]}, while keeping the current whitelist semantics and 8 KiB body cap.</p>
+<div class="meta">Effort: Low (30 days)<br>File: booking_lab/service.py<br>Lines: 244-245</div>
+</div><div class="card">
+<div class="card-head"><h3>DATA-Q5: Temporal Metadata and Freshness</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: DATA &middot; Dimension: Data Access &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>Temporal metadata is partial. outbox and audit_events carry created_at timestamptz DEFAULT clock_timestamp() and outbox additionally tracks delivered_at (schema.sql lines 14-24), giving the audit trail UTC-normalised ordering. The agent-facing entities have none: operations and bookings have no created_at or updated_at column (schema.sql lines 2-13), and no API response includes a timestamp - the POST response is {id, status, itinerary, amount} (service.py line 82) and GET returns only id, itinerary, amount, status. Responses are sent with Cache-Control: no-store (service.py line 179), but there is no freshness, staleness or consistency indicator an agent could reason about.</p>
+<h4>GAP</h4><p>No creation or update timestamps on operations or bookings and no timestamp or consistency field in any API response, so an agent cannot tell when a booking was made or last changed.</p>
+<h4>RECOMMENDATION</h4><p>Add created_at/updated_at timestamptz columns to operations and bookings, maintain them in create()/transition()/result(), and surface them (plus a consistency indicator) in booking responses.</p>
+<div class="meta">Effort: Low (30 days)<br>File: booking_lab/schema.sql<br>Lines: 2-13</div>
+</div><div class="card">
+<div class="card-head"><h3>DISC-Q1: Schema Versioning and API Contracts</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: DISC &middot; Dimension: Discovery &amp; Documentation &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>There is no versioning or contract-stability machinery. Routes are unversioned (/bookings, /bookings/{64-hex} - service.py lines 209-210), there is no Accept-Version handling, no OpenAPI or JSON Schema artifact, no CHANGELOG or deprecation notice, and no breaking-change detection (no CI configuration exists at all: searched .github/workflows, .gitlab-ci.yml, Jenkinsfile, buildspec.yml). The database contract is a single flat schema.sql applied once at bootstrap (run.py setup()), with no migration directory or version table, so schema evolution has no recorded history. The response and error shapes are stable and consistent in practice, but nothing detects a breaking change to them.</p>
+<h4>GAP</h4><p>Unversioned API paths, no published schema artifact, no migration history and no breaking-change detection, so a change to a response field or error code will break agent tool bindings silently.</p>
+<h4>RECOMMENDATION</h4><p>Introduce /v1 path prefixes (or Accept-Version), publish and version the request/response schemas, add a migrations directory with an applied-version table, and run an OpenAPI diff or contract test on every change.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/schema.sql<br>Lines: n/a</div>
+</div><div class="card">
+<div class="card-head"><h3>OBS-Q1: Distributed Tracing and Structured Logging</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: OBS &middot; Dimension: Observability &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>Correlation is implemented in the data plane: X-Correlation-ID is accepted (or generated) per request, validated as a UUID, persisted on operations, and copied onto every outbox and audit event (service.py lines 227-234, 28-31, 52-57), and run.py asserts agent-a:&lt;correlation&gt; on booking.confirmed. The log plane is the gap: Handler.log_message is deliberately disabled (service.py lines 175-176, to avoid logging tokens/bodies) and the only emitted log lines are unstructured single tokens - &#x27;request_retry_pending &lt;ErrorType&gt;&#x27;, &#x27;recovery_pending&#x27;, &#x27;worker_retry_pending&#x27; (service.py lines 247, 155, 281) - with no JSON structure, no request id, no principal and no correlation id. There is no OpenTelemetry or X-Ray instrumentation (requirements.txt pins only psycopg) and traceparent is neither read nor propagated to the payment provider.</p>
+<h4>GAP</h4><p>No distributed tracing and no structured logging: correlation ids exist in the database but never in logs, log lines carry no request/principal context, and no trace context crosses the API-to-payment-provider boundary.</p>
+<h4>RECOMMENDATION</h4><p>Emit JSON log lines containing correlation_id, principal, operation_id, route, status and latency (never token or body content), and add OpenTelemetry instrumentation that accepts traceparent and propagates it on the payment call.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/service.py<br>Lines: 175-176</div>
+</div><div class="card">
+<div class="card-head"><h3>OBS-Q2: Alerting on Error Rates and Latency</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: OBS &middot; Dimension: Observability &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>No alerting exists. The service exposes /health/live and a dependency-checking /health/ready that returns 503 when PostgreSQL is unreachable (service.py lines 197-203, asserted in run.py&#x27;s database-outage case), but nothing consumes them: there is no CloudWatch alarm, no Prometheus scrape config or alert rule, no PagerDuty/OpsGenie integration and no SLO definition anywhere in the repository (no IaC, no monitoring config, no CI). Error rate and latency are not measured at all - the service emits no metrics and no access log.</p>
+<h4>GAP</h4><p>No error-rate or latency alerting on the agent-facing endpoints, and no metric source to alert on, so degradation is only visible if a caller or a human polls /health/ready.</p>
+<h4>RECOMMENDATION</h4><p>Export request count, error count by status class and latency histograms per route, then define alarms on 5xx rate, 402/409 rate and p99 latency, plus an alarm on pending operations and undelivered outbox rows.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/service.py<br>Lines: 197-203</div>
+</div><div class="card">
+<div class="card-head"><h3>ENG-Q1: Infrastructure Governance for Agent-Facing Surface</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: ENG &middot; Dimension: Engineering Practices &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>The agent-facing surface is not defined as code. Searched for *.tf/*.tfvars, CloudFormation templates, CDK entry points, Helm charts, Kustomize, Ansible, docker-compose*.yml and Kubernetes manifests: none exist. The runtime is created imperatively by run.py through direct docker CLI calls - networks, volume, database container, roles and passwords, and the api/payments/worker containers with their env files (run.py lines 139-175). Security posture is set the same way (--read-only, --cap-drop=ALL, --security-opt=no-new-privileges, resource limits, 127.0.0.1 port binding - run.py lines 83-92), so it exists only inside a test harness, is not reviewable as infrastructure, and has no drift detection. Image provenance is the one governed element: Dockerfile and images.lock.json pin base images by sha256 digest.</p>
+<h4>GAP</h4><p>No IaC for the API surface, identity material, networking or secrets; the integration surface is produced by an imperative test harness, so changes are neither peer-reviewable as infrastructure nor monitored for drift.</p>
+<h4>RECOMMENDATION</h4><p>Declare the deployment (service, network exposure, database, roles, secrets) in Terraform or CDK, require review on those changes, and enable drift detection; keep the digest pinning from images.lock.json in the pipeline.</p>
+<div class="meta">Effort: High (90–180 days)<br>File: booking_lab/run.py<br>Lines: 139-175</div>
+</div><div class="card">
+<div class="card-head"><h3>ENG-Q2: CI/CD with API Contract Testing</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: ENG &middot; Dimension: Engineering Practices &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>There is no pipeline. Searched .github/workflows/, .gitlab-ci.yml, Jenkinsfile, buildspec.yml, appspec.yml and any pipeline definition in IaC: none exist (the repository contains only booking_lab/, .gitignore and LICENSE). The E2E suite in run.py is executed manually (python3 booking_lab/run.py e2e per README.md), and no step compares the API contract between versions - there is no spec to diff and no consumer contract test.</p>
+<h4>GAP</h4><p>No CI/CD pipeline and no API breaking-change detection, so a change to a route, response field or error code reaches consumers without any automated gate.</p>
+<h4>RECOMMENDATION</h4><p>Add a pipeline that builds the image, runs run.py e2e against the ephemeral Docker environment on every change, and fails on an OpenAPI diff or Pact contract violation once a spec exists (API-Q2).</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/README.md<br>Lines: n/a</div>
+</div><div class="card">
+<div class="card-head"><h3>ENG-Q3: Rollback Capability</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: ENG &middot; Dimension: Engineering Practices &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>No deployment or rollback mechanism is defined. There is no blue/green or canary configuration, no CodeDeploy/Helm/ArgoCD definition, no traffic shifting and no feature flags; run.py starts containers directly and finish() stops them without any notion of a previous known-good version (run.py lines 165-175, 349-360). The components that would support rollback are partially present - the application image is built from digest-pinned bases (Dockerfile line 1, images.lock.json), the database volume survives restarts (asserted in run.py&#x27;s database-outage case) and two API replicas run behind separate ports - but nothing records or restores a prior release.</p>
+<h4>GAP</h4><p>No defined rollback path for the agent-facing API: no versioned release artifact tracking, no blue/green or canary traffic control, and no automated revert, so recovery from a contract-breaking change is manual and unbounded.</p>
+<h4>RECOMMENDATION</h4><p>Tag and retain immutable image versions, deploy behind a load balancer or gateway with blue/green traffic shifting, and wire an automated rollback trigger on health and error-rate regression.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/run.py<br>Lines: 165-175</div>
+</div><div class="card">
+<div class="card-head"><h3>ENG-Q5: Encryption at Rest for Agent-Accessible Data</h3><span class="badge s-med">Medium</span></div>
+<div class="meta">Section: ENG &middot; Dimension: Engineering Practices &middot; Native: RISK-QUALITY &middot; Priority: P2</div>
+<h4>FINDING</h4><p>No encryption at rest is configured. PostgreSQL data lives in a plain Docker volume created by run.py (docker volume create &lt;prefix&gt;-db-data, mounted at /var/lib/postgresql/data - run.py lines 157-163) with no KMS key, no LUKS/dm-crypt, no pgcrypto column encryption and no TDE; there is no IaC in which a kms_key_id could be set. Connections use the default psycopg/libpq settings with no sslmode=require, so the application-to-database and worker-to-audit-sink links are not required to be encrypted in transit either. The pg_dump artifact written during the E2E run is chmod 0600 inside a 0700 directory (run.py lines 46-52, 334-337), which is file-permission protection, not encryption. The stored data is synthetic lab data (agent principal ids, IATA-style itinerary codes, integer amounts), so current exposure is limited.</p>
+<h4>GAP</h4><p>Agent-accessible data at rest (operations, bookings, charges, audit_events) is stored unencrypted with no key management, and database connections do not require TLS.</p>
+<h4>RECOMMENDATION</h4><p>Provision the database on encrypted storage with a customer-managed KMS key (or an encrypted volume), require sslmode=verify-full on DATABASE_URL and AUDIT_DATABASE_URL, and encrypt retained dump artifacts.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/run.py<br>Lines: 157-163</div>
+</div><div class="card">
+<div class="card-head"><h3>API-Q5: Structured Response Format</h3><span class="badge s-low">Low</span></div>
+<div class="meta">Section: API &middot; Dimension: API &amp; Tooling &middot; Native: INFO &middot; Priority: P3</div>
+<h4>FINDING</h4><p>All responses are structured JSON. send() serialises with json.dumps and sets Content-Type: application/json, Cache-Control: no-store and an explicit Content-Length (service.py lines 178-183); request parsing requires Content-Type: application/json and a JSON object body (service.py lines 184-191). No XML, protobuf or binary encoding appears anywhere. Shapes are flat and small: {&quot;id&quot;,&quot;status&quot;,&quot;itinerary&quot;,&quot;amount&quot;} for a booking, {&quot;bookings&quot;:[...]} for the list, and {&quot;error&quot;:&quot;&lt;snake_case_code&gt;&quot;} for failures.</p>
+<h4>GAP</h4><p>None - the format is LLM-friendly as-is. Response envelopes carry no metadata block (no timestamps, pagination or consistency fields), which is picked up by DATA-Q3 and DATA-Q5.</p>
+<h4>RECOMMENDATION</h4><p>Keep JSON. When adding pagination or temporal metadata, extend the envelope rather than changing existing field names, so agent tool bindings stay valid.</p>
+<div class="meta">Effort: Low (30 days)<br>File: booking_lab/service.py<br>Lines: 178-191</div>
+</div><div class="card">
+<div class="card-head"><h3>API-Q7: Event Emission for State Changes</h3><span class="badge s-low">Low</span></div>
+<div class="meta">Section: API &middot; Dimension: API &amp; Tooling &middot; Native: INFO &middot; Priority: P2</div>
+<h4>FINDING</h4><p>The service emits domain events internally but exposes none to callers. emit() writes booking.requested, payment.captured, payment.declined, payment.refunded, booking.confirmed, booking.compensation_requested, booking.cancel_requested and booking.cancelled into a transactional outbox in the same transaction as the state change (service.py lines 28-31, 52-57), and deliver() drains the outbox into the audit_events sink with ON CONFLICT DO NOTHING deduplication (service.py lines 158-170). There is no webhook registration endpoint, no SNS/EventBridge/SQS/Kafka publisher (requirements.txt pins only psycopg) and no subscription API, so an external agent can only learn about a state change by polling GET /bookings.</p>
+<h4>GAP</h4><p>State-change events are durable but internal-only: no webhook or message-broker fan-out, so agents must poll to detect confirmation, compensation or cancellation.</p>
+<h4>RECOMMENDATION</h4><p>Reuse the existing outbox as the event source and add a publisher (webhook delivery with retries, or SNS/EventBridge) so agents can react to booking.confirmed, payment.refunded and booking.cancelled without polling.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/service.py<br>Lines: 158-170</div>
+</div><div class="card">
+<div class="card-head"><h3>API-Q8: Rate Limit Documentation and Headers</h3><span class="badge s-low">Low</span></div>
+<div class="meta">Section: API &middot; Dimension: API &amp; Tooling &middot; Native: INFO &middot; Priority: P3</div>
+<h4>FINDING</h4><p>No rate limits are documented or signalled. No X-RateLimit-* or Retry-After header is ever set - send() emits only Content-Type, Cache-Control and Content-Length (service.py lines 178-183) - and the 503 body communicates retryability semantically with {&quot;error&quot;:&quot;temporarily_unavailable&quot;,&quot;retry_same_idempotency_key&quot;:true} (service.py line 248) but gives no delay hint. README.md documents no limits, and there is no gateway or usage plan in the repository. This is the documentation/signalling half of the gap whose enforcement side is tracked as RISK-SAFETY under STATE-Q5.</p>
+<h4>GAP</h4><p>No rate-limit documentation and no rate-limit or Retry-After headers, so an agent has no feedback channel to self-throttle.</p>
+<h4>RECOMMENDATION</h4><p>When rate limiting is added (STATE-Q5), return X-RateLimit-Limit/Remaining/Reset on every response and Retry-After on 429/503, and document the limits in the API specification.</p>
+<div class="meta">Effort: Low (30 days)<br>File: booking_lab/service.py<br>Lines: 178-183</div>
+</div><div class="card">
+<div class="card-head"><h3>DATA-Q1: Sensitive Data Classification</h3><span class="badge s-low">Low</span></div>
+<div class="meta">Section: DATA &middot; Dimension: Data Access &middot; Native: INFO &middot; Priority: P0</div>
+<h4>FINDING</h4><p>Stage A = Yes: the system persists per-principal business records and synthetic payment state (operations, bookings, charges - schema.sql). Stage B1 is CLEAR: agent-facing reads project an explicit narrow column list, SELECT id,itinerary,amount,status FROM bookings WHERE principal=%s (service.py lines 235-242); the charges table is owned by the payment component and is unreachable from the booking role (GRANT ... ON charges TO payment_app only, and run.py asserts booking_app cannot read it); no credential, token or secret is ever stored in or returned from a booking response, and the stored principal is an agent identifier rather than personal data. Stage B2 is CLEAR: access is differentiated by OAuth-style scopes (bookings:read vs bookings:write - service.py lines 211-217) and by four separate database roles with distinct grants (booking_app, payment_app, audit_writer, audit_reader - schema.sql lines 38-46), and rows are additionally scoped to the authenticated principal in both read and cancel paths. Stage B3 is the only gap: no formal classification metadata exists - no field-level sensitivity annotations, no classification tags (there is no IaC), and no Macie/Presidio-style detection tooling.</p>
+<h4>GAP</h4><p>No machine-readable data classification layer (B3): field sensitivity is implicit in code review rather than declared, so there is no automated check that a future response projection does not expose a sensitive column.</p>
+<h4>RECOMMENDATION</h4><p>Annotate the schema with sensitivity labels (even as comments or a small metadata table) and add a test that fails if a booking response projection is widened beyond the approved column set. Revisit B1/B2 if real passenger or payment-instrument data replaces the synthetic amounts.</p>
+<div class="meta">Effort: Low (30 days)<br>File: booking_lab/schema.sql<br>Lines: 1-28</div>
+</div><div class="card">
+<div class="card-head"><h3>DATA-Q7: Data Quality Awareness</h3><span class="badge s-low">Low</span></div>
+<div class="meta">Section: DATA &middot; Dimension: Data Access &middot; Native: INFO &middot; Priority: P3</div>
+<h4>FINDING</h4><p>There are no data-quality metrics in the running system - no null-rate monitoring, no profiling job, no freshness SLA and no dashboard. What does exist is a strong correctness harness: run.py computes five invariants after the E2E suite and asserts each is zero - captured_without_confirmed_booking, confirmed_without_captured_payment, pending_operations, undelivered_audit_events and audit_missing_attribution - plus per-table row hashes compared across a real pg_dump/restore (run.py, invariants and dump_restore blocks). Schema-level quality is enforced by CHECK constraints on status and amount and by UNIQUE(principal, request_key) (schema.sql lines 2-13).</p>
+<h4>GAP</h4><p>Data-quality signals exist only as test-time assertions; nothing evaluates these invariants continuously against live data, so no quality or completeness metric is available to an agent or an operator at runtime.</p>
+<h4>RECOMMENDATION</h4><p>Promote the five run.py invariant queries into a scheduled job that publishes each count as a metric, and alert when any becomes non-zero - this doubles as the correctness alarm referenced in OBS-Q2.</p>
+<div class="meta">Effort: Low (30 days)<br>File: booking_lab/run.py<br>Lines: 365-375</div>
+</div><div class="card">
+<div class="card-head"><h3>DISC-Q2: Semantically Meaningful Field Names</h3><span class="badge s-low">Low</span></div>
+<div class="meta">Section: DISC &middot; Dimension: Discovery &amp; Documentation &middot; Native: INFO &middot; Priority: P3</div>
+<h4>FINDING</h4><p>Field and event names are explicit and semantically readable, with no legacy codes requiring a dictionary. Schema columns are principal, request_key, fingerprint, payload, correlation_id, status, response_code, response_body, itinerary, amount, delivered_at, event_type, captures, refunds (schema.sql); API fields are id, status, itinerary, amount, bookings, error; status values are self-describing (NEW, CHARGED, CONFIRMED, COMPENSATING, COMPENSATED, DECLINED, CANCELLING, CANCELLED) and event types use a domain.verb convention (booking.confirmed, payment.refunded). Error codes are snake_case and meaningful (payment_declined, idempotency_payload_mismatch, booking_failed_payment_refunded, temporarily_unavailable).</p>
+<h4>GAP</h4><p>Minor: amount has no declared currency or minor-unit semantics and itinerary encodes an origin-destination pair as a bare AAA-BBB string, both of which an agent must infer.</p>
+<h4>RECOMMENDATION</h4><p>Document the unit of amount (and add a currency field if multi-currency is ever in scope) and describe the itinerary format in the API specification.</p>
+<div class="meta">Effort: Low (30 days)<br>File: booking_lab/schema.sql<br>Lines: 1-28</div>
+</div><div class="card">
+<div class="card-head"><h3>DISC-Q3: Data Catalog / Metadata Layer</h3><span class="badge s-low">Low</span></div>
+<div class="meta">Section: DISC &middot; Dimension: Discovery &amp; Documentation &middot; Native: INFO &middot; Priority: P3</div>
+<h4>FINDING</h4><p>There is no catalog or metadata layer. No Glue/DataHub/Collibra reference, no data dictionary file and no schema documentation beyond the code: schema.sql is the authoritative definition with brief inline comments, and booking_lab/README.md gives a five-line per-file summary in Spanish and defers the full contract and guarantees to ../LABORATORIO_MIT.md, which does not exist in this repository.</p>
+<h4>GAP</h4><p>No discoverable description of what the system holds and what it means; the referenced contract document (LABORATORIO_MIT.md) is missing, so semantic understanding requires reading service.py and schema.sql.</p>
+<h4>RECOMMENDATION</h4><p>Add an in-repo data dictionary (table, column, meaning, sensitivity, owner) alongside schema.sql, or restore the referenced LABORATORIO_MIT.md, so agent tool builders do not have to infer semantics from code.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/README.md<br>Lines: 9-15</div>
+</div><div class="card">
+<div class="card-head"><h3>OBS-Q3: Business Outcome Metrics</h3><span class="badge s-low">Low</span></div>
+<div class="meta">Section: OBS &middot; Dimension: Observability &middot; Native: INFO &middot; Priority: P3</div>
+<h4>FINDING</h4><p>No metrics of any kind are published - no put_metric_data, no StatsD/Prometheus client, no counters (requirements.txt pins only psycopg[binary]==3.3.6). Business outcomes are nonetheless observable after the fact from the data model: audit_events records every state transition with principal and correlation_id, and the booking/charge tables support confirmation, decline, compensation and cancellation rates by principal; run.py already computes exactly these aggregates as evidence (audit_event_count, invariant counts).</p>
+<h4>GAP</h4><p>No runtime business-outcome metrics (bookings confirmed, payments declined, compensations, cancellations - per principal), so agent effectiveness cannot be measured without ad-hoc SQL.</p>
+<h4>RECOMMENDATION</h4><p>Emit counters for booking.confirmed, payment.declined, payment.refunded and booking.cancelled keyed by principal at the point emit() is called, and build an agent-outcome dashboard on them.</p>
+<div class="meta">Effort: Medium (60–90 days)<br>File: booking_lab/requirements.txt<br>Lines: n/a</div>
+</div></section>
+
+<section><h2>Remediation Roadmap</h2><table>
+<tr><th>Phase</th><th>Category</th><th>Modernization Pathway</th><th>Findings</th></tr>
+<tr><td>1</td><td>Blockers — Audit Integrity</td><td>Immutable Audit Trail</td><td>1</td></tr><tr><td>2</td><td>Safety — Identity &amp; Blast Radius</td><td>Machine Identity &amp; Safe Writes</td><td>9</td></tr><tr><td>3</td><td>Quality — Contract, Observability &amp; Delivery</td><td>API Contract &amp; Platform Maturity</td><td>19</td></tr></table></section>
+
+<section><h2>Recommended Actions</h2><table>
+<tr><th>Action</th><th>Findings</th><th>Priority</th><th>Effort</th><th>Rationale</th></tr>
+<tr><td>Move the audit trail to an append-only, tamper-evident store with integrity chaining</td><td>AUTH-Q6</td><td>P0</td><td>Medium</td><td>Attribution and durability are already implemented via the transactional outbox; the sink itself sits in the application database with no immutability, which is the single blocker to write-enabled agent use.</td></tr><tr><td>Split the write scope and add per-principal transaction limits and revocation</td><td>AUTH-Q3, AUTH-Q7, STATE-Q6</td><td>P1</td><td>Medium</td><td>A bookings:write token today permits unlimited bookings and refunds and cannot be revoked before its 300 s expiry; scope splitting, business caps and a principal registry bound and contain agent blast radius.</td></tr><tr><td>Adopt managed secrets with rotation and asymmetric token signing</td><td>AUTH-Q5, AUTH-Q4</td><td>P1</td><td>Medium</td><td>The symmetric JWT secret lets any holder mint tokens for any principal and cannot be rotated without invalidating all agents; asymmetric signing plus a managed store also enables actor/subject delegation claims.</td></tr><tr><td>Enforce rate limits and dependency circuit breaking on the agent-facing surface</td><td>STATE-Q5, STATE-Q4, API-Q8</td><td>P1</td><td>Medium</td><td>There is no throttling at any layer and the recovery worker retries in a 250 ms hot loop, so a runaway agent or a provider outage is amplified rather than damped; rate-limit headers then let agents self-throttle.</td></tr><tr><td>Add application-layer draft state and configurable approval gates</td><td>HITL-Q1, HITL-Q2</td><td>P1</td><td>Medium</td><td>The first durable effect of POST /bookings is an external payment capture; a PENDING_APPROVAL state and per-operation thresholds provide defense in depth for high-value agent actions.</td></tr><tr><td>Publish and version the API contract and expose state-change events</td><td>API-Q2, DISC-Q1, API-Q7, DATA-Q3, DATA-Q4, DATA-Q5</td><td>P2</td><td>Medium</td><td>Tool definitions are hand-authored against unversioned routes with opaque validation errors, no pagination and no timestamps; a versioned OpenAPI document plus webhook/event fan-out from the existing outbox removes polling and silent breakage.</td></tr><tr><td>Instrument structured logging, tracing, metrics and alerting</td><td>OBS-Q1, OBS-Q2, OBS-Q3, DATA-Q7</td><td>P2</td><td>Medium</td><td>Correlation ids exist in the database but never in logs and no metric is emitted, so agent-initiated failures are diagnosable only by ad-hoc SQL; the run.py invariants are ready-made correctness alarms.</td></tr><tr><td>Define the deployment as code with CI/CD, rollback and encryption at rest</td><td>ENG-Q1, ENG-Q2, ENG-Q3, ENG-Q5</td><td>P2</td><td>High</td><td>The runtime exists only as imperative docker calls inside the test harness, with no pipeline, no rollback path and an unencrypted database volume - all prerequisites for operating an externally exposed agent-facing surface.</td></tr><tr><td>Custom Transformation</td><td>AUTH-Q3, AUTH-Q4, AUTH-Q5, AUTH-Q6, AUTH-Q7, STATE-Q4, STATE-Q5, STATE-Q6…</td><td>P1</td><td>High</td><td>Apply the remediation roadmap as a single AWS Transform custom transformation across the booking service, its deployment definition and its observability surface.</td></tr></table>
+<p><strong>AWS Programs:</strong> EBA (Experience-Based Acceleration) for the audit-integrity and identity-hardening sprint; MAP (Migration Acceleration Program) for the IaC, CI/CD, rollback and encryption-at-rest workstream.</p>
+</section>
+
+<section><h2>Agent Deployment Recommendation</h2>
+<div class="tier">&#128992; Significant Remediation Required</div>
+<p>This repository has 1 blocker(s) that must be resolved before any agent deployment. Focus on the High severity findings above.
+A read-only agent scope (bookings:read) is a viable interim step: it removes the write-audit dependency entirely while the audit sink is relocated
+and identity lifecycle controls are added.</p>
+</section>
+
+<footer>Generated by AWS Transform &middot; Agentic Readiness Analysis Report<br>&copy; 2026 Amazon Web Services, Inc. All rights reserved.</footer>
+</div></body></html>

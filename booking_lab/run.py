@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import secrets
+import signal
 import subprocess
 import sys
 import time
@@ -15,6 +16,7 @@ import uuid
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 from auth import encode
+from audit import verify as verify_audit
 
 ROOT = Path(__file__).resolve().parent
 IMAGES = json.loads((ROOT/'images.lock.json').read_text())
@@ -41,12 +43,15 @@ class Lab:
         self.containers = []
         self.passwords = {n:secrets.token_hex(24) for n in ('postgres','booking_app','payment_app','audit_writer','audit_reader')}
         self.pay_token = secrets.token_hex(32)
+        self.audit_key=secrets.token_hex(32)
+        self.audit_write=secrets.token_hex(32)
+        self.audit_read=secrets.token_hex(32)
         self.tests = []
         self.resource_options = []
         self.evidence = {'schema_version':1, 'started_at_utc':datetime.now(timezone.utc).isoformat(),
                          'implementation':'original MIT booking_lab', 'environment':os.environ.get('LAB_EVIDENCE_ENV','local Docker'),
                          'payments':'synthetic HTTP provider backed by PostgreSQL; no money moved',
-                         'aws_managed_ara_rerun':False,'cases':self.tests}
+                         'evaluation_kind':'database_e2e','cases':self.tests}
 
     def sql(self, text, role='postgres', check=True):
         return docker('exec','-i',self.prefix+'-db','psql','-X','-v','ON_ERROR_STOP=1','-U',role,'-d','workshop','-At',data=text,check=check)
@@ -78,6 +83,7 @@ class Lab:
         if mode == 'api':
             values.update(JWT_KEY=self.key,LAB_FAULTS='1')
         if audit:
+            values.update(AUDIT_URL=f'http://{self.prefix}-audit:8080',AUDIT_WRITE_TOKEN=self.audit_write)
             values['AUDIT_DATABASE_URL']=f'postgresql://audit_writer:{self.passwords["audit_writer"]}@{self.prefix}-db/workshop'
         options = ['--read-only','--cap-drop=ALL','--security-opt=no-new-privileges',*self.resource_options,'--tmpfs','/tmp:rw,noexec,nosuid,size=16m']
         if port is not None:
@@ -88,6 +94,11 @@ class Lab:
         self.containers.append(container)
         if mode=='api':
             docker('network','connect',self.prefix,container)
+
+    def audit_snapshot(self):
+        # Request through the sink's own network namespace, no host port published.
+        code="import json,os,urllib.request; r=urllib.request.Request('http://127.0.0.1:8080/events',headers={'Authorization':'Bearer '+os.environ['AUDIT_READ_TOKEN']}); print(urllib.request.urlopen(r).read().decode())"
+        return json.loads(docker('exec',self.prefix+'-audit','python','-c',code).stdout)
 
     def refresh_ports(self):
         ports=[]
@@ -160,6 +171,18 @@ class Lab:
         self.evidence['synchronous_commit']=self.scalar('SHOW synchronous_commit;')
         roles='\n'.join(f"CREATE ROLE {r} LOGIN PASSWORD '{p}';" for r,p in self.passwords.items() if r!='postgres')
         self.sql(roles+'\n'+(ROOT/'schema.sql').read_text())
+        # Independent sink: separate process, volume and signing key. The app DB
+        # administrator has no credentials or mount for the authoritative ledger.
+        docker('volume','create',self.prefix+'-audit-data')
+        docker('run','--rm','--network','none','--user','0','-v',self.prefix+'-audit-data:/audit',PY_IMAGE,
+               'python','-c','import os; os.chown("/audit",65532,65532); os.chmod("/audit",0o700)')
+        audit_env=self.env('audit',{'AUDIT_PATH':'/audit/ledger.sqlite','AUDIT_SIGNING_KEY':self.audit_key,
+                                  'AUDIT_WRITE_TOKEN':self.audit_write,'AUDIT_READ_TOKEN':self.audit_read})
+        docker('run','-d','--name',self.prefix+'-audit','--network',self.prefix,'--read-only','--cap-drop=ALL',
+               '--security-opt=no-new-privileges',*self.resource_options,'--env-file',str(audit_env),
+               '-v',self.prefix+'-audit-data:/audit',self.prefix+'-app','python','audit.py')
+        self.containers.append(self.prefix+'-audit')
+        self.wait(lambda: self.audit_snapshot()['retention_days']==90)
         self.start('payments','payments','payment_app')
         # Ephemeral host ports are discovered from Docker, avoiding collisions with user services.
         self.ports=[]
@@ -173,9 +196,10 @@ class Lab:
     def run_tests(self):
         p={'itinerary':'BOG-MDE','amount':12500}
         def auth():
-            for token in ('',encode(self.key,exp=0),encode(self.key,aud='wrong'),encode(self.key,iss='wrong'),encode(self.key,nbf=9999999999),encode('x'*64)):
+            for token in ('',encode(self.key,exp=0),encode(self.key,aud='wrong'),encode(self.key,iss='wrong'),encode(self.key,nbf=9999999999),encode(self.key,exp=float('nan')),encode(self.key,exp=float('inf')),encode(self.key,iat=False),encode(self.key,exp=9999999999),encode('x'*64)):
                 assert self.req('POST',payload=p,key='auth',token=token,port=self.port_a)[0]==401
             assert self.req('POST',payload=p,key='auth',token=encode(self.key,scope='bookings:read'),port=self.port_a)[0]==403
+            assert self.req('DELETE','/bookings/'+'a'*64,token=encode(self.key,scope='bookings:read bookings:write'),port=self.port_a)[0]==403
             assert self.scalar('SELECT count(*) FROM charges;')=='0'
         self.case('authentication_issuer_audience_expiry_signature_scope',auth)
         correlation=str(uuid.uuid4())
@@ -352,6 +376,46 @@ class Lab:
           'undelivered_audit_events':int(self.scalar('SELECT count(*) FROM outbox WHERE delivered_at IS NULL;')),
           'audit_missing_attribution':int(self.scalar("SELECT count(*) FROM audit_events WHERE principal='' OR correlation_id IS NULL OR operation_id='';"))}
         assert all(v==0 for v in self.evidence['invariants'].values()),self.evidence['invariants']
+        def audit_integrity():
+            snapshot=self.audit_snapshot()
+            records=snapshot['records']; checkpoint=snapshot['checkpoint']
+            assert verify_audit(records,self.audit_key,checkpoint)
+            assert len(records)==int(self.scalar('SELECT count(*) FROM audit_events;'))
+            # Persist an external checkpoint outside both databases for later verification.
+            (self.work/'audit-checkpoint.json').write_text(json.dumps(checkpoint))
+            (self.work/'audit-snapshot.json').write_text(json.dumps(snapshot))
+            for changed in (records[:-1],json.loads(json.dumps(records))):
+                if len(changed)==len(records):
+                    changed[0]['event']['principal']='forged'
+                try:
+                    verify_audit(changed,self.audit_key,checkpoint)
+                except ValueError:
+                    pass
+                else:
+                    raise AssertionError('tampered audit accepted')
+            # Alter the application projection with its administrator: the independent
+            # ledger remains valid and retains the authentic principal.
+            first=records[0]['event']
+            self.sql("UPDATE audit_events SET principal='forged' WHERE id='"+first['id']+"';")
+            assert self.audit_snapshot()==snapshot
+            assert self.scalar("SELECT principal FROM audit_events WHERE id='"+first['id']+"';")!=first['principal']
+            self.sql("UPDATE audit_events SET principal='"+first['principal']+"' WHERE id='"+first['id']+"';")
+            # SQL UPDATE/DELETE cannot remove retained records through the sink runtime.
+            for sql in ('DELETE FROM ledger','UPDATE ledger SET record=record'):
+                code="import sqlite3,os; c=sqlite3.connect(os.environ['AUDIT_PATH']); c.execute("+repr(sql)+"); c.commit()"
+                assert docker('exec',self.prefix+'-audit','python','-c',code,check=False).returncode!=0
+            docker('restart',self.prefix+'-audit')
+            self.wait(lambda: self.audit_snapshot()==snapshot)
+            # SQLite backup is restored into a separate file and independently verified.
+            code="import sqlite3,os; src=sqlite3.connect(os.environ['AUDIT_PATH']); dst=sqlite3.connect('/audit/restore-check.sqlite'); src.backup(dst); print(dst.execute('PRAGMA integrity_check').fetchone()[0])"
+            assert docker('exec',self.prefix+'-audit','python','-c',code).stdout.strip()=='ok'
+            code="import sqlite3,json; c=sqlite3.connect('/audit/restore-check.sqlite'); print(json.dumps([json.loads(r[0]) for r in c.execute('SELECT record FROM ledger ORDER BY sequence')]))"
+            restored=json.loads(docker('exec',self.prefix+'-audit','python','-c',code).stdout)
+            assert restored==records and verify_audit(restored,self.audit_key,checkpoint)
+            self.evidence['independent_audit']={'records':len(records),'checkpoint':checkpoint,
+                'retention_days':90,'tamper_and_truncation_detected':True,'app_db_admin_cannot_change_ledger':True,
+                'runtime_update_delete_denied':True,'restart_persisted':True,'backup_restored_and_verified':True}
+        self.case('independent_signed_audit_retention_tamper_restart_restore',audit_integrity)
         self.evidence['audit_event_count']=int(self.scalar('SELECT count(*) FROM audit_events;'))
         self.evidence['result']='passed'
 
@@ -374,12 +438,31 @@ def main():
     if not __debug__:
         raise SystemExit('Run without -O: E2E assertions must remain enabled')
     ap=argparse.ArgumentParser()
-    ap.add_argument('command',choices=['e2e'])
+    ap.add_argument('command',choices=['e2e','demo'])
     ap.add_argument('--output',default='.local/db-e2e.json')
     args=ap.parse_args()
     lab=Lab(args.output)
     try:
-        lab.setup();lab.run_tests()
+        lab.setup()
+        if args.command == 'e2e':
+            lab.run_tests()
+        else:
+            lab.start('worker','worker','booking_app',audit=True)
+            session=lab.work/'session.json'
+            session.write_text(json.dumps({'prefix':lab.prefix,'port':lab.port_a,'key':lab.key}))
+            session.chmod(0o600)
+            lab.evidence['result']='demo_running'
+            print('DEMO_READY session='+str(session),flush=True)
+            print('Use client.py --session <path> list/create/cancel. Ctrl+C stops only this lab.',flush=True)
+            def stop(*_):
+                raise KeyboardInterrupt()
+            signal.signal(signal.SIGTERM,stop)
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                lab.evidence['result']='demo_stopped'
+
     except BaseException as e:
         lab.evidence['result']='failed'
         lab.evidence['failure_type']=type(e).__name__

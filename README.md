@@ -15,12 +15,12 @@ Necesitas Python 3.11+ y Docker. El comando crea la DB y dos instancias de API, 
 ## Empieza aquí
 
 - **[Laboratorio completo MIT](LABORATORIO_MIT.md)**: flujo con PostgreSQL y pruebas desde un clon público.
-- [Inicio rápido](INICIO_RAPIDO.md): elige la réplica original o la captura histórica A–C.
-- [Auditoría E2E](AUDITORIA_E2E.md): correcciones, evidencia y pruebas pendientes.
+- [Inicio rápido](INICIO_RAPIDO.md): clona y ejecuta el workshop público completo.
+- [Auditoría E2E](AUDITORIA_E2E.md): capas de verificación y evidencia.
 - [Ejecución AWS](EJECUCION_AWS.md): acceso, rutas, publicación de TD y aceptación.
 - [Pruebas del contenedor](RUNTIME_LOCAL.md): detectar y corregir fallos de empaquetado y sondas.
 - [Preparación con CloudShell](CLOUDSHELL.md): recorrido comprobado para una cuenta propia.
-- [Revisión de las TD](LIMITACIONES_TD.md): problemas de los ejemplos y criterios para aceptar una remediación.
+- [Revisión de las TD](LIMITACIONES_TD.md): criterios para aceptar una remediación.
 - [Guía de réplica](GUIA_REPLICACION.md): requisitos, secuencia de módulos, comandos y puntos de verificación.
 - [Tableros visuales](diagramas/README.md): cinco diagramas originales tipo post-it sobre el flujo y sus controles.
 - [Prompts reutilizables](PROMPTS.md): mapeo, priorización y comparación con evidencia.
@@ -31,7 +31,7 @@ Necesitas Python 3.11+ y Docker. El comando crea la DB y dos instancias de API, 
 
 La réplica MIT pasó **17 escenarios E2E en CCS con PostgreSQL real**, incluyendo reservas, consultas, cancelación, pagos, compensación y auditoría. Consulta [la evidencia de DB](CCS_DATABASE_E2E.md). Sus pruebas incluyen concurrencia entre dos instancias, caídas de proceso/DB/proveedor, reentrega de eventos y restauración de datos. El [laboratorio completo](LABORATORIO_MIT.md) explica cómo ejecutarlas y conservar sus resultados.
 
-La [evaluación anterior de CCS](CCS_E2E.md) conserva los análisis ARA/MODA y los fallos detectados en el PHP generado por AWS Transform. Cada implementación tiene su propia evidencia y alcance.
+La [evaluación ARA/MODA en CCS](CCS_E2E.md) registra los análisis del código MIT, la comparación y las correcciones.
 
 ## Tableros
 
@@ -55,9 +55,15 @@ La [evaluación anterior de CCS](CCS_E2E.md) conserva los análisis ARA/MODA y l
 
 Los diagramas son esquemas explicativos, no reproducciones literales de los tableros del evento ni reportes de métricas. Sus decisiones siguen los ejemplos descritos en la guía.
 
-## Límites para repetir el laboratorio
+## Materiales incluidos
 
-El evento usaba una cuenta temporal y recursos preaprovisionados. Esta guía documenta el recorrido, pero no despliega infraestructura ni sustituye las instrucciones vigentes de AWS para una cuenta propia. Revisa permisos, regiones, disponibilidad de servicios y precios antes de ejecutar los comandos. La ruta MIT incluye su propia implementación y pruebas; las instrucciones históricas del evento se conservan como referencia separada.
+Código de aplicación, esquema PostgreSQL, pruebas, escenario de negocio, ejercicios A–C, contextos ARA/MODA, transformación original y plantillas de comparación. Genera una práctica con:
+
+```bash
+python3 scripts/workshop.py prepare --output .local/workshop-01
+```
+
+La [guía A–J](GUIA_REPLICACION.md) enlaza cada paso con su recurso público. Para D–I necesitas tu cuenta y acceso a AWS Transform. Los documentos de la primera implementación están en [el archivo histórico](historico/README.md).
 
 ## Fuentes
 

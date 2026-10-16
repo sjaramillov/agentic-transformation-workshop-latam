@@ -1,5 +1,7 @@
 # Auditoría de reproducción
 
+**Validación posterior de la réplica pública:** [17 escenarios de DB en CCS](CCS_DATABASE_E2E.md), con compensación y auditoría durable implementadas en código original MIT. Las secciones siguientes conservan la revisión histórica.
+
 Fecha de revisión inicial: **15 de octubre de 2026 (America/Bogota)**. Base revisada: commit `870b5f7`. La ejecución posterior del 16 de octubre UTC está documentada en [CCS_E2E.md](CCS_E2E.md); las secciones siguientes preservan el alcance y las observaciones de la auditoría inicial.
 
 ## Dictamen

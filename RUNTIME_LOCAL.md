@@ -1,5 +1,7 @@
 # Verificar el contenedor antes de aceptar la remediación
 
+**Ruta vigente de la réplica original:** [LABORATORIO_MIT.md](LABORATORIO_MIT.md) valida el flujo completo con PostgreSQL. Este documento conserva los fallos y ayudantes del PHP generado en la ejecución anterior.
+
 La ejecución de CCS del 16 de octubre de 2026 mostró que la primera TD puede terminar como `completed` y producir una imagen que compila, aunque el servicio falle:
 
 | Prueba sobre la imagen generada | Resultado observado |

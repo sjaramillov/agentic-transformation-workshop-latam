@@ -1,5 +1,7 @@
 # Evaluación en una cuenta propia (CCS)
 
+**Continuación:** las dos brechas se implementaron y validaron en la [réplica original MIT con PostgreSQL](CCS_DATABASE_E2E.md). Este documento conserva los informes del PHP anterior y sus resultados históricos.
+
 Fecha: **16 de octubre de 2026, UTC**. Se utilizó la sesión de CCS que el propietario abrió en su navegador. Los identificadores de cuenta, logs crudos y resultados detallados permanecen privados.
 
 **Resultado:** se ejecutó el ciclo de análisis, dos remediaciones y nueva medición en CCS. Se corrigieron fallos de reproducción y de empaquetado. El servicio resultante **no queda aprobado para un piloto ni para producción**: ARA mantiene dos bloqueadores y las pruebas de negocio/despliegue están pendientes.

@@ -198,5 +198,12 @@
     "ara": "ValidationException: Unauthorized operation on package with reserved prefix: AWS/",
     "moda": "ValidationException: Unauthorized operation on package with reserved prefix: AWS/",
     "exact_version_preserved": false
+  },
+  "original_mit_followup": {
+    "evidence": "db-e2e.json",
+    "guide": "../CCS_DATABASE_E2E.md",
+    "cases_passed": 17,
+    "scope": "new original implementation; historical PHP analysis unchanged",
+    "managed_ara_rerun": false
   }
 }

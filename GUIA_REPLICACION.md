@@ -8,7 +8,7 @@ El taller sigue una cadena completa sobre TravelCorp, una compañía ficticia de
 
 El caso principal es `booking-service`, un monolito PHP heredado. El diseño de ejemplo es un agente de rebooking con autonomía P (prepara una propuesta que una persona aprueba). Sus hallazgos ilustran dos ejes independientes: modernizar la plataforma y permitir que un agente opere con seguridad.
 
-**Material de ejercicio:** este repositorio público contiene la guía y sus diagramas, pero no el código TravelCorp del evento. Las rutas `~/environment/apps/travelcorp-portfolio/` que aparecen abajo presuponen que obtuviste ese paquete por un canal autorizado o preparaste un equivalente. La copia capturada se conserva localmente; no se redistribuye porque el material TravelCorp no incluye una licencia identificada.
+**Implementación para repetirlo:** [booking_lab/](booking_lab/) contiene un servicio original MIT con el mismo problema didáctico de reservas, pagos y preparación para agentes. El [laboratorio completo](LABORATORIO_MIT.md) usa únicamente este clon público. Las rutas TravelCorp que siguen describen el entorno histórico del evento y permiten contrastar sus resultados; son una ruta adicional.
 
 ## 2. Requisitos y preparación
 

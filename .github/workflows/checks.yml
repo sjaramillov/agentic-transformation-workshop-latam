@@ -17,3 +17,18 @@ jobs:
       - run: python -m unittest discover -s tests -v
       # The private workshop capture is deliberately absent. Public CI verifies
       # our helpers/docs; RealArchiveE2E explicitly reports a skip, never a pass.
+  database-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python booking_lab/run.py e2e --output .local/db-e2e.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: database-e2e-evidence
+          path: .local/db-e2e.json
+          # Credentials, private .env files, dumps and raw logs are excluded.

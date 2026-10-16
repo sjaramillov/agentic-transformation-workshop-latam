@@ -170,7 +170,7 @@ Estas copias modifican dos archivos locales. La plantilla de pipeline capturada 
 
 Repite discovery y los análisis sobre `main`, manteniendo contexto y alcance. Guarda IDs, hashes y diffs de hallazgos; la salida de las TD es variable. No exijas un tier predeterminado ni ajustes código solo para hacer desaparecer una etiqueta.
 
-Para certificar un servicio desplegado también harían falta: build de la imagen, validación de IaC, autenticación positiva/negativa, reintentos idempotentes, compensación ante fallos, comprobación de PII, callback humano con timeout/rechazo, logs y rollback. En CCS se ejecutaron build, sintaxis PHP, HTTP sin DB y cfn-lint; consulta [los resultados](CCS_E2E.md). **Las pruebas completas de negocio y del despliegue siguen pendientes.** El taller diseña el workflow; no entrega un agente de rebooking desplegado por completar A–I.
+Para certificar un servicio desplegado también harían falta: build de la imagen, validación de IaC, autenticación positiva/negativa, reintentos idempotentes, compensación ante fallos, comprobación de PII, callback humano con timeout/rechazo, logs y rollback. En CCS se ejecutaron build, sintaxis PHP, HTTP sin DB y cfn-lint; consulta [los resultados](CCS_E2E.md). **Las pruebas completas del despliegue de ese PHP siguen pendientes.** La [réplica original MIT](CCS_DATABASE_E2E.md) ya valida los escenarios de negocio con PostgreSQL en CCS. El taller diseña el workflow; no entrega un agente de rebooking desplegado por completar A–I.
 
 ## 8. Cierre
 

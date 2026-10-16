@@ -1,5 +1,7 @@
 # Preparar una cuenta propia con CloudShell
 
+**Ruta completa MIT:** para reservas, PostgreSQL, auditoría y recuperación utiliza [LABORATORIO_MIT.md](LABORATORIO_MIT.md). Solo requiere clonar este repo y ejecutar `python3 booking_lab/run.py e2e --output .local/db-e2e.json`; los pasos históricos de ATX continúan abajo.
+
 Recorrido observado el 16 de octubre de 2026 (UTC): CloudShell Linux x86_64 en `us-east-1`, Node **22.23.3**, ATX **3.19.0**, Python **3.13.15**. La instalación y A–C pasaron en una cuenta distinta de la del evento. La evidencia de D–I se informa por separado en [CCS_E2E.md](CCS_E2E.md).
 
 ## 1. Cuenta y herramientas

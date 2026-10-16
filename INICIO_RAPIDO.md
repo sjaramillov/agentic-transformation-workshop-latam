@@ -1,14 +1,25 @@
 # Repetir el taller con el menor número de pasos
 
+## Réplica completa desde el repositorio público
+
+Para ejecutar la implementación original MIT con PostgreSQL, dos APIs, pagos simulados y pruebas de auditoría/compensación, sigue [LABORATORIO_MIT.md](LABORATORIO_MIT.md):
+
+```bash
+python3 booking_lab/run.py e2e --output .local/db-e2e.json
+```
+
+El resto de este documento conserva la práctica A–C sobre la captura histórica del evento, como ruta adicional.
+
 ## Elige el recorrido
 
 | Recorrido | Necesita | Qué comprueba |
 | --- | --- | --- |
+| **Laboratorio MIT recomendado** | Python 3.11+, Docker y este clon | Reservas, pagos, PostgreSQL, compensación, auditoría y recuperación |
 | Leer y ver diagramas | Este repositorio | Conceptos y secuencia A–J |
-| **Práctica local recomendada** | Python 3.11+, Bash y la captura autorizada | Restauración, A–C, contextos e informes capturados |
+| Captura histórica A–C | Python 3.11+, Bash y la captura autorizada | Restauración, A–C, contextos e informes capturados |
 | Ejecución AWS | Entorno del evento o cuenta preparada, ATX, Kiro, permisos y modelos | Nuevos análisis y remediaciones D–I |
 
-La práctica local está probada de extremo a extremo. La ejecución AWS completa está pendiente: una clasificación ARA/MODA no demuestra que el servicio esté desplegado o funcione en producción. Consulta [la auditoría y sus límites](AUDITORIA_E2E.md).
+La captura histórica A–C se probó de extremo a extremo y el ciclo ARA/MODA se ejecutó en CCS. La réplica MIT añade sus propias pruebas del negocio con DB; una clasificación del analizador no acredita un despliegue productivo. Consulta [la auditoría y sus límites](AUDITORIA_E2E.md).
 
 ## 1. Clona la guía
 

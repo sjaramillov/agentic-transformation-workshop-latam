@@ -1,0 +1,31 @@
+{
+  "analysis_id": "01M52Q232A5BYEPH5V20Y8FYWP",
+  "public_source_commit": "401e5317567f3500843bc722893bf6d22b733390",
+  "analysis_source_commit": "b1f49daa78174a34535508ee4e2fa5effa39e11c",
+  "files": [
+    {
+      "file": "booking-mit-mod-report.html",
+      "raw_sha256": "11fa082e0c4ff2dc965dcd587c7610ad8d8afc20d769a0c34aaa004cb6ea4800",
+      "published_sha256": "11fa082e0c4ff2dc965dcd587c7610ad8d8afc20d769a0c34aaa004cb6ea4800",
+      "redacted": false
+    },
+    {
+      "file": "booking-mit-mod-report.json",
+      "raw_sha256": "65543cd98b339ac2bd1ee67395d7bb9a751085e578aad465c961f262ece6fe94",
+      "published_sha256": "65543cd98b339ac2bd1ee67395d7bb9a751085e578aad465c961f262ece6fe94",
+      "redacted": false
+    },
+    {
+      "file": "booking-mit-mod-report.md",
+      "raw_sha256": "00eb85781213c6f29f1e5f63a4aa89f07034e34d088fa1d6cc3868f86345c028",
+      "published_sha256": "00eb85781213c6f29f1e5f63a4aa89f07034e34d088fa1d6cc3868f86345c028",
+      "redacted": false
+    },
+    {
+      "file": "booking-mit-mod-report.metadata.json",
+      "raw_sha256": "41c120cb9f1d78c2af912279ff304896144cd8cc1908cbc3101a09ba345b600f",
+      "published_sha256": "41c120cb9f1d78c2af912279ff304896144cd8cc1908cbc3101a09ba345b600f",
+      "redacted": false
+    }
+  ]
+}

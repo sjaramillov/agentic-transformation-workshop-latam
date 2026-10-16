@@ -1,0 +1,453 @@
+{
+  "kind": "ara",
+  "before_classification": {
+    "tier": "Remediation Required",
+    "sub_qualifier": null,
+    "blocker_count": 1,
+    "risk_safety_count": 9,
+    "risk_quality_count": 11,
+    "info_count": 8,
+    "high_count": 10,
+    "medium_count": 11,
+    "low_count": 8,
+    "rule_matched": "1-2 BLOCKER → Remediation Required"
+  },
+  "after_classification": {
+    "tier": "Pilot-Ready",
+    "sub_qualifier": "Pilot-Ready (Safety Concerns)",
+    "blocker_count": 0,
+    "risk_safety_count": 8,
+    "risk_quality_count": 11,
+    "info_count": 8,
+    "high_count": 8,
+    "medium_count": 11,
+    "low_count": 8,
+    "rule_matched": "0 BLOCKER, >=3 RISK-SAFETY -> Pilot-Ready (Safety Concerns)",
+    "readiness_profile": "Pilot-Ready (Safety Concerns)"
+  },
+  "overall_score_before": null,
+  "overall_score_after": null,
+  "same_question_set": true,
+  "questions": [
+    {
+      "question_id": "API-Q1",
+      "title": "Documented API Interface",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "API-Q2",
+      "title": "Machine-Readable API Specification",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "API-Q3",
+      "title": "Structured Error Responses",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "API-Q4",
+      "title": "Idempotent Write Operations",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "API-Q5",
+      "title": "Structured Response Format",
+      "before": "INFO",
+      "after": "INFO",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "API-Q6",
+      "title": "Asynchronous Operation Support",
+      "before": "not_evaluated_extended",
+      "after": "pass",
+      "changed": true,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "API-Q7",
+      "title": "Event Emission for State Changes",
+      "before": "INFO",
+      "after": "INFO",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "API-Q8",
+      "title": "Rate Limit Documentation and Headers",
+      "before": "INFO",
+      "after": "INFO",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "AUTH-Q1",
+      "title": "Machine Identity Authentication",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "AUTH-Q2",
+      "title": "Scoped Permissions (Least Privilege)",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "AUTH-Q3",
+      "title": "Action-Level Authorization",
+      "before": "RISK-SAFETY",
+      "after": "pass",
+      "changed": true,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "AUTH-Q4",
+      "title": "Identity Propagation and Delegation",
+      "before": "RISK-SAFETY",
+      "after": "RISK-SAFETY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "AUTH-Q5",
+      "title": "Credential Management",
+      "before": "RISK-SAFETY",
+      "after": "RISK-SAFETY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "AUTH-Q6",
+      "title": "Immutable Audit Logging",
+      "before": "BLOCKER",
+      "after": "pass",
+      "changed": true,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "AUTH-Q7",
+      "title": "Agent Identity Suspension",
+      "before": "RISK-SAFETY",
+      "after": "RISK-SAFETY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "DATA-Q1",
+      "title": "Sensitive Data Classification",
+      "before": "INFO",
+      "after": "INFO",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "DATA-Q2",
+      "title": "Data Residency and Sovereignty",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "DATA-Q3",
+      "title": "Selective Query Support",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "DATA-Q4",
+      "title": "Input Validation and Schema Enforcement",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "DATA-Q5",
+      "title": "Temporal Metadata and Freshness",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "DATA-Q6",
+      "title": "PII Redaction in Logs",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "DATA-Q7",
+      "title": "Data Quality Awareness",
+      "before": "INFO",
+      "after": "INFO",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "DISC-Q1",
+      "title": "Schema Versioning and API Contracts",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "DISC-Q2",
+      "title": "Semantically Meaningful Field Names",
+      "before": "INFO",
+      "after": "INFO",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "DISC-Q3",
+      "title": "Data Catalog / Metadata Layer",
+      "before": "INFO",
+      "after": "INFO",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "ENG-Q1",
+      "title": "Infrastructure Governance for Agent-Facing Surface",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "ENG-Q2",
+      "title": "CI/CD with API Contract Testing",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "ENG-Q3",
+      "title": "Rollback Capability",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "ENG-Q4",
+      "title": "API Test Coverage",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "ENG-Q5",
+      "title": "Encryption at Rest for Agent-Accessible Data",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "HITL-Q1",
+      "title": "Draft/Pending State",
+      "before": "RISK-SAFETY",
+      "after": "RISK-SAFETY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "HITL-Q2",
+      "title": "Configurable Approval Gates",
+      "before": "RISK-SAFETY",
+      "after": "RISK-SAFETY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "HITL-Q3",
+      "title": "Sandbox/Staging Environment",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "OBS-Q1",
+      "title": "Distributed Tracing and Structured Logging",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "OBS-Q2",
+      "title": "Alerting on Error Rates and Latency",
+      "before": "RISK-QUALITY",
+      "after": "RISK-QUALITY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "OBS-Q3",
+      "title": "Business Outcome Metrics",
+      "before": "INFO",
+      "after": "INFO",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "STATE-Q1",
+      "title": "Compensation and Rollback",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "STATE-Q2",
+      "title": "Queryable Current State",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "STATE-Q3",
+      "title": "Concurrency Controls",
+      "before": "pass",
+      "after": "pass",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "STATE-Q4",
+      "title": "Circuit Breakers and Resilience",
+      "before": "RISK-SAFETY",
+      "after": "RISK-SAFETY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "STATE-Q5",
+      "title": "Rate Limiting and Throttling",
+      "before": "RISK-SAFETY",
+      "after": "RISK-SAFETY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "STATE-Q6",
+      "title": "Blast Radius and Transaction Limits",
+      "before": "RISK-SAFETY",
+      "after": "RISK-SAFETY",
+      "changed": false,
+      "score_before": null,
+      "score_after": null
+    },
+    {
+      "question_id": "STATE-Q7",
+      "title": "Graceful Degradation Signaling",
+      "before": "not_evaluated_extended",
+      "after": "pass",
+      "changed": true,
+      "score_before": null,
+      "score_after": null
+    }
+  ],
+  "report_bundle_verification": [
+    {
+      "valid_bundle_and_counts": true,
+      "kind": "ara",
+      "reported_tier": "Remediation Required",
+      "findings": 29,
+      "artifact_sha256": {
+        "booking-mit-ara-report.json": "d7e920bc71421f1175dee5f09ea200171c41ea396b90d6e0236813d42ee1c404",
+        "booking-mit-ara-report.md": "2469ba9169ffc5a75e1281998304c0d96ec233773c3be53c66df8828951b937e",
+        "booking-mit-ara-report.html": "4b2a9e23d3f47b635409ccab5d1cb0ce2a065b7d77fd57ae0c95bbaefb6ab877",
+        "booking-mit-ara-report.metadata.json": "9cdd8d77e2f61ef31baaf91530cd73bedb1b60026d5c59ddab2214383963c0dc"
+      },
+      "errors": [],
+      "runtime_validated": false,
+      "rubric_judgments_independently_verified": false
+    },
+    {
+      "valid_bundle_and_counts": true,
+      "kind": "ara",
+      "reported_tier": "Pilot-Ready",
+      "findings": 27,
+      "artifact_sha256": {
+        "booking-mit-ara-report.json": "5fe07f75f845c1dd1f40522a3b36a91f07471ef1339b82d7c178fb416daed0dc",
+        "booking-mit-ara-report.md": "ef8b1406663d0cf805c4740774a49b835444aac114454a2268a633258c9ad218",
+        "booking-mit-ara-report.html": "337fb95a36895bd831320e5141e082114966318cc9ece7011edd6c3efa94ec5a",
+        "booking-mit-ara-report.metadata.json": "9cdd8d77e2f61ef31baaf91530cd73bedb1b60026d5c59ddab2214383963c0dc"
+      },
+      "errors": [],
+      "runtime_validated": false,
+      "rubric_judgments_independently_verified": false
+    }
+  ],
+  "interpretation": "Evaluator judgments; scope, source changes and runtime proof require separate review."
+}

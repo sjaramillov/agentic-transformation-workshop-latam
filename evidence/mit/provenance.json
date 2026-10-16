@@ -1,0 +1,33 @@
+{
+  "public_source_commit": "401e5317567f3500843bc722893bf6d22b733390",
+  "analysis_source_commit": "b1f49daa78174a34535508ee4e2fa5effa39e11c",
+  "verified_identical_source": [
+    "ARA after",
+    "MODA after",
+    "CCS E2E 18/18",
+    "CCS manual demo",
+    "GitHub Actions E2E 18/18"
+  ],
+  "source_manifest": "source-sha256.json",
+  "context_manifest": "context-sha256.json",
+  "scope": [
+    "booking_lab/",
+    "LICENSE",
+    ".gitignore (generated)"
+  ],
+  "outside_managed_analysis_scope": [
+    ".github/workflows/",
+    "tests/",
+    "scripts/",
+    "root guides"
+  ],
+  "ci_run_url": "https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/38929875432",
+  "runtime_archive_sha256": "d2fecd9fdf7045e0c30217d669b042e423576197129007086be620b29c75d796",
+  "td_registration": {
+    "name": "mit-booking-hardening-20261016",
+    "version": "3h27i6pk9alc7pwhfldlj9bz",
+    "registered": true,
+    "remediation_executed_with_td": false
+  },
+  "corrections_method": "original implementation, reviewed and tested; AWS managed ARA/MODA used for assessment"
+}

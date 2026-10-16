@@ -1,0 +1,24 @@
+{
+  "observed_environment": "AWS CloudShell CCS",
+  "source_commit": "401e5317567f3500843bc722893bf6d22b733390",
+  "checks": {
+    "created_201": true,
+    "own_list_contains_booking": true,
+    "other_subject_empty": true,
+    "cancelled_200": true,
+    "cancel_replay_identical": true,
+    "create_replay_preserves_original_response": true,
+    "clean_stop": true
+  },
+  "all_passed": true,
+  "raw_metadata_note": "Demo inherits evaluation_kind=database_e2e and environment=local Docker defaults; this manual verification was observed in CCS and is separate from the 18-case E2E. Original receipt is preserved.",
+  "receipt_sha256": {
+    "final-demo-create-replay.json": "58d45f72b0683bf284c560363ba76db69fd36fa19e408fe4325dbe5b51a83ddc",
+    "final-demo-cancel-replay.json": "fd942c5680c29cb379ee72f34b90ea5daeb59bc44690b9006d11c88abbd78942",
+    "final-demo.json": "231eece9911d47fff40b1b1c4b8593bbce4c90cdc32f80fdec4f857c3bd7d091",
+    "final-demo-list.json": "5199b0b79fbc152e9313c7d7eabd6c45a10a6f6bf81dc7047ec556974808764a",
+    "final-demo-cancel.json": "fd942c5680c29cb379ee72f34b90ea5daeb59bc44690b9006d11c88abbd78942",
+    "final-demo-create.json": "e96b73ecd78f1065775d693981eaf6bd8dc5bf5b1b6655f696ea9bee46286a55",
+    "final-demo-other-subject.json": "e3b7af9c8409afd2882070582f5184fdafd31cc3298774dc23c4259eedd22c85"
+  }
+}

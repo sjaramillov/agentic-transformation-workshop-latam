@@ -11,7 +11,7 @@ Comienza con [Inicio rápido](INICIO_RAPIDO.md). El comando `scripts/workshop.py
 | C | Diseñar el workflow | Escenario, [tablero 3](diagramas/03-workflow-rebooking.svg) | `C-workflow.json`: confirmaciones, pasos y dueños |
 | D | Evaluar seguridad para agentes | [Contexto ARA](workshop/contexts/ara.txt) | Informe real, ID, commit y hallazgos |
 | E | Evaluar modernización | [Contexto MODA](workshop/contexts/moda.txt) | Informe real con propuestas separadas del runtime |
-| F | Leer el portafolio | Las dos fuentes aisladas de análisis | Inventario; un servicio con tres roles de proceso |
+| F | Leer el portafolio | Las dos fuentes aisladas de análisis | Inventario; un servicio con cuatro roles de aplicación |
 | G | Priorizar | [Plantilla](workshop/templates/decision.md), [prompts](PROMPTS.md) | Hallazgo → cambio → prueba → responsable |
 | H | Corregir | [Transformación original](workshop/transformations/hardening/transformation_definition.md) | Diff revisado y pruebas de regresión |
 | I | Volver a medir | Mismos contextos y alcance de D/E | [Comparación CSV](workshop/templates/comparison.csv), informes antes/después |
@@ -33,7 +33,7 @@ Define intención, confirmación, llamada, consulta de estado y recuperación. U
 
 ## D–F. Ejecuta análisis reales
 
-Sigue [Ejecución AWS](EJECUCION_AWS.md). ARA y MODA reciben clones separados del mismo código para evitar interferencias. En F el portafolio mínimo es este servicio; API, pagos y worker son roles dentro del mismo repo. Para ampliarlo, incorpora tus propios servicios con licencia compatible y repite descubrimiento. No hace falta inventar tres repositorios de ejemplo.
+Sigue [Ejecución AWS](EJECUCION_AWS.md). ARA y MODA reciben clones separados del mismo código para evitar interferencias. En F el portafolio mínimo es este servicio; API, pagos, worker y ledger de auditoría son roles dentro del mismo repo. Para ampliarlo, incorpora tus propios servicios con licencia compatible y repite descubrimiento. No hace falta inventar tres repositorios de ejemplo.
 
 ## G. Prioriza con evidencia
 

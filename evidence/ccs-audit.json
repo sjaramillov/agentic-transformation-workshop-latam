@@ -205,5 +205,16 @@
     "cases_passed": 17,
     "scope": "new original implementation; historical PHP analysis unchanged",
     "managed_ara_rerun": false
+  },
+  "current_mit_evaluation": {
+    "date": "2026-10-16",
+    "source_commit": "401e5317567f3500843bc722893bf6d22b733390",
+    "evidence_index": "evidence/mit/README.md",
+    "ara_analysis_id": "01M52Q045MKCVHRGRYRSEN2A6T",
+    "ara_blockers": 0,
+    "ara_profile": "Pilot-Ready (Safety Concerns)",
+    "moda_analysis_id": "01M52Q232A5BYEPH5V20Y8FYWP",
+    "database_cases_passed": 18,
+    "note": "Earlier fields are historical observations, not the current MIT status."
   }
 }

@@ -12,7 +12,7 @@ cd agentic-transformation-workshop-latam
 python3 booking_lab/run.py e2e --output .local/db-e2e.json
 ```
 
-No necesitas la captura del evento, instalar paquetes Python en el host, crear IAM, configurar Bedrock ni aprovisionar RDS/EKS. Docker instala dentro de la imagen la dependencia fijada en [requirements.txt](booking_lab/requirements.txt). Las imágenes están fijadas por digest en `booking_lab/images.lock.json` y el Dockerfile. La primera ejecución las descarga e instala esa dependencia; reserva aproximadamente 2 GiB de disco y 1.5 GiB de memoria disponibles. La configuración exacta observada se conserva en la evidencia.
+No necesitas la captura del evento, instalar paquetes Python en el host, crear IAM, configurar Bedrock ni aprovisionar RDS/EKS. Docker instala dentro de la imagen la dependencia fijada en [requirements.txt](booking_lab/requirements.txt). Las imágenes están fijadas por digest en `booking_lab/images.lock.json` y el Dockerfile. La primera ejecución las descarga e instala esa dependencia; reserva al menos 4 GiB de disco libre y 1.5 GiB de memoria para una corrida. En Docker con driver `vfs`, limpia los contenedores detenidos de la corrida anterior antes de repetir, siguiendo [CloudShell](CLOUDSHELL.md). La configuración exacta observada se conserva en la evidencia.
 
 **Éxito:** el proceso termina con código 0, cada caso imprime `PASS`, `result` es `passed` y todas las invariantes de `.local/db-e2e.json` valen cero. Un fallo termina con código distinto de cero y conserva los logs. No cambies las aserciones para aceptar un fallo.
 
@@ -61,7 +61,8 @@ flowchart LR
   B -. recuperación tras caída .-> C
   E --> I[Worker de auditoría]
   H --> I
-  I --> J[Tabla durable sin UPDATE/DELETE del runtime]
+  I --> J[Ledger independiente: cadena + firma + retención]
+  J --> K[Proyección PostgreSQL + confirmación del outbox]
 ```
 
 ## Contrato de la API

@@ -13,7 +13,7 @@ python3 -m unittest discover -s tests -v
 python3 booking_lab/run.py e2e --output .local/db-e2e.json
 ```
 
-El segundo comando levanta PostgreSQL, dos API, pagos sintéticos y un worker; crea, consulta y cancela reservas, inyecta fallos y restaura un backup. El resultado debe decir `passed`, todos los casos deben pasar y las invariantes finales deben ser cero. Los contenedores se detienen al terminar; los datos de revisión quedan en `.local/`.
+El comando `run.py e2e` levanta PostgreSQL, dos API, pagos sintéticos, un worker y el ledger de auditoría; crea, consulta y cancela reservas, inyecta fallos y restaura un backup. El resultado debe decir `passed`, todos los casos deben pasar y las invariantes finales deben ser cero. Los contenedores se detienen al terminar; los datos de revisión quedan en `.local/`.
 
 ## 2. Prepara el workshop A–C y las fuentes D–I
 

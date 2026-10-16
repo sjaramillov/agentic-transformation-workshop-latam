@@ -1,0 +1,9 @@
+{
+  "http_status": 201,
+  "body": {
+    "id": "3a661f8e5ae478436b2aac7079c629dd7c4fb995183c6c69e67ca559d284c499",
+    "amount": 12500,
+    "status": "CONFIRMED",
+    "itinerary": "BOG-MDE"
+  }
+}

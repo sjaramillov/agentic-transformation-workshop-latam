@@ -53,7 +53,7 @@
     <g><rect x="489" y="342" width="186" height="82" rx="8" fill="#ccebf4" /><path d="M649 342H675V368Z" fill="#a6d9e8" /><text x="505" y="365" class="tag">COMANDO</text><text x="505" y="393" class="note">Validar token + scope</text></g>
     <g><rect x="700" y="342" width="186" height="82" rx="8" fill="#ccebf4" /><path d="M860 342H886V368Z" fill="#a6d9e8" /><text x="716" y="365" class="tag">COMANDO</text><text x="716" y="393" class="note">Cobrar con clave</text></g>
     <g><rect x="911" y="342" width="186" height="82" rx="8" fill="#ccebf4" /><path d="M1071 342H1097V368Z" fill="#a6d9e8" /><text x="927" y="365" class="tag">DECISIÓN</text><text x="927" y="393" class="note">Guardar reserva</text></g>
-    <g><rect x="1122" y="342" width="186" height="82" rx="8" fill="#ccebf4" /><path d="M1282 342H1308V368Z" fill="#a6d9e8" /><text x="1138" y="365" class="tag">COMANDO</text><text x="1138" y="393" class="note">Reintentar o devolver</text></g>
+    <g><rect x="1122" y="342" width="186" height="82" rx="8" fill="#ccebf4" /><path d="M1282 342H1308V368Z" fill="#a6d9e8" /><text x="1138" y="365" class="tag">COMANDO</text><text x="1138" y="393" class="note">Retomar / devolver</text></g>
     <g><rect x="1333" y="342" width="220" height="82" rx="8" fill="#ccebf4" /><path d="M1527 342H1553V368Z" fill="#a6d9e8" /><text x="1349" y="365" class="tag">COMANDO</text><text x="1349" y="393" class="note">Entregar evento</text></g>
   </g>
 

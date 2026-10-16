@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "started_at_utc": "2026-10-16T16:09:09.774688+00:00",
+  "implementation": "original MIT booking_lab",
+  "environment": "AWS CloudShell CCS",
+  "payments": "synthetic HTTP provider backed by PostgreSQL; no money moved",
+  "evaluation_kind": "database_e2e",
+  "cases": [
+    {
+      "name": "authentication_issuer_audience_expiry_signature_scope",
+      "result": "passed",
+      "duration_seconds": 0.146
+    },
+    {
+      "name": "create_charge_persist_read_list_with_attribution",
+      "result": "passed",
+      "duration_seconds": 0.421
+    },
+    {
+      "name": "stable_replay_and_payload_conflict_across_replicas",
+      "result": "passed",
+      "duration_seconds": 0.173
+    },
+    {
+      "name": "identity_isolation_and_identity_scoped_idempotency",
+      "result": "passed",
+      "duration_seconds": 0.075
+    },
+    {
+      "name": "eight_concurrent_requests_two_api_replicas_one_charge",
+      "result": "passed",
+      "duration_seconds": 0.417
+    },
+    {
+      "name": "real_insert_failure_after_charge_refunds_without_orphan",
+      "result": "passed",
+      "duration_seconds": 0.372
+    },
+    {
+      "name": "refund_outage_durable_state_and_worker_recovery",
+      "result": "passed",
+      "duration_seconds": 3.867
+    },
+    {
+      "name": "process_crash_after_external_commit_reconciles_without_double_charge",
+      "result": "passed",
+      "duration_seconds": 3.79
+    },
+    {
+      "name": "payment_provider_outage_retains_intent_and_recovers",
+      "result": "passed",
+      "duration_seconds": 2.767
+    },
+    {
+      "name": "process_crash_after_refund_recovers_without_second_refund",
+      "result": "passed",
+      "duration_seconds": 3.159
+    },
+    {
+      "name": "declined_payment_does_not_create_booking",
+      "result": "passed",
+      "duration_seconds": 0.278
+    },
+    {
+      "name": "cancel_refund_repeat_and_preserve_create_response",
+      "result": "passed",
+      "duration_seconds": 0.275
+    },
+    {
+      "name": "audit_delivery_failure_restart_and_durable_outbox_drain",
+      "result": "passed",
+      "duration_seconds": 2.09
+    },
+    {
+      "name": "runtime_roles_cannot_rewrite_audit_or_cross_service_tables",
+      "result": "passed",
+      "duration_seconds": 1.216
+    },
+    {
+      "name": "audit_redelivery_deduplicates_event_ids",
+      "result": "passed",
+      "duration_seconds": 0.803
+    },
+    {
+      "name": "database_outage_fail_closed_and_volume_survives_restart",
+      "result": "passed",
+      "duration_seconds": 4.315
+    },
+    {
+      "name": "actual_pg_dump_restore_into_separate_database",
+      "result": "passed",
+      "duration_seconds": 2.376
+    },
+    {
+      "name": "independent_signed_audit_retention_tamper_restart_restore",
+      "result": "passed",
+      "duration_seconds": 12.429
+    }
+  ],
+  "resource_limits_available": false,
+  "base_images": {
+    "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea": [
+      "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea"
+    ],
+    "python@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f": [
+      "python@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f"
+    ]
+  },
+  "app_image_id": "sha256:4ea678be0ca9b14bd8f2aeb39eaa8645472a0a892b0ec14a7416042587a8b81e",
+  "source_sha256": {
+    ".dockerignore": "fac6a9ce766227d50f39ca876acf630236bbfcfd19e70755e6c2002b26341c6a",
+    "AUDIT.md": "3172e3e519a87ee23787547a509457d6d15a9cbaa9ad1d22ae18f1978117d313",
+    "Dockerfile": "df5631d00591392d09d18c4c63325d62f34e7096506be7355166f781fc05d055",
+    "README.md": "06c0be303e95dd789f4da0862cf2509f50215a9642bb036d1a48a8849997daa4",
+    "audit.py": "c93fcf7ca9e2aaa237c7f12aa3ca24e00da20530dab0fa1830c0f0dd7dd7d4b7",
+    "audit_verify.py": "45ed7dd1597b80232b4851697e916a736bec37e11a43b2435f25bac198e99cbe",
+    "auth.py": "4271b8cd38408b07fd2487e61cee5ee42ed2b507bc0c6d1188dcf0834376202a",
+    "client.py": "dd0280921eaaab7c4011958f54b5f68ccc1c90951069d0711e584f1a9d350775",
+    "images.lock.json": "1f61102e10a0e14d4b1cb78bf5c37c1fa47071d526f7cbdea028ef223b1e72a0",
+    "requirements.txt": "281f4fe5b5deb728449e2e3c762b88249931daebc04f65a098c757ac3f37d80f",
+    "run.py": "0f1effb093964a697a7a439cb42b66cfa885aeeddbf9fed850a4feb521bfb5e5",
+    "schema.sql": "609d859f6db317669ca56a81ad55bbf624e8ced5b133e963c554f920770ae598",
+    "service.py": "928830c84acb3b0d224287e8fd98d9689f3f37c6731d3e6c06e176dc309c17c9"
+  },
+  "postgres_version": "16.15",
+  "synchronous_commit": "on",
+  "restored_table_row_hashes": {
+    "operations": "ca7c1e61330ad8ab7035c0870f85c0fc",
+    "bookings": "d221a66b5a4389045331b82b6229240c",
+    "charges": "07c7848c8975c721269eb0827aa7bfd3",
+    "outbox": "c8e7ebffa07eb7649dd24e4322c01068",
+    "audit_events": "5d3e8c4cfccb98b2e0d40978da4309db",
+    "faults": "6d3384cbcbfbd7a3d9e62f0d80769237"
+  },
+  "restore_counts_bookings_charges_audit": "7|10|35",
+  "synthetic_dump_sha256": "192ff43934eb122c4cb57640e513516fe654f88fa43f4ee8760d743ba1c4cf4a",
+  "invariants": {
+    "captured_without_confirmed_booking": 0,
+    "confirmed_without_captured_payment": 0,
+    "pending_operations": 0,
+    "undelivered_audit_events": 0,
+    "audit_missing_attribution": 0
+  },
+  "independent_audit": {
+    "records": 35,
+    "checkpoint": {
+      "digest": "f3173f26c30c8aa423ec6fb6bea9b953d48fba1e599fc0cbaf79cd5e5c68d170",
+      "sequence": 35
+    },
+    "retention_days": 90,
+    "tamper_and_truncation_detected": true,
+    "app_db_admin_cannot_change_ledger": true,
+    "runtime_update_delete_denied": true,
+    "restart_persisted": true,
+    "backup_restored_and_verified": true
+  },
+  "audit_event_count": 35,
+  "result": "passed",
+  "finished_at_utc": "2026-10-16T16:10:36.477976+00:00",
+  "test_containers_running": 0
+}

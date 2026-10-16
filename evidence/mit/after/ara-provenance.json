@@ -1,0 +1,31 @@
+{
+  "analysis_id": "01M52Q045MKCVHRGRYRSEN2A6T",
+  "public_source_commit": "401e5317567f3500843bc722893bf6d22b733390",
+  "analysis_source_commit": "b1f49daa78174a34535508ee4e2fa5effa39e11c",
+  "files": [
+    {
+      "file": "booking-mit-ara-report.html",
+      "raw_sha256": "337fb95a36895bd831320e5141e082114966318cc9ece7011edd6c3efa94ec5a",
+      "published_sha256": "337fb95a36895bd831320e5141e082114966318cc9ece7011edd6c3efa94ec5a",
+      "redacted": false
+    },
+    {
+      "file": "booking-mit-ara-report.json",
+      "raw_sha256": "81e4bbfe3fe078f49f8fc93772e2a111fd663e0b4175421c4035b6edd4815881",
+      "published_sha256": "5fe07f75f845c1dd1f40522a3b36a91f07471ef1339b82d7c178fb416daed0dc",
+      "redacted": true
+    },
+    {
+      "file": "booking-mit-ara-report.md",
+      "raw_sha256": "f00ce02d0911ec4c30c8f803c2de1f722af71101a47981192358c703dc334cfe",
+      "published_sha256": "ef8b1406663d0cf805c4740774a49b835444aac114454a2268a633258c9ad218",
+      "redacted": true
+    },
+    {
+      "file": "booking-mit-ara-report.metadata.json",
+      "raw_sha256": "9cdd8d77e2f61ef31baaf91530cd73bedb1b60026d5c59ddab2214383963c0dc",
+      "published_sha256": "9cdd8d77e2f61ef31baaf91530cd73bedb1b60026d5c59ddab2214383963c0dc",
+      "redacted": false
+    }
+  ]
+}

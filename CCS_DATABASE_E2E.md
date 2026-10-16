@@ -2,6 +2,16 @@
 
 El código original MIT se prueba con PostgreSQL real, dos instancias de API, pagos sintéticos, un worker y un ledger independiente de auditoría. Todos los recursos de aplicación están en [booking_lab](booking_lab/README.md).
 
+## Ejecución verificada
+
+- Fuente pública: `401e5317567f3500843bc722893bf6d22b733390`; los hashes coinciden con los clones de ARA/MODA.
+- CCS: **16 de octubre de 2026, 16:09:09–16:10:36 UTC**, PostgreSQL 16.15, **18/18 casos aprobados**, cinco invariantes en cero y cero contenedores activos al terminar. [JSON completo](evidence/mit/runtime/final-db-e2e-02.json).
+- Auditoría: 35 eventos; manipulación y truncamiento detectados; reinicio y restauración verificados; administrador de la DB sin acceso al ledger independiente.
+- Repetición en [GitHub Actions](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/38929875432): **18/18**, con [JSON publicado](evidence/mit/runtime/github-actions-db-e2e.json).
+- Demo manual del mismo código en CCS: crear 201, listar 200, otro sujeto sin reservas, cancelar 200 y repetir sin duplicar. [Recibos completos](evidence/mit/runtime/manual-demo-verification.json). El runner terminó con `demo_stopped` y cero contenedores activos.
+
+Se conserva también el [intento que falló](evidence/mit/runtime/final-db-e2e.json) por disco lleno en el driver Docker `vfs`. La limpieza de contenedores detenidos de esta práctica, conservando volúmenes y logs, recuperó 6.6 GiB; la corrida aceptada fue nueva. [Procedimiento reproducible](CLOUDSHELL.md).
+
 ## Reproducir
 
 ```bash

@@ -25,7 +25,7 @@ atx ct repository list --source "$SOURCE_MODA"
 mkdir "$PRACTICE/results"
 ```
 
-Cada fuente debe mostrar `booking-mit`. Los dos clones contienen el mismo commit. No registres el repositorio completo con sus informes históricos: el preparador selecciona `booking_lab/` y `LICENSE` del commit indicado, registra hashes y excluye secretos y resultados anteriores.
+Cada fuente debe mostrar `booking-mit`. Los dos clones contienen el mismo commit. El alcance de esta comparación es el servicio. La CI y las guías de la raíz se verifican aparte; los informes pueden señalar su ausencia en el clon reducido. No interpretes esa ausencia como falta de CI en el repo público. No registres informes históricos como código de entrada: el preparador selecciona `booking_lab/` y `LICENSE` del commit indicado, registra hashes y excluye secretos y resultados anteriores.
 
 ## 2. D: ARA con escritura habilitada
 
@@ -93,10 +93,32 @@ python3 booking_lab/run.py e2e --output .local/db-after.json
 python3 scripts/workshop.py prepare --output .local/workshop-02 --revision HEAD
 ```
 
-Repite D/E con fuentes nuevas y los mismos contextos. Compara por pregunta con [la plantilla CSV](workshop/templates/comparison.csv). Conserva los informes completos, sus hashes, los commits de fuente y prueba, los conteos y la justificación de cada cierre. Revisa información sensible antes de publicar resultados.
+Repite D/E con fuentes nuevas y los mismos contextos. Compara por pregunta con [la plantilla CSV](workshop/templates/comparison.csv) o genera JSON y CSV automáticamente:
+
+```bash
+python3 scripts/compare_reports.py ANTES_ARA.json DESPUES_ARA.json \
+  --kind ara --expect-questions 43 --output .local/comparison-ara
+python3 scripts/compare_reports.py ANTES_MODA.json DESPUES_MODA.json \
+  --kind mod --output .local/comparison-moda
+```
+
+El comparador valida los cuatro artefactos, preserva las etiquetas del evaluador y marca preguntas ausentes. Una pregunta antes no evaluada que pasa después no equivale por sí sola a una corrección de código. Conserva los informes completos, sus hashes, los commits de fuente y prueba, los conteos y la justificación de cada cierre. Revisa información sensible antes de publicar resultados.
 
 Consulta [la comparación real de CCS](CCS_E2E.md) y [la prueba con DB](CCS_DATABASE_E2E.md). El análisis y el runtime tienen evidencias distintas; ambos forman parte de la aceptación.
 
 ## Diagnóstico: `complete` con cero hallazgos y sin informe
 
 En ATX 3.19.0 se observó una ejecución MODA cuyo agente terminó con `An internal server error occurred`, mientras CT devolvió `complete` y `findingCount: 0`. No era un resultado limpio: faltaban los cuatro artefactos. Conserva la metadata y logs de esa sesión en privado, registra el intento como fallido en tu evidencia y repite sobre el mismo commit/contexto con un ID nuevo. Acepta la repetición únicamente al validar los artefactos. La comparación de [CCS](CCS_E2E.md) identifica este incidente.
+
+## Repetir el antes y después publicado
+
+Los dos estados de la aplicación están disponibles en el historial público. Desde un clon normal, prepara ambos usando el mismo script y los mismos contextos:
+
+```bash
+python3 scripts/workshop.py prepare --revision e338a6b99cba389cbb5d96ca21a12d660071b28d \
+  --output .local/reproduce-before
+python3 scripts/workshop.py prepare --revision 401e5317567f3500843bc722893bf6d22b733390 \
+  --output .local/reproduce-after
+```
+
+Registra fuentes con nombres distintos y repite D/E para cada directorio. Los commits de los clones nuevos pueden diferir por su fecha de creación; compara `source_sha256` y `context_sha256` de sus manifiestos. La aplicación posterior debe coincidir con [los hashes publicados](evidence/mit/source-sha256.json). Las definiciones administradas y los juicios de AWS pueden cambiar, por lo que no se promete una puntuación idéntica.

@@ -29,9 +29,9 @@ Necesitas Python 3.11+ y Docker. El comando crea la DB y dos instancias de API, 
 
 ## Estado de reproducción
 
-La réplica MIT pasó **17 escenarios E2E en CCS con PostgreSQL real**, incluyendo reservas, consultas, cancelación, pagos, compensación y auditoría. Consulta [la evidencia de DB](CCS_DATABASE_E2E.md). Sus pruebas incluyen concurrencia entre dos instancias, caídas de proceso/DB/proveedor, reentrega de eventos y restauración de datos. El [laboratorio completo](LABORATORIO_MIT.md) explica cómo ejecutarlas y conservar sus resultados.
+La réplica MIT pasó **18 escenarios E2E en CCS con PostgreSQL real**, incluyendo reservas, consultas, cancelación, pagos, compensación y auditoría. Consulta [la evidencia de DB](CCS_DATABASE_E2E.md). Sus pruebas incluyen concurrencia entre dos instancias, caídas de proceso/DB/proveedor, reentrega de eventos y restauración de datos. El [laboratorio completo](LABORATORIO_MIT.md) explica cómo ejecutarlas y conservar sus resultados.
 
-La [evaluación ARA/MODA en CCS](CCS_E2E.md) registra los análisis del código MIT, la comparación y las correcciones.
+ARA pasó de **1 a 0 bloqueadores** y clasificó la versión corregida como **Pilot-Ready (Safety Concerns)**. La [comparación ARA/MODA en CCS](CCS_E2E.md) incluye los informes completos, los cambios por pregunta y los riesgos restantes. La [evidencia pública](evidence/mit/README.md) enlaza código, resultados de DB, CI y hashes.
 
 ## Tableros
 

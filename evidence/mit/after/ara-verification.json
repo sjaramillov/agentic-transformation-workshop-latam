@@ -1,0 +1,15 @@
+{
+  "valid_bundle_and_counts": true,
+  "kind": "ara",
+  "reported_tier": "Pilot-Ready",
+  "findings": 27,
+  "artifact_sha256": {
+    "booking-mit-ara-report.json": "5fe07f75f845c1dd1f40522a3b36a91f07471ef1339b82d7c178fb416daed0dc",
+    "booking-mit-ara-report.md": "ef8b1406663d0cf805c4740774a49b835444aac114454a2268a633258c9ad218",
+    "booking-mit-ara-report.html": "337fb95a36895bd831320e5141e082114966318cc9ece7011edd6c3efa94ec5a",
+    "booking-mit-ara-report.metadata.json": "9cdd8d77e2f61ef31baaf91530cd73bedb1b60026d5c59ddab2214383963c0dc"
+  },
+  "errors": [],
+  "runtime_validated": false,
+  "rubric_judgments_independently_verified": false
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "started_at_utc": "2026-10-16T16:15:39.503299+00:00",
+  "implementation": "original MIT booking_lab",
+  "environment": "local Docker",
+  "payments": "synthetic HTTP provider backed by PostgreSQL; no money moved",
+  "evaluation_kind": "database_e2e",
+  "cases": [],
+  "resource_limits_available": false,
+  "base_images": {
+    "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea": [
+      "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea"
+    ],
+    "python@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f": [
+      "python@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f"
+    ]
+  },
+  "app_image_id": "sha256:4ea678be0ca9b14bd8f2aeb39eaa8645472a0a892b0ec14a7416042587a8b81e",
+  "source_sha256": {
+    ".dockerignore": "fac6a9ce766227d50f39ca876acf630236bbfcfd19e70755e6c2002b26341c6a",
+    "AUDIT.md": "3172e3e519a87ee23787547a509457d6d15a9cbaa9ad1d22ae18f1978117d313",
+    "Dockerfile": "df5631d00591392d09d18c4c63325d62f34e7096506be7355166f781fc05d055",
+    "README.md": "06c0be303e95dd789f4da0862cf2509f50215a9642bb036d1a48a8849997daa4",
+    "audit.py": "c93fcf7ca9e2aaa237c7f12aa3ca24e00da20530dab0fa1830c0f0dd7dd7d4b7",
+    "audit_verify.py": "45ed7dd1597b80232b4851697e916a736bec37e11a43b2435f25bac198e99cbe",
+    "auth.py": "4271b8cd38408b07fd2487e61cee5ee42ed2b507bc0c6d1188dcf0834376202a",
+    "client.py": "dd0280921eaaab7c4011958f54b5f68ccc1c90951069d0711e584f1a9d350775",
+    "images.lock.json": "1f61102e10a0e14d4b1cb78bf5c37c1fa47071d526f7cbdea028ef223b1e72a0",
+    "requirements.txt": "281f4fe5b5deb728449e2e3c762b88249931daebc04f65a098c757ac3f37d80f",
+    "run.py": "0f1effb093964a697a7a439cb42b66cfa885aeeddbf9fed850a4feb521bfb5e5",
+    "schema.sql": "609d859f6db317669ca56a81ad55bbf624e8ced5b133e963c554f920770ae598",
+    "service.py": "928830c84acb3b0d224287e8fd98d9689f3f37c6731d3e6c06e176dc309c17c9"
+  },
+  "postgres_version": "16.15",
+  "synchronous_commit": "on",
+  "result": "demo_stopped",
+  "finished_at_utc": "2026-10-16T16:20:48.637775+00:00",
+  "test_containers_running": 0
+}

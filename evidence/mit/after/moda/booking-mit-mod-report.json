@@ -1,0 +1,511 @@
+{
+  "analysis_type": "mod",
+  "metadata": {
+    "analysis_type": "mod",
+    "analysis_date": "2026-10-16",
+    "td_version": "modernization-readiness-analysis",
+    "repo_name": "booking-mit",
+    "repo_slug": "booking-mit",
+    "repo_type": "application",
+    "repo_type_source": "auto-detected",
+    "repo_type_justification": "Application source with deployable entry points (booking_lab/service.py main(), booking_lab/audit.py __main__), a dependency manifest (booking_lab/requirements.txt) and a booking_lab/Dockerfile are present; there is no multi-service sibling layout and no resource-provisioning IaC.",
+    "service_archetype": "stateful-crud",
+    "service_archetype_source": "auto-detected",
+    "archetype_justification": "The service owns persistent state in PostgreSQL (booking_lab/schema.sql, psycopg connections in booking_lab/service.py) and exposes create/read/cancel operations on business entities with per-principal scoping. It calls one downstream provider (payments) plus an audit sink, below the 3+ coordinated-downstream bar for orchestrator.",
+    "priority": null,
+    "tags": [],
+    "context": "Original MIT Python booking service (booking_lab/) with PostgreSQL, a synthetic HTTP payment provider and a recovery/audit worker. Goal: a simple reproducible container-based workshop with a clear path to an operated deployment; no pre-existing EKS cluster or platform pipeline assumed; prefer the smallest compatible runtime. run.py executes integration tests with disposable isolated Docker resources. Application code was not modified.",
+    "preferences": {"prefer": [], "avoid": []},
+    "language": "Python",
+    "loc": 1043,
+    "framework": "Python standard library http.server (no web framework); psycopg 3.3.6",
+    "surface_flags": {
+      "has_persistent_data_store": true,
+      "has_at_rest_data_surface": true,
+      "has_deployed_workload": true,
+      "has_api_surface": true,
+      "has_multi_instance_deployment": true,
+      "has_iac_provisioning_aws_resources": false
+    }
+  },
+  "overall_score": 1.99,
+  "classification": {
+    "tier": "Remediation Required",
+    "high_count": 5,
+    "medium_count": 19,
+    "low_count": 11,
+    "rule_matched": "2-11 High → Remediation Required",
+    "classification_consistency_check": "consistent"
+  },
+  "categories": [
+    {"category_id": "INF", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "numeric_score": 1.64, "score_rating": "Needs Work", "severity_status": "Critical"},
+    {"category_id": "APP", "category": "Application Architecture", "category_display": "Application Architecture", "numeric_score": 2.5, "score_rating": "Partial", "severity_status": "Needs Work"},
+    {"category_id": "DATA", "category": "Data Platform", "category_display": "Data Platform Modernization", "numeric_score": 2.5, "score_rating": "Partial", "severity_status": "Critical"},
+    {"category_id": "SEC", "category": "Security Baseline", "category_display": "Security Baseline", "numeric_score": 1.83, "score_rating": "Needs Work", "severity_status": "Critical"},
+    {"category_id": "OPS", "category": "Operations & Observability", "category_display": "Operations & Observability", "numeric_score": 1.5, "score_rating": "Needs Work", "severity_status": "Critical"}
+  ],
+  "top_gaps": [
+    {"rank": 1, "question_id": "INF-Q11", "title": "CI/CD Automation", "score": 1, "gap": "No pipeline definition of any kind — run.py must be invoked manually by a human with Docker access", "impact": "Every build, test and release is manual; blocks the Modern DevOps pathway and makes other modernization steps unverifiable"},
+    {"rank": 2, "question_id": "INF-Q2", "title": "Managed Databases", "score": 1, "gap": "PostgreSQL runs as a self-managed container with no managed failover, patching or backup automation", "impact": "Operational burden and data-loss exposure; triggers Move to Managed Databases"},
+    {"rank": 3, "question_id": "SEC-Q2", "title": "Encryption at Rest", "score": 1, "gap": "No encryption for the PostgreSQL volume or the SQLite audit ledger; protection is POSIX mode 0600 only", "impact": "Signed audit records and booking data readable from the host volume; blocks compliance-bearing deployment"},
+    {"rank": 4, "question_id": "OPS-Q5", "title": "Deployment Strategy", "score": 1, "gap": "Containers started directly by run.py; no canary, blue/green, rolling or traffic-shifting artifact", "impact": "No safe release path; regressions reach all replicas at once"},
+    {"rank": 5, "question_id": "DATA-Q1", "title": "Unstructured Data Storage", "score": 1, "gap": "Audit snapshots, checkpoints, pg_dump output and logs written only to local disk and container volumes", "impact": "AUDIT.md identifies an immutable object archive as a prerequisite; retention claims cannot otherwise be met"}
+  ],
+  "findings": [
+    {
+      "question_id": "INF-Q1", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "Managed Compute",
+      "description": "The workload is containerized (booking_lab/Dockerfile, non-root USER 65532, digest-pinned base image) and runs as five container roles started directly against a local Docker daemon by booking_lab/run.py. No managed container orchestration (no ECS/EKS task or service definition, no Kubernetes manifest) and no serverless function exists; no aws_ecs_*, aws_eks_*, aws_lambda_* or aws_instance resource appears anywhere.",
+      "gap": "Container images exist but no managed orchestration platform schedules, scales, heals or places them; compute lifecycle is a local Docker daemon.",
+      "recommendation": "Define the four process roles as Amazon ECS on Fargate services (api, worker, payments, audit sink) — the smallest compatible managed runtime requiring no pre-existing cluster. Keep the single image with a per-task CMD override, which service.py <mode> already supports.",
+      "severity": "Medium", "priority": "P1", "effort": "Medium", "phase": 1,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 2, "score_label": "Needs Work", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "INF-Q2", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "Managed Databases",
+      "description": "PostgreSQL is self-managed: booking_lab/run.py runs the pinned postgres image with a local named volume mounted at /var/lib/postgresql/data, creates roles and applies booking_lab/schema.sql. The authoritative audit ledger is a self-managed SQLite file on a second volume (booking_lab/audit.py). No managed database resource is defined.",
+      "gap": "No managed failover, automated patching, automated backup or PITR for either store; durability depends on one host's volumes.",
+      "recommendation": "Move the application database to Amazon RDS for PostgreSQL with Multi-AZ (the schema uses only standard PostgreSQL constructs, so the move is homogeneous) and pair the signed SQLite ledger with an S3 Object Lock archive for its records and checkpoints.",
+      "severity": "High", "priority": "P1", "effort": "Medium", "phase": 1,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "INF-Q3", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "Workflow Orchestration",
+      "description": "The booking saga is a hand-written but durable state machine: operations.status is constrained to eight states (booking_lab/schema.sql) and advance() in booking_lab/service.py resumes from persisted state with pg_advisory_lock serializing progress and a recovery worker re-driving stuck operations. No dedicated orchestration service (Step Functions, Temporal, Camunda) is used.",
+      "gap": "Retries, compensation, timeouts and visibility are encoded in application code and SQL status checks; no external execution history, visual workflow surface or managed retry policy.",
+      "recommendation": "Keep the durable-state design and consider AWS Step Functions for the charge → confirm → compensate sequence if workflow visibility and managed retry become operational requirements. Phase 2 improvement, not a correctness defect.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 2,
+      "evidence": {"file": "booking_lab/service.py", "lines": null},
+      "mod_metadata": {"internal_score": 2, "score_label": "Needs Work", "archetype_calibrated": true, "core_question": false}
+    },
+    {
+      "question_id": "INF-Q4", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "Async Messaging and Streaming",
+      "description": "Event propagation uses a transactional outbox in PostgreSQL: emit() inserts into outbox in the state-change transaction, and deliver() claims rows FOR UPDATE SKIP LOCKED, posts to the independent audit sink over HTTP, writes the projection, then stamps delivered_at. Redelivery is idempotent by event UUID. No managed broker (SQS, SNS, EventBridge, MSK, Kinesis) and no self-managed Kafka/RabbitMQ exist; the queue is a DB table polled every 250 ms.",
+      "gap": "The messaging substrate is self-managed (a DB table plus a polling loop); throughput, fan-out, dead-lettering, backoff and consumer scaling are all hand-built, and the polling worker is a single delivery point.",
+      "recommendation": "Retain the transactional outbox for atomicity but relay it to Amazon SQS with a DLQ (or EventBridge) so delivery, retry and fan-out are managed, preserving the existing exactly-once-by-UUID semantics.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 2,
+      "evidence": {"file": "booking_lab/service.py", "lines": null},
+      "mod_metadata": {"internal_score": 2, "score_label": "Needs Work", "archetype_calibrated": true, "core_question": false}
+    },
+    {
+      "question_id": "INF-Q5", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "Network Security",
+      "description": "The network surface the repo owns is the Docker topology in booking_lab/run.py and it is deliberately segmented: an --internal network carries database, payments, audit and worker traffic with no internet route; a separate front network carries the API replicas; API ports publish to 127.0.0.1 on ephemeral ports only; the audit sink publishes no host port. Containers run --read-only --cap-drop=ALL --security-opt=no-new-privileges with a noexec,nosuid tmpfs. No 0.0.0.0/0 exposure exists.",
+      "gap": "The segmentation exists only for the disposable local lab; no VPC, subnet, security-group, NetworkPolicy or mesh definition expresses the intended topology for an operated deployment.",
+      "recommendation": "Translate the two-network split into IaC: private subnets for database, worker, payments and audit sink; API tasks behind an ALB whose security group is the only ingress; VPC endpoints for S3, Secrets Manager and ECR to avoid NAT egress.",
+      "severity": "Low", "priority": "P1", "effort": "Medium", "phase": 2,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "INF-Q6", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "API Entry Point",
+      "description": "The API is a ThreadingHTTPServer bound directly to 0.0.0.0:8080 inside the container and published to a host port (booking_lab/service.py main(), booking_lab/run.py start()). No API Gateway, AppSync, ALB or CloudFront fronts it; throttling, body-size limits and auth are implemented in the handler itself.",
+      "gap": "No managed entry point, so no centralized throttling, WAF, TLS termination, request validation or routing control; clients reach the service process directly.",
+      "recommendation": "Place an ALB in front of the API tasks for TLS termination and health-gated routing (the existing /health/live and /health/ready endpoints are suitable health checks), and add Amazon API Gateway if per-client throttling, usage plans and request validation are required.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 2,
+      "evidence": {"file": "booking_lab/service.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "INF-Q7", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "Auto-Scaling",
+      "description": "Capacity is fixed and hard-coded: exactly two API replicas (api-a, api-b) and one worker, with static per-container limits (--memory 256m --cpus 1 --pids-limit 128; 512m for the database) in booking_lab/run.py. No auto-scaling group, ECS/Kubernetes scaling policy, Lambda concurrency setting or data-tier scaling configuration exists.",
+      "gap": "Nothing responds to load. The design is horizontally scalable — advisory locks and identity-scoped idempotency are proven correct across replicas by the 8-concurrent-request test — but nothing adds or removes replicas.",
+      "recommendation": "On ECS/Fargate, configure Application Auto Scaling target tracking on the api service (ALB request count per target) and on the worker using undelivered outbox depth published as a custom CloudWatch metric, a more faithful load signal than CPU for a polling worker.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 2,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "INF-Q8", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "Backup and Recovery",
+      "description": "Restore capability is exercised but not automated: the E2E performs a real pg_dump, restores into a separate database and compares per-table row hashes for six tables, and takes a SQLite backup() of the audit ledger into a different file, runs PRAGMA integrity_check and re-verifies the chain against an externally retained checkpoint (booking_lab/run.py, booking_lab/audit_verify.py, booking_lab/AUDIT.md). There is no scheduled backup, retention configuration, PITR or off-host copy.",
+      "gap": "Backups are a test artifact rather than an operational control: no schedule, no retention policy, no cross-region or off-host replication. AUDIT.md states retention is at least 90 days with no automatic purge, so retention is asserted rather than enforced by storage.",
+      "recommendation": "Enable RDS automated backups with explicit retention and PITR, add AWS Backup plans, and write audit snapshots and checkpoints to S3 with Object Lock and a lifecycle policy. Keep the existing restore-verification steps and run them from the pipeline so restore testing is continuous.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 2,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 2, "score_label": "Needs Work", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "INF-Q9", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "High Availability and Fault Isolation",
+      "description": "Everything runs on a single host: one PostgreSQL container, one audit sink, one payments process, one worker and two API replicas sharing the same Docker daemon and volumes (booking_lab/run.py). There is no AZ concept, no replica database and no cross-zone load balancing, although the E2E proves the API fails closed with 503 while the database is down and that state survives container restarts.",
+      "gap": "No multi-AZ topology for compute or data; a single host or volume loss is total loss.",
+      "recommendation": "Deploy the api and worker services across at least two AZs on Fargate behind a cross-zone ALB and use RDS Multi-AZ for the database. Give the audit sink the same treatment plus its off-host archive, since it holds the authoritative ledger.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 2,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "INF-Q10", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "Infrastructure as Code Coverage",
+      "description": "No declarative IaC exists: searched for *.tf, *.tfvars, CDK entry points, cdk.json, CloudFormation/SAM templates, Chart.yaml, kustomization.yaml, Kubernetes manifests and docker-compose*.yml — none present. Environment construction is imperative Python driving the Docker CLI (booking_lab/run.py) with image digests pinned in images.lock.json and schema plus role grants in schema.sql; source and image digests are recorded in the evidence output.",
+      "gap": "Scripted provisioning covers only a disposable local lab. Nothing defines the operated environment: no networking, data store, entry point, scaling, monitoring, alarm, DNS or secret resources. For the surfaces this repo exposes (api entry point, persistent data store, multi-replica compute), in-repo IaC coverage is zero.",
+      "recommendation": "Author CloudFormation or CDK for the target environment — ECS services and task definitions, ALB and target groups, RDS instance and subnet group, security groups, Secrets Manager secrets, CloudWatch log groups and alarms, S3 audit archive — and keep run.py as the local integration harness.",
+      "severity": "Medium", "priority": "P1", "effort": "Medium", "phase": 1,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 2, "score_label": "Needs Work", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "INF-Q11", "category": "Infrastructure & DevOps", "category_display": "Infrastructure, Platform, and DevOps", "category_id": "INF",
+      "title": "CI/CD Automation",
+      "description": "No pipeline definition exists: searched for .github/workflows/, .gitlab-ci.yml, Jenkinsfile, buildspec.yml, appspec.yml and CodePipeline definitions in IaC — none found. The repository root contains only booking_lab/, .gitignore and LICENSE. Build, test and release are a manual 'python3 booking_lab/run.py e2e' performed by a human with Docker daemon access (booking_lab/README.md).",
+      "gap": "Nothing is automated or enforced. A strong 18-case integration suite exists but no gate requires it to pass, and no artifact is built, scanned or published reproducibly by a machine.",
+      "recommendation": "Add one pipeline that builds the image, runs run.py e2e against disposable Docker resources, records the evidence JSON as a build artifact and publishes the image digest to Amazon ECR. This converts the existing suite into an enforced quality gate and unblocks every other modernization action.",
+      "severity": "High", "priority": "P1", "effort": "Medium", "phase": 1,
+      "evidence": {"file": ".github/workflows/", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "APP-Q1", "category": "Application Architecture", "category_display": "Application Architecture", "category_id": "APP",
+      "title": "Programming Languages",
+      "description": "Python is the only language (1,043 lines across six modules). README requires Python 3.11+, the base image is digest-pinned and the single dependency is current (psycopg[binary]==3.3.6). The HTTP layer is the standard library (ThreadingHTTPServer, BaseHTTPRequestHandler) and JWT verification is hand-rolled HMAC in booking_lab/auth.py. No AWS SDK is present.",
+      "gap": "Language and runtime are modern, but the web layer is a stdlib HTTP server with hand-written routing, parsing and auth rather than a maintained framework — a framework-maturity lag that enlarges the surface the team must keep correct itself.",
+      "recommendation": "No language change is warranted. For an operated deployment, adopt a maintained ASGI framework (FastAPI/Starlette) for routing, validation and middleware, and a vetted JWT library in place of auth.py, which already documents that it is lab-confined.",
+      "severity": "Low", "priority": "P2", "effort": "Low", "phase": 3,
+      "evidence": {"file": "booking_lab/requirements.txt", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "APP-Q2", "category": "Application Architecture", "category_display": "Application Architecture", "category_id": "APP",
+      "title": "Monolith vs Microservices",
+      "description": "One image and one codebase deploy as four process roles selected by argv (service.py api|payments|worker, audit.py). Boundaries are enforced at runtime, not merely conventional: the booking service reaches the payment provider only over HTTP with a bearer token, and schema.sql grants each role only its own tables (booking_app → operations,bookings,outbox; payment_app → charges; audit_writer → INSERT on audit_events). The E2E asserts these denials. The authoritative audit ledger is a separate process with its own store and signing key.",
+      "gap": "All roles share a single PostgreSQL instance and a single public schema and ship as one image, so independent deployability and independent scaling of the payment provider are limited; isolation rests on privilege grants rather than schema or instance separation.",
+      "recommendation": "No decomposition programme is warranted — boundaries already exist and are tested. When moving to an operated deployment, give the payment provider its own schema (or database) and its own image tag so it can deploy and scale independently, keeping the HTTP contract as the only coupling.",
+      "severity": "Low", "priority": "P1", "effort": "Medium", "phase": 3,
+      "evidence": {"file": "booking_lab/schema.sql", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "APP-Q3", "category": "Application Architecture", "category_display": "Application Architecture", "category_id": "APP",
+      "title": "Async vs Sync Communication",
+      "description": "Mixed by design. The payment call is synchronous HTTP with a 4 s timeout and explicit ambiguity handling (402 → DECLINED; all transport errors → retryable RuntimeError, never marking a refund early). Audit propagation is asynchronous and durable through the outbox and worker, and compensation/recovery are asynchronous: on a refund outage the API returns 503 with retry_same_idempotency_key true and the worker completes the saga later.",
+      "gap": "The critical charge path holds a client connection open across an external provider call, so provider latency is caller-visible, and cross-service propagation uses a hand-built transport rather than managed async messaging.",
+      "recommendation": "Keep synchronous charge semantics (appropriate for a booking confirmation) and move the outbox relay onto managed messaging. Converting the charge itself to async would change the API contract and is not recommended for this archetype.",
+      "severity": "Low", "priority": "P2", "effort": "Medium", "phase": 3,
+      "evidence": {"file": "booking_lab/service.py", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": true, "core_question": false}
+    },
+    {
+      "question_id": "APP-Q4", "category": "Application Architecture", "category_display": "Application Architecture", "category_id": "APP",
+      "title": "Long-Running Process Handling",
+      "description": "No operation is designed to exceed 30 seconds: connect_timeout=3, statement_timeout=10000, lock_timeout=8000, 4 s provider timeout and an 8 s socket timeout (booking_lab/service.py). Work that cannot finish inline is persisted and resumed by the recovery worker, and the client receives 503 with retry_same_idempotency_key true.",
+      "gap": "Resumption is discoverable only by retrying the original POST with the same idempotency key; there is no job-status resource or callback, so callers cannot observe in-flight progress of a compensating or pending operation.",
+      "recommendation": "Expose operation state as a retrievable resource (e.g. GET /operations/{id}) so callers can poll progress instead of inferring it from repeated POSTs. The durable state required already exists in the operations table.",
+      "severity": "Low", "priority": "P2", "effort": "Medium", "phase": 3,
+      "evidence": {"file": "booking_lab/service.py", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": true, "core_question": false}
+    },
+    {
+      "question_id": "APP-Q5", "category": "Application Architecture", "category_display": "Application Architecture", "category_id": "APP",
+      "title": "API Versioning Strategy",
+      "description": "Routes are unversioned and matched literally: /bookings, /bookings/{64-hex}, /health/live, /health/ready, plus /charge and /refund on the payment provider (booking_lab/service.py). No /v1/ segment, no Accept-Version or custom version header, no content negotiation, and no OpenAPI/AsyncAPI/GraphQL specification exists in the repository. The only version signal is the Server: BookingLab/1 header.",
+      "gap": "Any breaking change to the request or response contract — which is strict, rejecting unknown body keys outright — breaks all callers simultaneously, with no machine-readable spec for consumers to diff against.",
+      "recommendation": "Introduce a /v1/ prefix (keeping unversioned paths as transitional aliases) and publish an OpenAPI document checked against the handler, so the contract the E2E already enforces becomes consumable by clients.",
+      "severity": "Medium", "priority": "P2", "effort": "Low", "phase": 2,
+      "evidence": {"file": "booking_lab/service.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "APP-Q6", "category": "Application Architecture", "category_display": "Application Architecture", "category_id": "APP",
+      "title": "Service Discovery",
+      "description": "Endpoints come from environment variables — DATABASE_URL, AUDIT_DATABASE_URL, PAYMENT_URL, AUDIT_URL — injected per run from generated 0600 .env files, resolving through Docker's embedded DNS on the internal network. No endpoint is hard-coded in source, but there is no service registry, mesh or Cloud Map namespace.",
+      "gap": "Externalized configuration without dynamic discovery: topology changes require re-injecting environment variables and restarting consumers.",
+      "recommendation": "Register the services in AWS Cloud Map (ECS Service Connect/Service Discovery) so PAYMENT_URL and AUDIT_URL resolve through a namespace rather than per-run static values — a small change given endpoints are already fully externalized.",
+      "severity": "Medium", "priority": "P2", "effort": "Low", "phase": 3,
+      "evidence": {"file": "booking_lab/service.py", "lines": null},
+      "mod_metadata": {"internal_score": 2, "score_label": "Needs Work", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "DATA-Q1", "category": "Data Platform", "category_display": "Data Platform Modernization", "category_id": "DATA",
+      "title": "Unstructured Data Storage",
+      "description": "Every file-shaped artifact lives on local disk or a local container volume, never in object storage: booking_lab/run.py writes the audit snapshot, the separately retained checkpoint, pg_dump output, per-container logs, review.json and generated .env files into .local/db-lab-<id>/, and the signed ledger itself is a SQLite file on a Docker volume. No S3 bucket, object-storage client or archive target exists anywhere, and .gitignore excludes .local, so the artifacts are purely host-local.",
+      "gap": "Retention-bearing artifacts — signed audit records and the external checkpoint that detects tail truncation — have no durable, immutable, off-host home. booking_lab/AUDIT.md states the requirement: an operated deployment should use a separate administrative boundary and an immutable object archive with its retention policy. Today 90-day retention is enforced only by SQL triggers inside a file on one host.",
+      "recommendation": "Add an S3 bucket with Object Lock in compliance mode for audit snapshots and checkpoints, with versioning, a lifecycle policy matching the 90-day minimum and a KMS key, and write checkpoints from the pipeline so they are retained outside the sink's administrative boundary as AUDIT.md requires.",
+      "severity": "High", "priority": "P1", "effort": "Medium", "phase": 1,
+      "evidence": {"file": "booking_lab/AUDIT.md", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "DATA-Q2", "category": "Data Platform", "category_display": "Data Platform Modernization", "category_id": "DATA",
+      "title": "Unified Data Access Layer",
+      "description": "Connection creation is centralized: db(name='DATABASE_URL') in booking_lab/service.py is the single factory for every PostgreSQL connection (autocommit, dict_row, fixed timeouts) and connect() in booking_lab/audit.py the single factory for the ledger. All SQL for a store lives in that store's module and no other module imports a database driver.",
+      "gap": "No repository/DAO abstraction above the connection factory — parameterized SQL is written inline throughout handler and saga functions, so the data contract is distributed across call sites even though connection handling is not.",
+      "recommendation": "No restructuring is required at this size. If the service grows, extract the operations/bookings/outbox statements into a thin repository module so the table contract has one owner, keeping the single connection factory.",
+      "severity": "Low", "priority": "P2", "effort": "Low", "phase": 3,
+      "evidence": {"file": "booking_lab/service.py", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "DATA-Q3", "category": "Data Platform", "category_display": "Data Platform Modernization", "category_id": "DATA",
+      "title": "Database Engine Version and EOL",
+      "description": "The PostgreSQL image is pinned immutably by digest in booking_lab/images.lock.json (the same file pins the Python base image, repeated in the Dockerfile) and the resolved server version is captured at runtime via SHOW server_version rather than declared. The client driver is pinned exactly (psycopg[binary]==3.3.6).",
+      "gap": "Digest pinning gives reproducibility but no declared major version, no EOL tracking and no documented version-update procedure covering downtime window, rollback or risk acknowledgment — and because digests are immutable, engine security updates are not picked up until someone deliberately re-pins.",
+      "recommendation": "Record the intended PostgreSQL major version alongside the digest, document the upgrade and rollback procedure, and automate digest refresh (Dependabot/Renovate for base images). On RDS, set engine_version explicitly in IaC and track the AWS deprecation calendar.",
+      "severity": "Low", "priority": "P1", "effort": "Low", "phase": 2,
+      "evidence": {"file": "booking_lab/images.lock.json", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "DATA-Q4", "category": "Data Platform", "category_display": "Data Platform Modernization", "category_id": "DATA",
+      "title": "Stored Procedures and Schema Complexity",
+      "description": "Business logic is in the application layer; the database holds integrity constraints rather than behaviour (CHECK constraints on statuses and amounts, UNIQUE(principal, request_key) idempotency, foreign keys). The only procedural SQL is CREATE FUNCTION fail_booking_insert() with trigger test_booking_insert for test fault injection, plus two SQLite triggers in the audit sink enforcing append-only retention. No proprietary dialect and no commercial engine is involved.",
+      "gap": "Two PL/pgSQL objects and the faults table exist only for fault injection yet live in the production schema and are granted to runtime roles (GRANT SELECT ON faults TO booking_app,payment_app), and the API consults them when LAB_FAULTS=1 — engine-coupled test machinery that must be excluded from an operated deployment.",
+      "recommendation": "No migration blocker exists; the schema is portable to RDS/Aurora PostgreSQL as written. Separate the fault-injection function, trigger and faults grants into a test-only migration never applied to an operated environment, keeping the retention triggers as a deliberate integrity control.",
+      "severity": "Low", "priority": "P1", "effort": "Low", "phase": 3,
+      "evidence": {"file": "booking_lab/schema.sql", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "SEC-Q2", "category": "Security Baseline", "category_display": "Security Baseline", "category_id": "SEC",
+      "title": "Encryption at Rest",
+      "description": "Two at-rest surfaces exist and neither is encrypted. The PostgreSQL data volume is a plain Docker volume with no encryption configuration (booking_lab/run.py) and the authoritative audit ledger is an unencrypted SQLite file whose only protection is POSIX mode 0600 and ownership by uid 65532 (booking_lab/audit.py initialize(); run.py chowns /audit to 65532 mode 0700). Generated secret files, pg_dump output and audit snapshots are likewise plaintext at mode 0600. No KMS key or kms_key_id appears anywhere.",
+      "gap": "Booking data, payment charge state and signed audit records are readable by anyone with host filesystem or volume access. HMAC signatures give tamper detection for the ledger but no confidentiality, and AUDIT.md acknowledges a host root or sink administrator can defeat the boundary.",
+      "recommendation": "Encrypt both surfaces with customer-managed KMS keys: storage_encrypted with a CMK on the RDS instance, SSE-KMS on the S3 audit archive, encrypted EBS/EFS if the sink keeps local state. Define a documented rotation policy and hold the ledger signing key in AWS KMS or Secrets Manager rather than an environment variable.",
+      "severity": "High", "priority": "P1", "effort": "Medium", "phase": 1,
+      "evidence": {"file": "booking_lab/audit.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "SEC-Q3", "category": "Security Baseline", "category_display": "Security Baseline", "category_id": "SEC",
+      "title": "API Authentication",
+      "description": "Every business endpoint requires a per-request bearer token with a method-mapped scope (GET → bookings:read, POST → bookings:write, DELETE → bookings:cancel). booking_lab/auth.py validates the HMAC signature with compare_digest, pins the header to exactly HS256/JWT, checks issuer, audience, exp/nbf/iat, caps lifetime at 300 s, rejects non-finite and boolean NumericDate values, constrains sub by regex and returns 403 on scope mismatch. All reads are filtered to the authenticated principal, and the E2E asserts 401 for ten malformed/forged token variants, 403 for insufficient scope and 404 for cross-principal access. The payment provider and audit sink each require their own bearer token with constant-time comparison; only health endpoints are unauthenticated, intentionally.",
+      "gap": "Authentication rests on a symmetric HS256 secret shared between issuer and verifier with no rotation, no JWKS and no asymmetric verification (auth.py documents it is lab-confined), and there is no gateway-level throttling or request validation in front of the handler.",
+      "recommendation": "For an operated deployment, replace the symmetric lab issuer with an external authorization server issuing asymmetrically signed tokens (RS256/ES256) validated against a cached JWKS, keep the existing scope and principal-isolation checks exactly as they are, and add gateway throttling per client.",
+      "severity": "Low", "priority": "P2", "effort": "Low", "phase": 3,
+      "evidence": {"file": "booking_lab/auth.py", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "SEC-Q4", "category": "Security Baseline", "category_display": "Security Baseline", "category_id": "SEC",
+      "title": "Centralized Identity Integration",
+      "description": "The application both issues and verifies its own tokens with a locally generated symmetric key: booking_lab/run.py creates secrets.token_hex(32) and mints tokens for agent-a/agent-b via encode() in booking_lab/auth.py, which the API verifies with the same key injected as JWT_KEY. No Cognito user pool, OIDC discovery, SAML federation or external IdP configuration exists anywhere; the module docstring states the symmetric JWT is confined to the local lab.",
+      "gap": "Identity is self-managed and non-federatable: no SSO, no central revocation, no user lifecycle, and the verifying key is also the signing key.",
+      "recommendation": "Integrate an external identity provider (Amazon Cognito or an existing enterprise OIDC provider) as token issuer and validate against its JWKS. The service's scope-based authorization model maps directly onto OAuth2 scopes, so only issuance and key distribution need to change.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 2,
+      "evidence": {"file": "booking_lab/auth.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "SEC-Q5", "category": "Security Baseline", "category_display": "Security Baseline", "category_id": "SEC",
+      "title": "Secrets Management",
+      "description": "No plaintext credential is committed: every secret is generated per run with secrets.token_hex — JWT key, five PostgreSQL role passwords, payment token, audit signing/write/read tokens (booking_lab/run.py) — written to .env files at mode 0600 inside a 0700 directory, injected via docker run --env-file and excluded by .gitignore. Minimum-length guards are enforced at startup (JWT_KEY and all three audit secrets ≥ 32 chars), the docker() wrapper never prints container environments or bootstrap SQL, and HTTP handlers suppress request logging so bearer tokens are never logged.",
+      "gap": "Production-equivalent credentials live in environment variables and unencrypted on-disk env files with no managed store, no rotation and no access audit trail. AUDIT.md notes the verification secret must be preserved securely and that managed rotation is a deployment decision not provided here.",
+      "recommendation": "Store database credentials, the payment token and audit signing/read/write tokens in AWS Secrets Manager with automated rotation, inject them into ECS tasks by secret ARN rather than env files, and hold the ledger signing key in KMS so it is never materialized in a container environment. Keep the existing length guards and log suppression.",
+      "severity": "Medium", "priority": "P1", "effort": "Medium", "phase": 1,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 2, "score_label": "Needs Work", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "SEC-Q6", "category": "Security Baseline", "category_display": "Security Baseline", "category_id": "SEC",
+      "title": "Compute Hardening and Patching",
+      "description": "Runtime hardening is thorough: the image runs as USER 65532:65532 with PYTHONDONTWRITEBYTECODE and no build toolchain beyond pip, and every container starts --read-only --cap-drop=ALL --security-opt=no-new-privileges with a noexec,nosuid,size=16m tmpfs for /tmp and, where cgroups allow, --memory 256m --cpus 1 --pids-limit 128. Base images are digest-pinned with resolved RepoDigests recorded in the evidence output, and the internal network gives most containers no egress.",
+      "gap": "No patching or vulnerability-scanning process exists: no Dependabot or Renovate configuration (searched .github/dependabot.yml, renovate.json — absent), no image scanning, no SSM Patch Manager equivalent. Because images are pinned by immutable digest and the sole dependency is version-pinned, the stack cannot receive security updates without a manual re-pin, turning a reproducibility strength into a patching liability over time.",
+      "recommendation": "Add Dependabot or Renovate for requirements.txt and the base-image digests in images.lock.json/Dockerfile, and enable Amazon ECR scan-on-push (or Amazon Inspector for running tasks) so re-pinning is driven by findings. Retain all runtime hardening flags when translating to ECS task definitions (readonlyRootFilesystem, dropped capabilities, non-root user).",
+      "severity": "Low", "priority": "P2", "effort": "Low", "phase": 2,
+      "evidence": {"file": "booking_lab/Dockerfile", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "SEC-Q7", "category": "Security Baseline", "category_display": "Security Baseline", "category_id": "SEC",
+      "title": "Application Security Pipeline",
+      "description": "There is no pipeline, therefore no security stage. Searched for SAST configuration (SonarQube, Semgrep, CodeGuru), dependency scanning (.github/dependabot.yml, renovate.json, pip-audit, safety), container scanning and .snyk policies — none exist. The repository contains no CI definition at all.",
+      "gap": "No automated detection of vulnerable dependencies, insecure code patterns or vulnerable base-image layers before changes land. The single runtime dependency and digest-pinned images reduce exposure but do not substitute for scanning.",
+      "recommendation": "In the first pipeline, add pip-audit against requirements.txt, a SAST pass (Semgrep or CodeGuru Reviewer) over booking_lab/, and ECR scan-on-push for the built image, failing the build on critical findings.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 2,
+      "evidence": {"file": ".github/workflows/", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "OPS-Q1", "category": "Operations & Observability", "category_display": "Operations & Observability", "category_id": "OPS",
+      "title": "Distributed Tracing",
+      "description": "A correlation identity is persisted end-to-end within the data plane: the API accepts X-Correlation-ID (defaulting to a fresh UUID), stores it on operations, stamps it on every outbox row, carries it into the signed audit record and the audit_events projection, and re-attributes cancellation to its own request's correlation id. The E2E asserts principal and correlation attribution on booking.confirmed. However no tracing SDK is present (no OpenTelemetry or X-Ray in requirements.txt) and the correlation id is not forwarded on outbound calls to the payment provider or audit sink — payment() and deliver() send only Content-Type and Authorization.",
+      "gap": "Correlation is strong inside the database and audit trail but does not propagate across process boundaries as trace context, so there is no cross-service span view of a charge or a delivery and no latency breakdown.",
+      "recommendation": "Adopt OpenTelemetry with the AWS Distro, propagate traceparent (alongside the existing X-Correlation-ID) on the payment and audit calls, and export to AWS X-Ray or an OTLP backend. The existing correlation id makes a natural trace attribute, so instrumentation is additive.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 2,
+      "evidence": {"file": "booking_lab/service.py", "lines": null},
+      "mod_metadata": {"internal_score": 2, "score_label": "Needs Work", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "OPS-Q2", "category": "Operations & Observability", "category_display": "Operations & Observability", "category_id": "OPS",
+      "title": "SLO Definitions",
+      "description": "No monitoring artifact exists in the repository: no SLO definition file, no CloudWatch alarm, no latency or error-rate threshold, no dashboard definition. The only service-level contract expressed anywhere is in-code timeouts (statement_timeout=10000, lock_timeout=8000, 4 s provider, 8 s request) and the harness's 35 s wait bound. The E2E does assert hard business invariants after every run (zero captured charges without a confirmed booking, zero confirmed bookings without a captured charge, zero pending operations, zero undelivered audit events, zero audit rows missing attribution).",
+      "gap": "No availability or latency objective for the booking API, no error budget and no measurement, so degradation cannot be detected or prioritized.",
+      "recommendation": "Define SLOs for the two journeys that matter — booking creation availability and p99 latency, and audit delivery lag (outbox.created_at to delivered_at) — and implement them as CloudWatch alarms with error-budget tracking once deployed.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 3,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "OPS-Q3", "category": "Operations & Observability", "category_display": "Operations & Observability", "category_id": "OPS",
+      "title": "Business Metrics",
+      "description": "The running services emit no metrics: no metrics client, no put_metric_data, no Prometheus endpoint, no counter instrumentation. log_message is deliberately suppressed in both HTTP handlers and the only runtime output is three coarse strings (request_retry_pending, recovery_pending, worker_retry_pending). Business-relevant counts exist only as post-hoc SQL in the test harness, written into a one-shot evidence JSON.",
+      "gap": "Operationally meaningful quantities the schema already makes computable — bookings confirmed, payments declined, compensations performed, outbox backlog, cancellations — are never published, so business behaviour cannot be observed in a running system.",
+      "recommendation": "Publish custom CloudWatch (or OTLP) metrics for booking outcomes by terminal status, compensation events, undelivered outbox depth and audit delivery lag, and build a dashboard from them. Outbox depth also doubles as the correct worker auto-scaling signal.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 3,
+      "evidence": {"file": "booking_lab/service.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "OPS-Q4", "category": "Operations & Observability", "category_display": "Operations & Observability", "category_id": "OPS",
+      "title": "Anomaly Detection and Alerting",
+      "description": "No alerting exists: no CloudWatch alarm, no anomaly detector, no SNS topic, no PagerDuty/OpsGenie integration and no notification path. Failures surface either as HTTP status codes to the caller (503 with retry_same_idempotency_key) or as plain stdout lines captured to per-container log files only when finish() runs at the end of a lab session.",
+      "gap": "Nobody is notified of anything: a stalled worker, a growing undelivered outbox, repeated compensation or an audit sink returning 503 would pass unobserved until someone queried the database.",
+      "recommendation": "After metrics exist, configure CloudWatch alarms on API 5xx rate and latency, undelivered outbox depth and audit-delivery failures, route them to SNS, and enable CloudWatch anomaly detection on primary paths once a baseline accumulates.",
+      "severity": "Medium", "priority": "P2", "effort": "Medium", "phase": 3,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "OPS-Q5", "category": "Operations & Observability", "category_display": "Operations & Observability", "category_id": "OPS",
+      "title": "Deployment Strategy",
+      "description": "Deployment is direct container creation: docker build followed by docker run -d per role, with in-place docker stop/start/restart during test scenarios. There is no CodeDeploy configuration, Helm release, Argo Rollouts, ALB weighted target group, Lambda alias shifting or feature-flag mechanism. Health endpoints suitable for gating a rollout do exist (/health/live, /health/ready with a real database probe) and the E2E proves both replicas can restart without losing state or duplicating charges, but nothing consumes them to stage a release.",
+      "gap": "No staged rollout or rollback path: a bad image would reach every replica at once and recovery would be a manual re-run of the previous image.",
+      "recommendation": "Start with ECS rolling deployments gated on the existing /health/ready probe and a minimum-healthy-percent setting, then move to CodeDeploy blue/green with ALB target-group traffic shifting. The service's idempotency and advisory-lock design already makes mixed-version replicas safe.",
+      "severity": "High", "priority": "P1", "effort": "Medium", "phase": 1,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "OPS-Q6", "category": "Operations & Observability", "category_display": "Operations & Observability", "category_id": "OPS",
+      "title": "Integration Testing",
+      "description": "booking_lab/run.py provisions disposable isolated Docker resources (uniquely prefixed networks, volumes and containers; generated secrets; ephemeral host ports) and runs 18 cases against a real PostgreSQL and a real audit sink: token forgery and scope enforcement, happy path with attribution, cross-replica idempotent replay and payload conflict, cross-principal isolation, eight concurrent requests across two replicas yielding exactly one charge, injected insert failure with refund and no orphan, refund outage with durable COMPENSATING state and worker recovery, process crash after an external commit reconciled without double charge, provider outage, crash after refund with no second refund, declined payment, cancellation preserving the POST response, audit delivery failure with outbox drain after restart, role-privilege denial, redelivery deduplication, database outage fail-closed with volume survival, real pg_dump restore with per-table row-hash comparison, and signed-ledger tamper/truncation/restart/restore verification. Final invariants must all be zero and assertions are protected against -O. None of this runs in CI.",
+      "gap": "Coverage is not the gap; enforcement is. The suite runs only when a human invokes it, so nothing prevents a regression from being committed and there is no stored pass/fail history across changes.",
+      "recommendation": "Run 'python3 booking_lab/run.py e2e --output .local/db-e2e.json' on every pull request with a Docker-capable runner, publish the evidence JSON as a build artifact, and make the invariant block a required status check. This is the single highest-leverage change available.",
+      "severity": "Medium", "priority": "P1", "effort": "Low", "phase": 1,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 2, "score_label": "Needs Work", "archetype_calibrated": false, "core_question": true}
+    },
+    {
+      "question_id": "OPS-Q7", "category": "Operations & Observability", "category_display": "Operations & Observability", "category_id": "OPS",
+      "title": "Incident Response Automation",
+      "description": "A defined class of incidents is self-healing without human intervention: the worker loop runs recover() and deliver() every 250 ms, re-driving every operation left in NEW, CHARGED, COMPENSATING or CANCELLING under an advisory lock and draining undelivered outbox rows with UUID deduplication. The E2E proves recovery from a refund outage, an API crash after an external commit, a provider outage, a crash after refund and an audit-delivery privilege failure. Procedural documentation exists for the audit path (booking_lab/AUDIT.md) with an executable offline verifier (booking_lab/audit_verify.py).",
+      "gap": "Remediation is limited to saga and delivery reconciliation; there is no runbook for incidents outside that class (database unavailability, sink outage, key compromise, host loss), no alert-to-action wiring, no escalation path and no machine-readable automation document.",
+      "recommendation": "Keep the recovery worker as the primary self-healing mechanism and add structured runbooks (SSM Automation documents) for the incidents it cannot resolve, each linked to the alarm that detects it. Convert the AUDIT.md verification procedure into a scheduled automated check so ledger integrity is confirmed continuously.",
+      "severity": "Low", "priority": "P2", "effort": "Medium", "phase": 3,
+      "evidence": {"file": "booking_lab/AUDIT.md", "lines": null},
+      "mod_metadata": {"internal_score": 3, "score_label": "Partial", "archetype_calibrated": false, "core_question": false}
+    },
+    {
+      "question_id": "OPS-Q8", "category": "Operations & Observability", "category_display": "Operations & Observability", "category_id": "OPS",
+      "title": "Observability Ownership",
+      "description": "There are no observability assets to own: no dashboard, no alarm, no SLO file and no CODEOWNERS file. Logs are written to per-container files only at session teardown, into a session-local directory, with no retention, aggregation or named owner. The repository root contains only booking_lab/, .gitignore and LICENSE.",
+      "gap": "No team attribution for monitoring, no per-service dashboard and no durable log destination — monitoring would be reactive and ad hoc in any operated deployment.",
+      "recommendation": "When the service is deployed, create a per-service CloudWatch dashboard and alarms defined in IaC with owner tags, ship container logs to CloudWatch Logs with explicit retention, and add a CODEOWNERS entry covering the observability and IaC directories.",
+      "severity": "Medium", "priority": "P2", "effort": "Low", "phase": 3,
+      "evidence": {"file": "booking_lab/run.py", "lines": null},
+      "mod_metadata": {"internal_score": 1, "score_label": "Not Ready", "archetype_calibrated": false, "core_question": false}
+    }
+  ],
+  "evaluations": [
+    {
+      "question_id": "SEC-Q1", "category_id": "SEC", "title": "Audit Logging",
+      "status": "not_evaluated_surface_flag", "score": null,
+      "reason": "has_iac_provisioning_aws_resources=false — the repo provisions no AWS resources and contains no account/foundation-level IaC (no CloudTrail, Config, GuardDuty, Organizations). CloudTrail is an account-level concern belonging to the foundation infrastructure repo. The application's own independent signed audit ledger is evaluated under DATA-Q1 and SEC-Q2."
+    },
+    {
+      "question_id": "OPS-Q9", "category_id": "OPS", "title": "Resource Tagging Governance",
+      "status": "not_evaluated_surface_flag", "score": null,
+      "reason": "has_iac_provisioning_aws_resources=false — no AWS resources are provisioned from this repo, so there is nothing to tag. Local Docker resources are consistently name-prefixed per run (db-lab-<10-hex>), which is lab-scope disambiguation, not AWS tagging."
+    }
+  ],
+  "pathways": [
+    {
+      "id": "move-to-cloud-native", "name": "Move to Cloud Native", "status": "Not Triggered", "priority": null, "effort": null,
+      "key_trigger_criteria": "APP-Q2 < 3 AND at least one of INF-Q1 < 3, APP-Q3 < 3, APP-Q4 < 3",
+      "triggering_questions": [
+        {"question_id": "APP-Q2", "score": 3, "note": "APP-Q2 = 3 meets threshold — module boundaries are explicit and enforced by HTTP contracts and per-role table grants; primary trigger not met"},
+        {"question_id": "INF-Q1", "score": 2, "note": "Supporting condition is below threshold but supporting conditions alone cannot trigger the pathway"},
+        {"question_id": "APP-Q3", "score": 3, "note": "APP-Q3 = 3 meets threshold"},
+        {"question_id": "APP-Q4", "score": 3, "note": "APP-Q4 = 3 meets threshold"}
+      ],
+      "not_triggered_reason": "Primary trigger APP-Q2 < 3 is not met; the application is not a tightly coupled monolith.",
+      "detail": null
+    },
+    {
+      "id": "move-to-containers", "name": "Move to Containers", "status": "Not Triggered", "priority": null, "effort": null,
+      "key_trigger_criteria": "INF-Q1 < 3 AND no container definitions found",
+      "triggering_questions": [
+        {"question_id": "INF-Q1", "score": 2, "note": "Below threshold, but the second required condition fails: container definitions exist (booking_lab/Dockerfile, booking_lab/images.lock.json)"}
+      ],
+      "not_triggered_reason": "The workload is already containerized with digest-pinned images; what is missing is managed orchestration, which is addressed under INF-Q1 and the Modern DevOps pathway, not containerization.",
+      "detail": null
+    },
+    {
+      "id": "move-to-open-source", "name": "Move to Open Source", "status": "Not Triggered", "priority": null, "effort": null,
+      "key_trigger_criteria": "DATA-Q4 < 3 AND commercial DB engines detected",
+      "triggering_questions": [
+        {"question_id": "DATA-Q4", "score": 3, "note": "DATA-Q4 = 3 meets threshold; only test-fixture PL/pgSQL and append-only integrity triggers exist"},
+        {"question_id": "INF-Q2", "score": 1, "note": "No commercial engine detected — PostgreSQL and SQLite are already open source"}
+      ],
+      "not_triggered_reason": "No commercial database engine and no proprietary SQL dialect is present; there are no licensing costs to eliminate.",
+      "detail": null
+    },
+    {
+      "id": "move-to-managed-databases", "name": "Move to Managed Databases", "status": "Triggered", "priority": "High", "effort": "Medium",
+      "key_trigger_criteria": "INF-Q2 < 3 (self-managed databases); DATA-Q3 < 3 strengthens the case",
+      "triggering_questions": [
+        {"question_id": "INF-Q2", "score": 1, "note": "Primary — PostgreSQL self-managed in a container with a local volume; SQLite ledger self-managed on a second volume"}
+      ],
+      "detail": {
+        "current_state": "PostgreSQL runs as a digest-pinned container with a local named volume; the authoritative audit ledger is SQLite (WAL, synchronous=FULL) on its own volume. No managed failover, automated patching, automated backup or PITR. Engine version is pinned only by image digest and discovered at runtime.",
+        "migration_enablers": "Connection creation is centralized in db() and connect(), so repointing connection strings is a contained change. The schema uses only standard PostgreSQL constructs (jsonb, pg_advisory_lock, FOR UPDATE SKIP LOCKED, clock_timestamp), so the move is homogeneous.",
+        "recommended_aws_services": ["Amazon RDS for PostgreSQL (Multi-AZ)", "Aurora PostgreSQL", "AWS Secrets Manager", "Amazon S3 with Object Lock", "AWS Backup", "AWS KMS"],
+        "migration_tools": "pg_dump/pg_restore is sufficient (already exercised in the E2E); AWS DMS/SCT are not required for a homogeneous PostgreSQL move.",
+        "immediate_actions": [
+          "Keep DATABASE_URL/AUDIT_DATABASE_URL as the only coupling so the same image runs against RDS without code change.",
+          "Define the RDS instance, subnet group, security group and backup retention in IaC (closes INF-Q2, INF-Q8, INF-Q9 and part of INF-Q10 together).",
+          "Enable KMS encryption on the instance and on the audit archive bucket (closes SEC-Q2).",
+          "Add an S3 Object Lock archive for signed audit records and externally retained checkpoints, as booking_lab/AUDIT.md requires."
+        ],
+        "learning_materials": ["https://skillbuilder.aws/learning-plan/VNJ8FZ3ZRC", "https://skillbuilder.aws/learn/ND246G8Y3W"]
+      }
+    },
+    {
+      "id": "move-to-managed-analytics", "name": "Move to Managed Analytics", "status": "Not Triggered", "priority": null, "effort": null,
+      "key_trigger_criteria": "INF-Q4 < 3 AND evidence of data processing workloads must exist",
+      "triggering_questions": [
+        {"question_id": "INF-Q4", "score": 2, "note": "Below threshold, but the contextual guard blocks the pathway"}
+      ],
+      "not_triggered_reason": "Contextual guard: no streaming, ETL, data-pipeline or analytics artifacts exist (searched booking_lab/ for Kafka, Kinesis, MSK, Glue, Airflow and Step Functions signals — none found). The outbox is a transactional delivery mechanism, not a data-processing workload.",
+      "detail": null
+    },
+    {
+      "id": "move-to-modern-devops", "name": "Move to Modern DevOps", "status": "Triggered", "priority": "High", "effort": "Medium",
+      "key_trigger_criteria": "INF-Q10 < 3 OR INF-Q11 < 3; OPS-Q5 < 3 and OPS-Q6 < 3 strengthen the case",
+      "triggering_questions": [
+        {"question_id": "INF-Q11", "score": 1, "note": "Primary — no CI/CD definition of any kind"},
+        {"question_id": "INF-Q10", "score": 2, "note": "Primary — no declarative IaC; provisioning is an imperative Docker-CLI script for a disposable lab"},
+        {"question_id": "OPS-Q5", "score": 1, "note": "Supporting — direct container creation with no staged rollout"},
+        {"question_id": "OPS-Q6", "score": 2, "note": "Supporting — strong 18-case integration suite that runs only when invoked manually"}
+      ],
+      "detail": {
+        "current_state": "No pipeline files and no declarative IaC. booking_lab/run.py builds the image and creates networks, volumes, database, audit sink, payments process, two API replicas and a worker via the Docker CLI with pinned digests and per-run generated secrets — reproducible, but a disposable local lab rather than a definition of an operated environment. Release is docker run/restart.",
+        "strengths_to_preserve": "18-case integration suite against real PostgreSQL with crash, outage and tamper scenarios; zero-valued business invariants asserted every run; digest-pinned images; per-run secret generation; container hardening flags.",
+        "recommended_aws_services": ["AWS CodeBuild", "AWS CodePipeline", "AWS CodeDeploy", "Amazon ECR (scan-on-push)", "Amazon ECS on Fargate", "AWS CloudFormation or AWS CDK", "Amazon CloudWatch"],
+        "runtime_choice_rationale": "ECS on Fargate is the smallest compatible managed runtime for four long-running process roles and requires no pre-existing cluster, consistent with the stated constraint that no EKS cluster or platform pipeline may be assumed.",
+        "immediate_actions": [
+          "Commit a pipeline that builds the image and runs booking_lab/run.py e2e on every change, publishing the evidence JSON as a build artifact.",
+          "Add pip-audit, SAST and ECR scan-on-push to the same pipeline (closes SEC-Q7) plus Dependabot/Renovate for requirements.txt and base-image digests (closes part of SEC-Q6 and DATA-Q3).",
+          "Author IaC for ECS services, ALB, RDS, secrets, log groups and alarms (closes INF-Q10 and enables INF-Q5, INF-Q7, INF-Q9, OPS-Q4, OPS-Q8).",
+          "Replace direct container starts with ECS rolling deployments gated on /health/ready, then CodeDeploy blue/green with ALB traffic shifting (closes OPS-Q5)."
+        ],
+        "learning_materials": ["https://skillbuilder.aws/learning-plan/1FGEQKGPQD", "https://skillbuilder.aws/learn/R4B13K95YQ"]
+      }
+    },
+    {
+      "id": "move-to-ai", "name": "Move to AI", "status": "Not Triggered", "priority": null, "effort": null,
+      "key_trigger_criteria": "No AI/agent frameworks, no vector DB, no RAG, no agent eval framework — gated on explicit AI/agent/LLM intent evidenced in the repository",
+      "triggering_questions": [],
+      "not_triggered_reason": "No AI/agent intent evidenced in the repository (no AI-related signal terms in dependencies, source, configuration, IaC or documentation). requirements.txt contains only psycopg; no Bedrock, LangChain, Strands, OpenAI, SageMaker or HuggingFace import exists; no vector database, embedding, RAG or evaluation-harness pattern was found. The contextual guard is therefore not satisfied and primary triggers were not evaluated.",
+      "detail": null
+    }
+  ],
+  "decomposition_strategy": null
+}

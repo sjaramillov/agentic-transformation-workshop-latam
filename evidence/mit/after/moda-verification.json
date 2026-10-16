@@ -1,0 +1,15 @@
+{
+  "valid_bundle_and_counts": true,
+  "kind": "mod",
+  "reported_tier": "Remediation Required",
+  "findings": 35,
+  "artifact_sha256": {
+    "booking-mit-mod-report.json": "65543cd98b339ac2bd1ee67395d7bb9a751085e578aad465c961f262ece6fe94",
+    "booking-mit-mod-report.md": "00eb85781213c6f29f1e5f63a4aa89f07034e34d088fa1d6cc3868f86345c028",
+    "booking-mit-mod-report.html": "11fa082e0c4ff2dc965dcd587c7610ad8d8afc20d769a0c34aaa004cb6ea4800",
+    "booking-mit-mod-report.metadata.json": "41c120cb9f1d78c2af912279ff304896144cd8cc1908cbc3101a09ba345b600f"
+  },
+  "errors": [],
+  "runtime_validated": false,
+  "rubric_judgments_independently_verified": false
+}

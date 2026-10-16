@@ -1,4 +1,4 @@
-# Agentic Transformation Workshop for LATAM partners
+# Agentic Transformation Workshop AWS Guide
 
 Una guía práctica, en español, para estudiar y volver a recorrer el taller de AWS sobre preparación de servicios para agentes: EventStorming, diseño del agente, ARA/MODA, priorización, remediación controlada y nueva medición.
 

@@ -1,0 +1,9 @@
+# Workshop Studio archive and separate upstream clone are retained locally.
+/resources/agentic-workshop-materials-2026-10-15.tar.gz
+/resources/sample-agentic-readiness-analysis-orchestrator/
+
+# Local/editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp

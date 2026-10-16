@@ -1,0 +1,8 @@
+Local-only archive (not committed to the public repository):
+  agentic-workshop-materials-2026-10-15.tar.gz
+  SHA-256: adb4440ce3a709a2b4f6718beb1115bf56f443c82b4cce8200b7d867b47271ce
+
+AWS Samples reference repository:
+  https://github.com/aws-samples/sample-agentic-readiness-analysis-orchestrator
+  locally inspected commit: b48fd5ee1c94e56a7da76513ec388b6e00e886e5
+  commit date: 2026-10-14

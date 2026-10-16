@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1650 980" role="img" aria-labelledby="title desc">
+  <title id="title">Workflow de rebooking con aprobación humana</title>
+  <desc id="desc">Un evento de cancelación lleva a consultar la reserva, preparar opciones con un agente y detenerse para revisión humana. Si se aprueba, se actualiza la reserva; si se pide revisar, el agente ajusta la propuesta. Step Functions mantiene el callback y la espera.</desc>
+  <defs>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#d8d3c8"/></pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="150%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#344354" flood-opacity=".16"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#526778"/></marker>
+    <marker id="dottedArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#74629a"/></marker>
+    <style>
+      text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:#17283b}.white{fill:#fffdfa!important}.muted{fill:#536575}.kicker{font-size:14px;font-weight:800;letter-spacing:2px}.title{font-size:34px;font-weight:800}.subtitle{font-size:17px}.lane{font-size:15px;font-weight:850;letter-spacing:1px}.tag{font-size:11px;font-weight:900;letter-spacing:1px}.note-title{font-size:17px;font-weight:800}.body{font-size:14px}.tiny{font-size:12px;font-weight:700}
+    </style>
+  </defs>
+  <rect width="1650" height="980" fill="#f4f1e9"/><rect width="1650" height="980" fill="url(#grid)" opacity=".55"/>
+  <path d="M0 0H1650V140H0Z" fill="#17283b"/>
+  <text x="42" y="38" class="kicker" fill="#a8d9e6">TRAVELCORP · WORKFLOW DESIGN · C</text>
+  <text x="42" y="83" class="title white" style="fill:#fffdfa">Proponer, esperar, actuar</text>
+  <text x="42" y="115" class="subtitle" fill="#d8e3eb">La persona conserva la decisión antes de cualquier escritura sobre la reserva.</text>
+  <text x="1605" y="48" text-anchor="end" class="tiny" fill="#c6d5df">FLUJO EXPLICATIVO · LA APROBACIÓN ES EXPLÍCITA</text>
+
+  <!-- Swimlanes -->
+  <g>
+    <rect x="22" y="170" width="1606" height="124" rx="12" fill="#fffdfa" stroke="#dedbd2"/>
+    <rect x="22" y="302" width="1606" height="124" rx="12" fill="#eef3f0" stroke="#dedbd2"/>
+    <rect x="22" y="434" width="1606" height="124" rx="12" fill="#f5eef8" stroke="#dedbd2"/>
+    <rect x="22" y="566" width="1606" height="124" rx="12" fill="#fbf4dd" stroke="#dedbd2"/>
+    <rect x="22" y="698" width="1606" height="124" rx="12" fill="#eaf0f4" stroke="#dedbd2"/>
+    <rect x="22" y="170" width="188" height="124" rx="12" fill="#d9eaf0"/><rect x="22" y="302" width="188" height="124" rx="12" fill="#dceadf"/>
+    <rect x="22" y="434" width="188" height="124" rx="12" fill="#e7def2"/><rect x="22" y="566" width="188" height="124" rx="12" fill="#f4e7b8"/>
+    <rect x="22" y="698" width="188" height="124" rx="12" fill="#dce5eb"/>
+    <text x="42" y="220" class="lane">EXTERNO</text><text x="42" y="247" class="tiny muted">Aerolínea · viajero</text>
+    <text x="42" y="352" class="lane">DATOS / SERVICIO</text><text x="42" y="379" class="tiny muted">booking · reglas</text>
+    <text x="42" y="484" class="lane">AGENTE</text><text x="42" y="511" class="tiny muted">prepara, no aprueba</text>
+    <text x="42" y="616" class="lane">PERSONA</text><text x="42" y="643" class="tiny muted">revisa y decide</text>
+    <text x="42" y="748" class="lane">ORQUESTACIÓN</text><text x="42" y="775" class="tiny muted">pausa · callback · telemetría</text>
+  </g>
+
+  <!-- Solid business flow arrows -->
+  <g fill="none" stroke="#526778" stroke-width="3" marker-end="url(#arrow)">
+    <path d="M386 232C438 232 450 350 492 350"/>
+    <path d="M692 364C744 364 750 474 794 474"/>
+    <path d="M992 496C1033 496 1024 610 1052 610"/>
+    <path d="M1208 628H1244"/>
+    <path d="M1282 604C1314 558 1307 430 1307 393"/>
+    <path d="M1404 352C1450 352 1451 232 1474 232"/>
+  </g>
+  <path d="M1268 657C1223 740 1082 775 977 524" fill="none" stroke="#cb714f" stroke-width="3" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+
+  <!-- Runtime control links -->
+  <g fill="none" stroke="#78669b" stroke-width="2.5" stroke-dasharray="5 7" marker-end="url(#dottedArrow)">
+    <path d="M1057 723C1057 692 1085 677 1085 663"/>
+    <path d="M1182 760C1275 760 1295 700 1287 662"/>
+  </g>
+
+  <!-- Notes -->
+  <g filter="url(#shadow)">
+    <g><rect x="236" y="190" width="150" height="84" rx="9" fill="#cfe8f0"/><path d="M356 190H386V220Z" fill="#add6e2"/><text x="251" y="215" class="tag">INICIO</text><text x="251" y="241" class="note-title">Vuelo cancelado</text><text x="251" y="261" class="body">Evento de aerolínea</text></g>
+    <g><rect x="492" y="318" width="200" height="88" rx="9" fill="#d9ecdc"/><path d="M662 318H692V348Z" fill="#b9d9bf"/><text x="508" y="343" class="tag">LECTURA</text><text x="508" y="370" class="note-title">Reserva + alternativas</text><text x="508" y="391" class="body">Datos y reglas disponibles</text></g>
+    <g><rect x="794" y="448" width="198" height="92" rx="9" fill="#e4d8f0"/><path d="M962 448H992V478Z" fill="#cbb8e1"/><text x="810" y="474" class="tag">AGENT · POSTURA P</text><text x="810" y="501" class="note-title">Borrador de rebooking</text><text x="810" y="523" class="body">Opciones + explicación</text></g>
+    <g><rect x="1052" y="582" width="156" height="82" rx="9" fill="#ffe8a4"/><path d="M1178 582H1208V612Z" fill="#f1d373"/><text x="1067" y="607" class="tag">HUMAN REVIEW</text><text x="1067" y="634" class="note-title">Revisar propuesta</text><text x="1067" y="653" class="body">Editar o aprobar</text></g>
+    <g><rect x="1270" y="309" width="178" height="84" rx="9" fill="#cfe8f0"/><path d="M1418 309H1448V339Z" fill="#add6e2"/><text x="1285" y="334" class="tag">SOLO SI APRUEBA</text><text x="1285" y="360" class="note-title">Actualizar booking</text><text x="1285" y="381" class="body">Contrato idempotente</text></g>
+    <g><rect x="1474" y="190" width="142" height="84" rx="9" fill="#d9ecdc"/><path d="M1586 190H1616V220Z" fill="#b9d9bf"/><text x="1488" y="215" class="tag">CIERRE</text><text x="1488" y="241" class="note-title">Avisar al viajero</text><text x="1488" y="261" class="body">Registrar resultado</text></g>
+    <g><rect x="865" y="728" width="312" height="72" rx="9" fill="#e4d8f0"/><text x="885" y="755" class="tag">STEP FUNCTIONS</text><text x="885" y="780" class="note-title">Pausa durable + callback humano</text></g>
+    <g><rect x="1282" y="728" width="290" height="72" rx="9" fill="#d9ecdc"/><text x="1302" y="755" class="tag">OPERACIÓN</text><text x="1302" y="780" class="note-title">Trazas · alarmas · métricas</text></g>
+  </g>
+  <g>
+    <polygon points="1266,585 1308,627 1266,669 1224,627" fill="#ffe8a4" stroke="#b8852f" stroke-width="2"/>
+    <text x="1266" y="623" text-anchor="middle" class="tiny">¿OK?</text><text x="1266" y="640" text-anchor="middle" class="tiny">DECIDE</text>
+    <text x="1309" y="555" class="tiny" fill="#3d7755">SÍ · ejecutar</text>
+    <text x="1126" y="735" class="tiny" fill="#a14f3c">NO · revisar propuesta</text>
+  </g>
+
+  <rect x="22" y="856" width="1606" height="82" rx="14" fill="#17283b"/>
+  <path d="M63 888H113" stroke="#526778" stroke-width="3" marker-end="url(#arrow)"/><text x="127" y="894" class="body white" style="fill:#fffdfa">flujo de negocio</text>
+  <path d="M365 888H415" stroke="#78669b" stroke-width="2.5" stroke-dasharray="5 7" marker-end="url(#dottedArrow)"/><text x="429" y="894" class="body white" style="fill:#fffdfa">control de la orquestación</text>
+  <text x="810" y="894" class="body white" style="fill:#fffdfa">La aprobación humana es un paso del diseño, no una nota al margen.</text>
+  <text x="42" y="963" class="tiny muted">Fuente conceptual: módulos A–C. El flujo es ilustrativo; valida APIs, controles y servicios antes de implementarlo.</text>
+</svg>

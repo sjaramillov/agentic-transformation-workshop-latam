@@ -1,0 +1,20 @@
+# Tableros visuales del proceso
+
+Cinco tableros originales convierten el recorrido del taller en notas de pared: el journey y sus fricciones, dónde conviene un agente, cómo se conserva la aprobación humana, cómo se cierra el ciclo ARA/MODA y quién opera cada control.
+
+Abre [`index.html`](index.html) para una galería local, o revisa los SVG directamente. Los tableros son esquemáticos y cualitativos; no son capturas originales de Workshop Studio, no inventan puntuaciones y no deben interpretarse como métricas.
+
+| Tablero | Qué ayuda a explicar | Módulos |
+| --- | --- | --- |
+| [01 · EventStorming](01-eventstorming.svg) | Eventos, decisiones, actores, sistemas y fricciones durante una recuperación de reserva. | A |
+| [02 · Oportunidad del agente](02-oportunidad-agente.svg) | Cómo se combinan juicio, acceso a datos y postura de autonomía. | B |
+| [03 · Workflow de rebooking](03-workflow-rebooking.svg) | Qué hace el agente, dónde espera la persona y qué ocurre tras aprobar o pedir cambios. | C |
+| [04 · Ciclo ARA/MODA](04-ciclo-ara-moda.svg) | Evaluar, priorizar, remediar con revisión y volver a medir con el mismo alcance. | D–I |
+| [05 · Modelo operativo](05-modelo-operativo.svg) | Prerrequisitos, dueños, revisiones y operación gradual de las TD. | J |
+
+## Convenciones
+
+- Cada tarjeta se puede leer sin interacción; el color ayuda a distinguir tipos de nota, pero no codifica severidad ni avance.
+- El caso TravelCorp es el ejemplo ficticio del taller.
+- Las posiciones de la matriz son orientativas. El taller no publica puntuaciones numéricas para estas oportunidades.
+- El flujo de remediación termina en revisión e integración controlada; el ejemplo `--local` no crea un PR ni despliega infraestructura.

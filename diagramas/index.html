@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>Tableros del laboratorio — Agentic Transformation Workshop</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header class="hero">
+    <p class="eyebrow">AGENTIC TRANSFORMATION · LATAM</p>
+    <h1>Del viaje de cliente al ciclo de transformación</h1>
+    <p class="intro">Cinco tableros de notas para recorrer el ejemplo TravelCorp y ver dónde entran los datos, los agentes, la revisión humana y las operaciones.</p>
+    <nav aria-label="Navegación de tableros">
+      <a href="#journey">Journey</a>
+      <a href="#oportunidad">Oportunidad</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#ciclo">Ciclo ARA/MODA</a>
+      <a href="#operacion">Operación</a>
+    </nav>
+  </header>
+  <main>
+    <p class="scope"><strong>Cómo leerlos:</strong> son esquemas cualitativos basados en la guía guardada. No reproducen literalmente los tableros del evento ni representan métricas observadas.</p>
+    <section id="journey" class="board-card">
+      <div class="board-copy"><span>01 · MÓDULO A</span><h2>EventStorming: una reserva necesita recuperarse</h2><p>Seguir cada momento ayuda a encontrar el cruce entre eventos del dominio, decisiones y puntos de fricción. El historial de excepciones de socios no está disponible por una API.</p><a href="01-eventstorming.svg">Abrir el SVG</a></div>
+      <img src="01-eventstorming.svg" alt="Tablero EventStorming con seis momentos desde la búsqueda hasta la actualización de la reserva y carriles de actores, comandos, eventos, sistemas y fricciones">
+    </section>
+    <section id="oportunidad" class="board-card">
+      <div class="board-copy"><span>02 · MÓDULO B</span><h2>Oportunidad: juicio más datos</h2><p>El ejemplo favorece un agente donde hay juicio y acceso a la información necesaria. La autonomía P prepara una propuesta para aprobación; los reembolsos mantienen un control humano.</p><a href="02-oportunidad-agente.svg">Abrir el SVG</a></div>
+      <img src="02-oportunidad-agente.svg" alt="Matriz cualitativa de juicio y acceso a datos con post-its para excepciones de socios, elegibilidad de reembolso y rebooking, junto a niveles de autonomía A, P, E y G">
+    </section>
+    <section id="workflow" class="board-card">
+      <div class="board-copy"><span>03 · MÓDULO C</span><h2>Workflow: proponer, esperar, actuar</h2><p>Step Functions mantiene el punto de espera. La persona revisa antes de la acción de escritura; el agente puede ajustar la propuesta si la respuesta es “revisar”.</p><a href="03-workflow-rebooking.svg">Abrir el SVG</a></div>
+      <img src="03-workflow-rebooking.svg" alt="Workflow en carriles que conecta la cancelación de una aerolínea, la consulta de datos, la propuesta de un agente, la revisión humana, la actualización de booking y la notificación">
+    </section>
+    <section id="ciclo" class="board-card">
+      <div class="board-copy"><span>04 · MÓDULOS D–I</span><h2>Medir, priorizar, cambiar y volver a medir</h2><p>ARA evalúa si el agente puede operar con seguridad; MODA recomienda rutas de modernización. Son lecturas complementarias. La remediación local requiere revisión antes de integrarse.</p><a href="04-ciclo-ara-moda.svg">Abrir el SVG</a></div>
+      <img src="04-ciclo-ara-moda.svg" alt="Ciclo de análisis ARA y MODA, priorización, remediación en rama local, revisión humana, integración y nueva medición con un lazo de retroalimentación">
+    </section>
+    <section id="operacion" class="board-card">
+      <div class="board-copy"><span>05 · MÓDULO J</span><h2>Operación: plataforma, equipos y puertas</h2><p>Una TD depende de la plataforma que la recibe. El tablero asigna responsabilidades para revisar, probar, desplegar gradualmente y responder a incidentes.</p><a href="05-modelo-operativo.svg">Abrir el SVG</a></div>
+      <img src="05-modelo-operativo.svg" alt="Tablero operativo con cinco puertas de control y responsabilidades de plataforma, aplicación, seguridad, identidad y SRE">
+    </section>
+  </main>
+  <footer><p>Guía y diagramas propios bajo MIT. Véase <a href="../NOTICE.md">el aviso de alcance</a> y la <a href="../GUIA_REPLICACION.md">guía de réplica</a>.</p></footer>
+</body>
+</html>

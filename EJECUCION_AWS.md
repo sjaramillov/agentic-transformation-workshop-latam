@@ -37,6 +37,8 @@ python3 "$REPLICA_DIR/scripts/lab.py" doctor --environment "$LAB_ENV" --live
 
 Este chequeo es local: no valida identidad, IAM, cuota ni disponibilidad del modelo. Para AWS, comprueba en privado la identidad con `aws sts get-caller-identity` y `atx ct status --health`. Conserva las versiones junto a tus resultados; no publiques identificadores de cuenta ni credenciales.
 
+`doctor --live` revisa la preparación completa del IDE, incluidos Kiro y los tres servicios. La ruta reducida de [CloudShell](CLOUDSHELL.md) usa ATX directamente y una copia adicional de un servicio; sigue sus comprobaciones específicas. Kiro no fue necesario para esas ejecuciones de ATX.
+
 ## 3. Prepara los repositorios
 
 La captura del 15 de octubre conserva `booking-service` en `atx-result-staging-20261015_183919_02db4098`, que contiene informes de análisis. El archivo comprimido conserva la evidencia original. Antes de una nueva ejecución, recolecta sus informes con `lab.py collect`, y revisa:

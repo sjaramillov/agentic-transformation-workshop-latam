@@ -36,7 +36,7 @@
         "high_count": 7,
         "medium_count": 25,
         "low_count": 2,
-        "rule_matched": "2-11 High \u2192 Remediation Required",
+        "rule_matched": "2-11 High → Remediation Required",
         "classification_consistency_check": "consistent"
       },
       "overall_score": 1.59
@@ -95,7 +95,10 @@
     "errors": 0,
     "skipped": 0,
     "private_archive_used": true,
-    "recorded_at_utc": "2026-10-16T03:14:12.485433+00:00"
+    "recorded_at_utc": "2026-10-16T03:14:12.485433+00:00",
+    "clean_clone_commit": "9628624581f559143376f95584a2a442505e7104",
+    "clean_clone_tests": 24,
+    "clean_clone_working_tree_clean": true
   },
   "original_helpers_sha256": {
     "scripts/probe_shutdown_order.php": "3af70b738032a9c9ee936c28a8b85472e89de557a893e6f25daa9727dcea1065",
@@ -103,5 +106,97 @@
     "scripts/verify_reports.py": "a090cbf611d9037ed9cf008064d8820cba76930cba093172e775ddc7516a64e4",
     "scripts/fix_shutdown_order.py": "c73efcbb35fde5cdbe3504d81ccbf12537b8a029e70e27e6039adf6f44a62be4",
     "scripts/lab.py": "170f303830389748a0f7443b35307e1c0d8574d4ac3f601763f123f967865021"
+  },
+  "public_ci": {
+    "commit": "9628624581f559143376f95584a2a442505e7104",
+    "url": "https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/38844539617",
+    "result": "success",
+    "matrix": [
+      "Linux Python 3.11",
+      "Linux Python 3.14",
+      "macOS Python 3.11",
+      "macOS Python 3.14"
+    ],
+    "private_archive_test": "skipped in public CI"
+  },
+  "rescan_source_commit": "f4073fc538d8aa50128fc276f3ace2b051884b60",
+  "original_helpers_match_ccs_runtime_files": true,
+  "corrected_php_sha256": "8770a7cd8fda0f9a14f8733704b7db4887b02941a78070d88372f4bc8e61c3c0",
+  "rescan": {
+    "ara": {
+      "status": "complete",
+      "tier": "Remediation Required",
+      "findings": 35,
+      "blocker": 2,
+      "risk_safety": 12,
+      "risk_quality": 14,
+      "info": 7,
+      "pass": 7,
+      "questions_total": 43,
+      "remaining_blocker_ids": [
+        "AUTH-Q6",
+        "STATE-Q1"
+      ],
+      "agent_minutes_reported": 71.2309,
+      "independent_bundle_and_counts_check": "passed",
+      "not_evaluated_extended": 1,
+      "questions_evaluated": 42,
+      "result_commit": "70c19ae9e6371b228616cb230d77ce8e49c1f242",
+      "artifact_sha256": {
+        "booking-service-ara-report.json": "1053e0fd412758228dd2562ed898a6ad185f370e2090f3034f7f516da0a9e790",
+        "booking-service-ara-report.md": "60fe52580aba4ed1faf010959a8d2c673f3f7fe0c435b6553d09dcde83071ad9",
+        "booking-service-ara-report.html": "159498ce78fb8c6ae02d97e5a561ab4baea00eedaf574075ceed2c05918f5e23",
+        "booking-service-ara-report.metadata.json": "9cdd8d77e2f61ef31baaf91530cd73bedb1b60026d5c59ddab2214383963c0dc"
+      }
+    },
+    "mod": {
+      "status": "complete",
+      "tier": "Remediation Required",
+      "overall_score": 1.95,
+      "findings": 35,
+      "high_count": 4,
+      "medium_count": 21,
+      "low_count": 10,
+      "classification_consistency_check": "consistent",
+      "independent_bundle_and_counts_check": "passed",
+      "agent_minutes_reported_rounded": 53.47,
+      "isolated_clone_of_same_source_commit": true,
+      "result_commit": "2dbb551834a2a4eacc25f10e90b09aae50dbcf01",
+      "agent_minutes_reported": 53.4666,
+      "category_scores": [
+        2.18,
+        1.33,
+        2.75,
+        2.29,
+        1.22
+      ],
+      "mean_of_reported_category_scores": 1.954,
+      "artifact_sha256": {
+        "booking-service-mod-report.json": "524872be18e43470f8a51556ef9bc634c870ef30ceea2817a87275adb3635db2",
+        "booking-service-mod-report.md": "6495f5bd41960c2e063c2a705c14e7d2e491b1a635b269c6e94622932918bc2c",
+        "booking-service-mod-report.html": "b74208cfe45b26790f0676445c21297680f2cd50c879186b08ac8af276031d5c",
+        "booking-service-mod-report.metadata.json": "99d8a86a7b89ee0c8eb8f9970159f7645b55c5a676eb98be93fef534ad38585a"
+      }
+    }
+  },
+  "raw_final_archive_sha256": "2db93891d7bd7b022f37074dd6244e085707e44b818ac5254ae3e57ddf74ba82",
+  "running_analyses_at_close": 0,
+  "test_containers_remaining": 0,
+  "root_disk_available_at_close": "3.2G",
+  "reported_agent_minutes": {
+    "ara_baseline": 41.7212,
+    "moda_baseline": 41.3088,
+    "ara_rescan": 71.2309,
+    "moda_rescan": 53.4666,
+    "containerize": 10.59,
+    "fix_blockers": 20.2
+  },
+  "reported_agent_minutes_total": "238.5175",
+  "nominal_transform_cost_usd_at_0035_per_minute": "8.3481125",
+  "cost_is_invoice": false,
+  "managed_td_export": {
+    "ara": "ValidationException: Unauthorized operation on package with reserved prefix: AWS/",
+    "moda": "ValidationException: Unauthorized operation on package with reserved prefix: AWS/",
+    "exact_version_preserved": false
   }
 }

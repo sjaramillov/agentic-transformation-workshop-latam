@@ -13,7 +13,6 @@ Abre [`index.html`](index.html) para una galería local, o revisa los SVG direct
 | [05 · Modelo operativo](05-modelo-operativo.svg) | Prerrequisitos, dueños, revisiones y operación gradual de las TD. | J |
 | [06 · Valor y AI-DLC](06-valor-ai-dlc.svg) | Problema → métrica → autonomía → ARA/MODA → pruebas → medición de valor, con fases de AI-DLC. | A–J |
 
-
 ## Convenciones
 
 - Cada tarjeta se puede leer sin interacción; el color ayuda a distinguir tipos de nota, pero no codifica severidad ni avance.

@@ -12,7 +12,8 @@ Todos los materiales de la réplica están versionados:
 | Transformación | [hardening](workshop/transformations/hardening/transformation_definition.md) | Corregir hallazgos y demostrar invariantes |
 | Decisiones y comparación | [decisión](workshop/templates/decision.md), [CSV](workshop/templates/comparison.csv) | Trazabilidad de G–I |
 | Tableros post-it | [galería](diagramas/README.md) | Explicación visual de A–J |
-| Evidencia | [DB](CCS_DATABASE_E2E.md), [ARA/MODA](CCS_E2E.md) | Mediciones observadas en CCS |
+| Evidencia del agente | [Agente determinista](evidence/agent-workshop/README.md), [Bedrock real](evidence/bedrock/README.md) | Código, pruebas y ejecuciones con sus fechas y alcance |
+| Evidencia histórica del 16 de octubre | [DB](CCS_DATABASE_E2E.md), [ARA/MODA](CCS_E2E.md) | Mediciones observadas en CCS sobre las revisiones indicadas |
 
 ## Fuentes oficiales
 

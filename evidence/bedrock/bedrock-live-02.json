@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "started_at_utc": "2026-10-18T13:39:53.333531+00:00",
+  "implementation": "original MIT booking_lab",
+  "environment": "AWS CloudShell CCS",
+  "payments": "synthetic HTTP provider backed by PostgreSQL; no money moved",
+  "evaluation_kind": "live_bedrock_database_e2e",
+  "cases": [
+    {
+      "name": "bedrock_missing_amount_rejected_without_plan_or_writes",
+      "result": "passed",
+      "duration_seconds": 2.56
+    },
+    {
+      "name": "bedrock_create_plan_requires_explicit_approval_before_writes",
+      "result": "passed",
+      "duration_seconds": 1.849
+    },
+    {
+      "name": "bedrock_approved_plan_provider_outage_resume_without_new_inference_or_double_charge",
+      "result": "passed",
+      "duration_seconds": 2.848
+    },
+    {
+      "name": "bedrock_read_only_plan_lists_created_booking_with_subject_isolation",
+      "result": "passed",
+      "duration_seconds": 1.933
+    },
+    {
+      "name": "bedrock_cancel_plan_requires_new_approval_and_refunds_once",
+      "result": "passed",
+      "duration_seconds": 2.168
+    },
+    {
+      "name": "bedrock_postgresql_quiescent_snapshot_and_exact_restore",
+      "result": "passed",
+      "duration_seconds": 4.751
+    },
+    {
+      "name": "bedrock_workflow_signed_audit_and_terminal_database_invariants",
+      "result": "passed",
+      "duration_seconds": 0.817
+    }
+  ],
+  "repository_commit": "883142537fae55695f86327c3ff01e41abe9dd9d",
+  "working_tree_dirty": false,
+  "live_bedrock_opt_in": true,
+  "resource_limit_capabilities": {
+    "MemoryLimit": false,
+    "CpuCfsQuota": true,
+    "PidsLimit": true
+  },
+  "resource_limits_available": false,
+  "base_images": {
+    "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea": [
+      "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea"
+    ],
+    "python@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f": [
+      "python@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f"
+    ]
+  },
+  "app_image_id": "sha256:9fb53060e77e2107b6507d04931344788f93705595308f476d104462aed5e771",
+  "source_sha256": {
+    ".dockerignore": "7ba9125ab3e191d2d51e111f6d7d6c26ee19c34e91e8e8036d806011cec61725",
+    "AUDIT.md": "3172e3e519a87ee23787547a509457d6d15a9cbaa9ad1d22ae18f1978117d313",
+    "Dockerfile": "7d5909956960b257e8f9ac5664e2771dedf160735e658be3f337096ba1c07517",
+    "README.md": "201b6aeea76aff5d4090b04fcf8b7c798948a6e2a59a60eea154013baedcf7fe",
+    "agent.py": "230544cf9c28eaee8966b6cf3e3aa80e0916b7cff57ac1490d4f50c3579bd7e7",
+    "approval.py": "390a61990347bb90cbe501e59c88cddde6026f5453d84d8a7e2959946d749dfd",
+    "audit.py": "c93fcf7ca9e2aaa237c7f12aa3ca24e00da20530dab0fa1830c0f0dd7dd7d4b7",
+    "audit_verify.py": "45ed7dd1597b80232b4851697e916a736bec37e11a43b2435f25bac198e99cbe",
+    "auth.py": "4271b8cd38408b07fd2487e61cee5ee42ed2b507bc0c6d1188dcf0834376202a",
+    "bedrock_e2e.py": "c0427b5fd02c712c46cc1ee14df1a80703210a90597a0bd6e27951e7f11b858f",
+    "client.py": "957ffb9ee2bab9d9afb4e64e894ef511729333cd4c8740ef339f8203b8ff9369",
+    "http_safety.py": "9ba9315e397ecab5432d01e08495904a926928c4a5827080efea10a8a008b2df",
+    "images.lock.json": "1f61102e10a0e14d4b1cb78bf5c37c1fa47071d526f7cbdea028ef223b1e72a0",
+    "requirements.txt": "281f4fe5b5deb728449e2e3c762b88249931daebc04f65a098c757ac3f37d80f",
+    "run.py": "f5f709ce1941d5758e0c29c25f2c4e4cc9d95c946cc2d256a2b0d7fafe83af47",
+    "schema.sql": "609d859f6db317669ca56a81ad55bbf624e8ced5b133e963c554f920770ae598",
+    "service.py": "325784a8c639139e3eab0eca8d960ed48226200bfd54d9424b6bdfcdea8777e8"
+  },
+  "postgres_version": "16.15",
+  "synchronous_commit": "on",
+  "bedrock": {
+    "model_id": "amazon.nova-micro-v1:0",
+    "model_id_sha256": "864e057ea2b4e0a93f99e3b4aacb7210c2e120d6416f61b535d177533ee97c9b",
+    "region": "us-east-1",
+    "call_budget": 4,
+    "model_calls_attempted": 4,
+    "calls": [
+      {
+        "sequence": 1,
+        "case": "bedrock-missing-amount",
+        "goal": "Prepara una reserva BOG-MDE. No he proporcionado el importe; no lo inventes ni ejecutes ninguna operación.",
+        "goal_sha256": "9038393251063a34b3d9ccf1bec777af69a13732f2e42376339bc248a7c5ff13",
+        "receipt": {
+          "aws_max_attempts": 1,
+          "cli_exit_code": 0,
+          "finished_at_utc": "2026-10-18T13:40:46.549328+00:00",
+          "goal_sha256": "9038393251063a34b3d9ccf1bec777af69a13732f2e42376339bc248a7c5ff13",
+          "max_output_tokens": 512,
+          "metrics": {
+            "latencyMs": 312
+          },
+          "model_id": "amazon.nova-micro-v1:0",
+          "model_id_sha256": "864e057ea2b4e0a93f99e3b4aacb7210c2e120d6416f61b535d177533ee97c9b",
+          "region": "us-east-1",
+          "request_id": null,
+          "request_id_exposure": "not_exposed_by_aws_cli",
+          "response_sha256": "4c9baff28b9fa7395ee7dd5cc1592277d937788650cb591465680af60a579ebf",
+          "schema_version": 1,
+          "semantic_refusal_exact": true,
+          "started_at_utc": "2026-10-18T13:40:44.800621+00:00",
+          "status": "proposal_rejected",
+          "stop_reason": "end_turn",
+          "system_sha256": "fba51c64487e1c59247b9ce542661aa4b8ee809479bf8b03b996c3a711bd065a",
+          "temperature": 1e-05,
+          "transport": "aws-cli-bedrock-runtime-converse",
+          "usage": {
+            "inputTokens": 386,
+            "outputTokens": 7,
+            "totalTokens": 393
+          }
+        },
+        "receipt_sha256": "d7b01ecaf5a9f244799ac52f6a33f3b5677d286adeb40f5a0a7101e86d85e1c5",
+        "acceptance": "expected_semantic_rejection_without_plan"
+      },
+      {
+        "sequence": 2,
+        "case": "bedrock-create",
+        "goal": "Propón crear una reserva BOG-MDE por exactamente 12500 unidades menores sintéticas. La ejecución requiere mi aprobación.",
+        "goal_sha256": "f29dc3d4ee9bdd8cea731eaadc3ae4756e309c3372bd13d112c6efd32c7f5330",
+        "receipt": {
+          "action_sha256": "7f00265b310a0e8b8464c3b86f7ea1723ec70d544a9e94f786b711332c8630fa",
+          "aws_max_attempts": 1,
+          "cli_exit_code": 0,
+          "finished_at_utc": "2026-10-18T13:40:48.245454+00:00",
+          "goal_sha256": "f29dc3d4ee9bdd8cea731eaadc3ae4756e309c3372bd13d112c6efd32c7f5330",
+          "max_output_tokens": 512,
+          "metrics": {
+            "latencyMs": 217
+          },
+          "model_id": "amazon.nova-micro-v1:0",
+          "model_id_sha256": "864e057ea2b4e0a93f99e3b4aacb7210c2e120d6416f61b535d177533ee97c9b",
+          "region": "us-east-1",
+          "request_id": null,
+          "request_id_exposure": "not_exposed_by_aws_cli",
+          "response_sha256": "3c0856639690217c7491aba16d25a159a79f88a0ea643d48a482e3adc758d11f",
+          "schema_version": 1,
+          "semantic_refusal_exact": false,
+          "started_at_utc": "2026-10-18T13:40:46.865886+00:00",
+          "status": "proposal_validated",
+          "stop_reason": "end_turn",
+          "system_sha256": "fba51c64487e1c59247b9ce542661aa4b8ee809479bf8b03b996c3a711bd065a",
+          "temperature": 1e-05,
+          "transport": "aws-cli-bedrock-runtime-converse",
+          "usage": {
+            "inputTokens": 390,
+            "outputTokens": 24,
+            "totalTokens": 414
+          }
+        },
+        "receipt_sha256": "db2209fdbac454347e760f4f43fb758f6c04e5aab3a42455d073c23615421e64",
+        "proposed_action": {
+          "action": "create",
+          "itinerary": "BOG-MDE",
+          "amount": 12500
+        },
+        "expected_action": {
+          "action": "create",
+          "itinerary": "BOG-MDE",
+          "amount": 12500
+        },
+        "acceptance": "exact_fixture_match",
+        "plan_digest": "56e112ae7980282f191a70e95745c85060575a2ed6da35ebcf87107f3eae4c72"
+      },
+      {
+        "sequence": 3,
+        "case": "bedrock-list",
+        "goal": "Consulta y muestra mis reservas actuales sin modificarlas.",
+        "goal_sha256": "bac0417c45a0e59f0a7afe9503d821b47029d090a3e995ef7ee9dce76fd0de27",
+        "receipt": {
+          "action_sha256": "584e7600815c4c752e42f8f3c00aa4bf1597f13bb08ed5de443b33097e1a1751",
+          "aws_max_attempts": 1,
+          "cli_exit_code": 0,
+          "finished_at_utc": "2026-10-18T13:40:52.733829+00:00",
+          "goal_sha256": "bac0417c45a0e59f0a7afe9503d821b47029d090a3e995ef7ee9dce76fd0de27",
+          "max_output_tokens": 512,
+          "metrics": {
+            "latencyMs": 200
+          },
+          "model_id": "amazon.nova-micro-v1:0",
+          "model_id_sha256": "864e057ea2b4e0a93f99e3b4aacb7210c2e120d6416f61b535d177533ee97c9b",
+          "region": "us-east-1",
+          "request_id": null,
+          "request_id_exposure": "not_exposed_by_aws_cli",
+          "response_sha256": "ca9cc20549ba6b9cd02a31538a21b23a41ab2cedcc44b71c289eef10c979e1c4",
+          "schema_version": 1,
+          "semantic_refusal_exact": false,
+          "started_at_utc": "2026-10-18T13:40:51.535520+00:00",
+          "status": "proposal_validated",
+          "stop_reason": "end_turn",
+          "system_sha256": "fba51c64487e1c59247b9ce542661aa4b8ee809479bf8b03b996c3a711bd065a",
+          "temperature": 1e-05,
+          "transport": "aws-cli-bedrock-runtime-converse",
+          "usage": {
+            "inputTokens": 369,
+            "outputTokens": 6,
+            "totalTokens": 375
+          }
+        },
+        "receipt_sha256": "c5adc4981ee1fa97603b3ddcb5f2fcd01bc6bbe37ebd79a42921a6a9d8230333",
+        "proposed_action": {
+          "action": "list"
+        },
+        "expected_action": {
+          "action": "list"
+        },
+        "acceptance": "exact_fixture_match",
+        "plan_digest": "16d28b8364298afba121ecd2076d7ca93e681b5cbc309b81c3c895ebd183f5b4"
+      },
+      {
+        "sequence": 4,
+        "case": "bedrock-cancel",
+        "goal": "Propón cancelar únicamente mi reserva con ID 5eff8764ce8d7a46b6665927565b5aa115ac62ced29db945cf18ebb2240c3aef. Espera mi aprobación para ejecutarlo.",
+        "goal_sha256": "bdf4e7d0d222cfe0dc97584ace9fd5066e89d991a9a6e3ca87818e1a2f5aeeda",
+        "receipt": {
+          "action_sha256": "1d242356d43b4457a4a2af0a54bf7fa64d37eb3164a382cccc1f3bee51c848da",
+          "aws_max_attempts": 1,
+          "cli_exit_code": 0,
+          "finished_at_utc": "2026-10-18T13:40:54.769417+00:00",
+          "goal_sha256": "bdf4e7d0d222cfe0dc97584ace9fd5066e89d991a9a6e3ca87818e1a2f5aeeda",
+          "max_output_tokens": 512,
+          "metrics": {
+            "latencyMs": 360
+          },
+          "model_id": "amazon.nova-micro-v1:0",
+          "model_id_sha256": "864e057ea2b4e0a93f99e3b4aacb7210c2e120d6416f61b535d177533ee97c9b",
+          "region": "us-east-1",
+          "request_id": null,
+          "request_id_exposure": "not_exposed_by_aws_cli",
+          "response_sha256": "19656dcf7100f32fb79cdaabff5475a974902978702fd17e9a89fc7091f5676e",
+          "schema_version": 1,
+          "semantic_refusal_exact": false,
+          "started_at_utc": "2026-10-18T13:40:53.462330+00:00",
+          "status": "proposal_validated",
+          "stop_reason": "end_turn",
+          "system_sha256": "fba51c64487e1c59247b9ce542661aa4b8ee809479bf8b03b996c3a711bd065a",
+          "temperature": 1e-05,
+          "transport": "aws-cli-bedrock-runtime-converse",
+          "usage": {
+            "inputTokens": 430,
+            "outputTokens": 64,
+            "totalTokens": 494
+          }
+        },
+        "receipt_sha256": "bcb7d6e5811c31dbe8fac4657ae7aa5a928be89ec418dd1841ea91547081d242",
+        "proposed_action": {
+          "action": "cancel",
+          "booking_id": "5eff8764ce8d7a46b6665927565b5aa115ac62ced29db945cf18ebb2240c3aef"
+        },
+        "expected_action": {
+          "action": "cancel",
+          "booking_id": "5eff8764ce8d7a46b6665927565b5aa115ac62ced29db945cf18ebb2240c3aef"
+        },
+        "acceptance": "exact_fixture_match",
+        "plan_digest": "be048782129cf8e3a679aad395a905e44a824623c1620def1049fa468a1466f4"
+      }
+    ],
+    "rules_fallback_used": false,
+    "aws_max_attempts_per_call": 1,
+    "raw_cli_debug_used": false,
+    "test_operator_confirmation": "explicit opt-in, exact fixture matching before approval",
+    "test_confirmation_is_human_identity_proof": false,
+    "completed_model_responses": 4,
+    "accepted_positive_plans": 3,
+    "expected_negative_rejections": 1
+  },
+  "bedrock_recovery": {
+    "operation_id": "5eff8764ce8d7a46b6665927565b5aa115ac62ced29db945cf18ebb2240c3aef",
+    "provider_outage_observed": true,
+    "model_calls_before_resume": 2,
+    "model_calls_after_resume": 2,
+    "captures": 1,
+    "state_reused": true
+  },
+  "snapshot_barrier": {
+    "result": "passed",
+    "phase": "verified",
+    "started_at_utc": "2026-10-18T13:40:55.562280+00:00",
+    "stop_order": [
+      "api-a",
+      "api-b",
+      "worker",
+      "payments"
+    ],
+    "drain_polls": 1,
+    "last_drain_counts": {
+      "pending_operations": 0,
+      "undelivered_audit_events": 0
+    },
+    "writers_running_before_dump": {
+      "api-a": false,
+      "api-b": false,
+      "worker": false,
+      "payments": false
+    },
+    "final_queue_counts": {
+      "pending_operations": 0,
+      "undelivered_audit_events": 0
+    },
+    "verified_at_utc": "2026-10-18T13:40:57.999429+00:00"
+  },
+  "restored_table_row_hashes": {
+    "operations": "1b6c5dc6c9ff2b4476dd48d6d58c59cb",
+    "bookings": "96a467d301c8f1cc1941bf558170bfa2",
+    "charges": "1ac192ddd7f590f35367d900f318746a",
+    "outbox": "214ec07c6c8409e74a2c5e065b9a6313",
+    "audit_events": "05f688e00c0d4a2fca7d8c8f0beccd7a",
+    "faults": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "restore_counts_bookings_charges_audit": "1|1|5",
+  "synthetic_dump_sha256": "43954aa307f871b17ed309f91b0a9a0530e4472bcd0b945b002e52c58c14b1cb",
+  "live_workflow_invariants": {
+    "pending_operations": 0,
+    "undelivered_audit_events": 0,
+    "duplicate_captures_or_refunds": 0,
+    "bookings": 1,
+    "terminal_booking": "CANCELLED",
+    "terminal_payment": "REFUNDED",
+    "signed_audit_records": 5
+  },
+  "result": "passed",
+  "finished_at_utc": "2026-10-18T13:41:12.651262+00:00",
+  "test_containers_running": 0
+}

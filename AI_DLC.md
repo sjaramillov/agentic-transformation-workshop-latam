@@ -65,6 +65,25 @@ Para cada unidad:
 4. Revisar el diff y las evidencias del mismo commit. Si se repite ARA/MODA, conservar contexto, alcance, IDs, versión del CLI y hashes. Comparar por pregunta y verificar los hallazgos antes de decidir.
 5. Actualizar `G-traceability.csv` y el registro de decisiones. Un control implementado puede quedar `pendiente de reevaluación ARA` sin alterar el informe histórico.
 
+### Aceptar una ejecución con un LLM real
+
+Cuando una unidad de trabajo incluya el planificador Bedrock, conserva una ejecución específica además del E2E determinista. En una cuenta autorizada con acceso al modelo, desde la raíz del repo:
+
+```bash
+python3 booking_lab/bedrock_e2e.py \
+  --live-bedrock --confirm-test-operator \
+  --model-id amazon.nova-micro-v1:0 --region us-east-1 \
+  --output .local/bedrock-live-01.json
+```
+
+El runner limita el recorrido a cuatro inferencias: tres acciones con argumentos exactos —crear, consultar y cancelar— y un rechazo por importe ausente. Una respuesta inventada, inválida o una falla de acceso detienen la aceptación, sin fallback a reglas ni aprobación del plan inesperado. Las escrituras exigen aprobación y el ensayo recupera una caída del proveedor con el mismo plan, sin volver a inferir ni cobrar.
+
+`--confirm-test-operator` habilita una confirmación automatizada y acotada al fixture. Es evidencia del contrato de aprobación aplicado por el controlador/API; la validación de decisiones de producto y la identidad humana del aprobador siguen siendo responsabilidades independientes. Usa [la demo interactiva](AGENTE_EJECUTABLE.md) para una revisión manual de las propuestas.
+
+Registra el recibo que pasó, el commit, modelo/región, hashes, uso/latencia devueltos, casos negativos y resultados de DB. La CLI individual permite guardar un recibo privado con `--planner-evidence` al planificar. Cada repetición usa un archivo de salida nuevo; conserva también fallos e intentos incompletos. Las instrucciones de [CloudShell](CLOUDSHELL.md) y el índice de [evidencia Bedrock](evidence/bedrock/README.md) vinculan ejecución y procedencia.
+
+Esta aceptación comprueba un conjunto acotado de intenciones y controles. La calidad con usuarios, otras formulaciones, carga y costo por caso requiere el experimento definido en la ficha de valor. La [evidencia histórica del 18 de octubre](evidence/agent-workshop/README.md) conserva su alcance de `rules` y no se convierte en una inferencia real por incorporar este runner.
+
 **Prompt para el agente de desarrollo:**
 
 > Trabaja en la unidad aprobada y enlaza cada cambio con su requisito. Muestra el plan y los archivos afectados. Conserva identidad, autorización, claves de idempotencia y estado durable. Implementa y ejecuta las pruebas de aceptación, incluidas las negativas. Entrega diff, comandos, resultado, commit y riesgos pendientes; no marques aprobado un requisito sin evidencia correspondiente.
@@ -88,7 +107,7 @@ El laboratorio opera contenedores y datos sintéticos, conserva recibos y prueba
 | --- | --- |
 | Se reprodujo el flujo técnico | Recibo E2E, casos/invariantes y hashes de la versión |
 | El agente respeta una aprobación concreta | Pruebas negativas de la API y del agente, más prueba positiva sobre DB |
-| Un planificador Bedrock funcionó | Recibo de una llamada real, modelo/región y resultado revisado; los tests con respuestas simuladas cubren el contrato |
+| Un planificador Bedrock funcionó en el recorrido acotado | [Recibo real](evidence/bedrock/README.md) con modelo/región, tres acciones exactas, rechazo semántico y DB; los tests con respuestas simuladas conservan su alcance de contrato |
 | Se cerró un hallazgo ARA/MODA | Informe nuevo del mismo alcance y revisión de la evidencia; el informe histórico mantiene su fecha y commit |
 | Se obtuvo valor para el negocio | Línea base y resultados medidos con usuarios, costos y guardas de calidad |
 | Se puede operar en producción | Diseño, despliegue y validación específica del entorno aceptados por sus responsables |

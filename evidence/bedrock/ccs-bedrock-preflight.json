@@ -1,0 +1,26 @@
+{
+  "checked_at_utc": "2026-10-18T13:30:09.755450+00:00",
+  "environment": "AWS CloudShell CCS",
+  "intended_account_verified_privately": true,
+  "region": "us-east-1",
+  "model_id": "amazon.nova-micro-v1:0",
+  "model_availability": {
+    "modelId": "amazon.nova-micro-v1",
+    "agreementAvailability": {
+      "status": "AVAILABLE"
+    },
+    "authorizationStatus": "AUTHORIZED",
+    "entitlementAvailability": "AVAILABLE",
+    "regionAvailability": "AVAILABLE"
+  },
+  "python": "3.13.15",
+  "aws_cli": "aws-cli/2.38.0 Python/3.14.6 Linux/6.1.188-233.385.amzn2023.x86_64 exec-env/CloudShell exe/x86_64.amzn.2023",
+  "docker_capabilities": {
+    "Driver": "vfs",
+    "MemoryLimit": false,
+    "CpuCfsQuota": true,
+    "PidsLimit": true
+  },
+  "custom_endpoint_environment_variables_present": false,
+  "preparation_commit": "b408c24453370b0ad984c257b7220530e11caed7"
+}

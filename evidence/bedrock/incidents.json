@@ -1,0 +1,30 @@
+{
+  "incidents": [
+    {
+      "id": "BEDROCK-LIST-01",
+      "observed_in": "bedrock-live-01.json",
+      "classification": "observed live model rejection",
+      "goal": "Consulta y muestra mis reservas actuales sin modificarlas.",
+      "response_semantics": {
+        "action": "unsupported"
+      },
+      "model_transport_succeeded": true,
+      "fix_commit": "883142537fae55695f86327c3ff01e41abe9dd9d",
+      "fix": "Action-specific requirements in system instructions and explicit temperature=0.00001; same goals and exact-action validation retained.",
+      "acceptance_receipts": [
+        "bedrock-live-02.json",
+        "bedrock-live-03.json"
+      ],
+      "single_factor_causal_effect_established": false
+    },
+    {
+      "id": "CLEANUP-VERIFY-02",
+      "classification": "code-review finding; not an observed container leak",
+      "problem": "A failed Docker inspect could be counted as stopped; cleanup errors did not fail the accepted result.",
+      "independent_check_of_run_02": "bedrock-cleanup-02.json",
+      "fix_commit": "aa7bb87573e0655ec263e7962bf83fe7656f6cfd",
+      "fix": "Require successful stop/inspect, retain unknown as null, preserve original failure, exit nonzero on cleanup/retention failure; 13 regression tests.",
+      "acceptance_receipt": "bedrock-live-03.json"
+    }
+  ]
+}

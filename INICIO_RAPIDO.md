@@ -44,3 +44,7 @@ Sigue [la guía completa](GUIA_REPLICACION.md). Para ejecutar ARA/MODA reales, p
 ## Resultado esperado
 
 Un participante puede clonar, ejecutar, cambiar el servicio, demostrar una corrección con DB, medir con Transform y comparar los resultados usando recursos públicos. Los resultados generados en su cuenta se guardan en `.local/` para revisarlos antes de publicarlos. Eso no limita la disponibilidad del código fuente.
+
+## Probar también el modelo real
+
+El [recorrido Bedrock del agente](AGENTE_EJECUTABLE.md) pasó en CCS con Nova Micro y PostgreSQL. La [evidencia pública](evidence/bedrock/README.md) incluye siete casos, cuatro inferencias, el fallo inicial y su corrección. Este recorrido requiere credenciales AWS y acceso al modelo; el inicio rápido anterior funciona con el planificador determinista.

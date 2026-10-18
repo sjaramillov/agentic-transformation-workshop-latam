@@ -1,0 +1,135 @@
+{
+  "verified_at_utc": "2026-10-18T13:50:39.612345+00:00",
+  "source_commit": "aa7bb87573e0655ec263e7962bf83fe7656f6cfd",
+  "method": "Downloaded CCS receipts; compared source blobs with git show, canonical sidecar/goal/system/action hashes, actual case names, workflow invariants, restore and cleanup. CI artifact receipts verified independently.",
+  "live_bedrock_invoked": true,
+  "model_id": "amazon.nova-micro-v1:0",
+  "region": "us-east-1",
+  "runs": [
+    {
+      "receipt": "bedrock-live-01.json",
+      "sha256": "51ab53dbb833dd160733256bf8519bd9fa6c7c59c28015eb948d986af59fabf1",
+      "source_commit": "62a990ef0fb03cdf2fc7b94c345715e4d86843db",
+      "source_files_verified": 17,
+      "source_hashes_match_git": true,
+      "inference_sidecar_hashes_match": true,
+      "prompt_goal_action_hashes_match": true,
+      "result": "failed",
+      "cases_passed": 3,
+      "cases_failed": 1,
+      "model_calls": 3,
+      "usage": {
+        "inputTokens": 512,
+        "outputTokens": 38,
+        "totalTokens": 550
+      },
+      "started_at_utc": "2026-10-18T13:31:28.947230+00:00",
+      "finished_at_utc": "2026-10-18T13:33:04.107620+00:00",
+      "test_containers_running": 0,
+      "cleanup_verified_by_runner": false
+    },
+    {
+      "receipt": "bedrock-live-02.json",
+      "sha256": "85e5f7e9f95fa99fb1be989b8884f8813cdf851755052bdce1a49992bb5981be",
+      "source_commit": "883142537fae55695f86327c3ff01e41abe9dd9d",
+      "source_files_verified": 17,
+      "source_hashes_match_git": true,
+      "inference_sidecar_hashes_match": true,
+      "prompt_goal_action_hashes_match": true,
+      "result": "passed",
+      "cases_passed": 7,
+      "cases_failed": 0,
+      "model_calls": 4,
+      "usage": {
+        "inputTokens": 1575,
+        "outputTokens": 101,
+        "totalTokens": 1676
+      },
+      "started_at_utc": "2026-10-18T13:39:53.333531+00:00",
+      "finished_at_utc": "2026-10-18T13:41:12.651262+00:00",
+      "test_containers_running": 0,
+      "cleanup_verified_by_runner": false
+    },
+    {
+      "receipt": "bedrock-live-03.json",
+      "sha256": "3b040a036f91c245a660c169dcf5d4d675ea0327cdbfbac794e601de3e267d08",
+      "source_commit": "aa7bb87573e0655ec263e7962bf83fe7656f6cfd",
+      "source_files_verified": 17,
+      "source_hashes_match_git": true,
+      "inference_sidecar_hashes_match": true,
+      "prompt_goal_action_hashes_match": true,
+      "result": "passed",
+      "cases_passed": 7,
+      "cases_failed": 0,
+      "model_calls": 4,
+      "usage": {
+        "inputTokens": 1578,
+        "outputTokens": 104,
+        "totalTokens": 1682
+      },
+      "started_at_utc": "2026-10-18T13:47:19.155090+00:00",
+      "finished_at_utc": "2026-10-18T13:48:23.420815+00:00",
+      "test_containers_running": 0,
+      "cleanup_verified_by_runner": true
+    }
+  ],
+  "total_model_calls_across_all_runs": 11,
+  "first_three_goals_unchanged_across_runs": true,
+  "prompt_and_temperature_unchanged_between_passed_runs": true,
+  "request_ids_available": false,
+  "independent_provider_attestation": false,
+  "unit_tests": 112,
+  "unit_tests_in_ccs": "passed",
+  "private_unit_log_sha256": "d2f37a0851a5db7fae9ddf8dfca16b04c963046c7eb60ccf05c9411bf8a674e6",
+  "ci": {
+    "run_id": 39133062523,
+    "url": "https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/39133062523",
+    "source_commit": "aa7bb87573e0655ec263e7962bf83fe7656f6cfd",
+    "result": "success",
+    "jobs": [
+      {
+        "name": "database-e2e (1)",
+        "conclusion": "success"
+      },
+      {
+        "name": "public-checks (ubuntu-latest, 3.14)",
+        "conclusion": "success"
+      },
+      {
+        "name": "public-checks (macos-latest, 3.11)",
+        "conclusion": "success"
+      },
+      {
+        "name": "database-e2e (2)",
+        "conclusion": "success"
+      },
+      {
+        "name": "public-checks (macos-latest, 3.14)",
+        "conclusion": "success"
+      },
+      {
+        "name": "public-checks (ubuntu-latest, 3.11)",
+        "conclusion": "success"
+      }
+    ],
+    "database_repetitions": [
+      {
+        "receipt": "database-e2e-1.json",
+        "sha256": "ff55e564aa9e4afe21e057b45ffea112bc2717d0c8b158af16b9b08d3db65e91",
+        "passed_cases": 28,
+        "source_files_verified": 17,
+        "cleanup_verified": true
+      },
+      {
+        "receipt": "database-e2e-2.json",
+        "sha256": "3c8e55b669ba8d0edad9d86d4df96a56338afdc4acc49cee24a7186339ca5131",
+        "passed_cases": 28,
+        "source_files_verified": 17,
+        "cleanup_verified": true
+      }
+    ]
+  },
+  "new_ara_moda_executed": false,
+  "business_outcome_measured": false,
+  "payments_synthetic": true
+}

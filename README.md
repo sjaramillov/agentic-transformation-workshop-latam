@@ -41,7 +41,7 @@ Necesitas Python 3.11+ y Docker en Linux/macOS; en Windows, WSL con Docker acces
 
 ## Estado de reproducción
 
-La versión ampliada pasó **28/28 escenarios E2E con PostgreSQL en dos ejecuciones independientes**, **86 pruebas automatizadas** y los seis trabajos de CI. Se comprobó también desde un clon público nuevo. La [evidencia vigente](evidence/agent-workshop/README.md) vincula el agente, la aprobación que valida la API, la recuperación, el código y los resultados. La [auditoría E2E](AUDITORIA_E2E.md) y el [laboratorio completo](LABORATORIO_MIT.md) explican cómo repetirlos.
+La versión actual pasó **112 pruebas automatizadas**, **28/28 escenarios E2E con PostgreSQL en dos ejecuciones independientes** y los seis trabajos de CI. Además, desde un clon público en **CCS**, el agente pasó **7/7 casos con cuatro inferencias reales de Amazon Nova Micro en Bedrock**: rechazo por importe ausente, creación, consulta, cancelación, aprobaciones, recuperación y restauración. La [evidencia Bedrock](evidence/bedrock/README.md) conserva el fallo inicial, la corrección y la ejecución aceptada con sus commits y hashes. La [evidencia determinista anterior](evidence/agent-workshop/README.md), la [auditoría E2E](AUDITORIA_E2E.md) y el [laboratorio completo](LABORATORIO_MIT.md) explican las capas y cómo repetirlas.
 
 Como referencia fechada, la versión del **16 de octubre de 2026** pasó **18 escenarios E2E en CCS** y ARA pasó de **1 a 0 bloqueadores**, con clasificación **Pilot-Ready (Safety Concerns)**. La [comparación ARA/MODA](CCS_E2E.md) y la [evidencia de DB](CCS_DATABASE_E2E.md) conservan sus commits y riesgos. Los informes corresponden a esa versión; los nuevos controles del agente requieren una nueva evaluación para atribuirles cierres ARA/MODA.
 

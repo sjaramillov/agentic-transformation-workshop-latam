@@ -54,6 +54,28 @@ Continúa en [Ejecución AWS](EJECUCION_AWS.md). Usa Actions → Download file p
 
 CloudShell tiene almacenamiento acotado. Si un build falla por espacio, inspecciona `df -h` y `docker system df`; elimina únicamente recursos de una práctica que hayas decidido descartar. El runner conserva sus datos de revisión y no ejecuta un prune global.
 
+## 5. Valida el agente con Bedrock real, de forma explícita
+
+Este recorrido usa Bedrock Converse y el laboratorio PostgreSQL; no necesita ATX. La suite determinista anterior continúa funcionando sin inferencias. Para la ejecución real necesitas Python 3.11+, Docker, AWS CLI y credenciales con `bedrock:InvokeModel` sobre el modelo o perfil elegido. Revisa la [referencia de Converse](https://docs.aws.amazon.com/cli/latest/reference/bedrock-runtime/converse.html) y comprueba la identidad de tu sesión en privado. Un preflight de acceso verifica permisos, no demuestra que el flujo haya pasado.
+
+Desde la raíz del clon público, con acceso a `amazon.nova-micro-v1:0` en `us-east-1`:
+
+```bash
+LAB_EVIDENCE_ENV='AWS CloudShell CCS' \
+python3 booking_lab/bedrock_e2e.py \
+  --live-bedrock --confirm-test-operator \
+  --model-id amazon.nova-micro-v1:0 --region us-east-1 \
+  --output .local/bedrock-live-01.json
+```
+
+`LAB_EVIDENCE_ENV` es una etiqueta opcional para el recibo; usa el nombre de tu entorno. El runner requiere las dos opciones explícitas, crea recursos sintéticos aislados, realiza **hasta cuatro inferencias** y no cambia a `rules` si el modelo falla. Limita cada llamada a un intento y solicita como máximo 512 tokens de salida. Conserva el rechazo por importe ausente y exige tres planes exactos para crear, consultar y cancelar. La recuperación de una caída del proveedor reutiliza el plan y la clave originales sin otra inferencia.
+
+`--confirm-test-operator` habilita el aprobador automatizado del caso de prueba. Solo confirma propuestas iguales a las esperadas; no acredita una identidad humana independiente. Para revisar y aprobar manualmente las propuestas, utiliza la [demo interactiva del agente](AGENTE_EJECUTABLE.md).
+
+La aceptación requiere `result: passed`, los casos aprobados, cuatro respuestas completas, tres planes positivos exactos, un rechazo semántico esperado, ninguna llamada a `rules`, invariantes de DB/auditoría satisfechas y cierre verificado (`cleanup.result: passed`, `all_stopped_verified: true`, `unknown_count: 0`, `test_containers_running: 0`). Consulta el contrato y el contenido del recibo en [la guía del agente](AGENTE_EJECUTABLE.md) y los resultados fechados en [evidencia Bedrock](evidence/bedrock/README.md).
+
+El comando consume servicios AWS. Usa **un archivo de salida nuevo para cada repetición** (`bedrock-live-02.json`, etc.); los recibos existentes se preservan. Los estados, sesión y recibos individuales de `--planner-evidence` permanecen en el directorio privado de la práctica. El JSON final reúne los campos de evidencia seleccionados; revísalo antes de compartirlo. No publiques claves, sesiones ni logs de depuración del CLI.
+
 ## Repetir sin agotar el disco de CloudShell
 
 En CCS se observó el driver Docker `vfs`: los contenedores detenidos conservan copias completas de capas y el uso físico puede superar lo que parece indicar `docker system df`. Tras guardar y revisar una corrida, libera únicamente sus contenedores detenidos con el manifiesto que imprimió el runner:

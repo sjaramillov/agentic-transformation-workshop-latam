@@ -1,4 +1,9 @@
-Local-only archive (not committed to the public repository):
+Optional historical event capture — 2026-10-15:
+This archive is retained locally as a historical reference and is not required
+to reproduce the workshop. The complete original MIT implementation is public
+in booking_lab/; see INICIO_RAPIDO.md and booking_lab/README.md.
+
+Historical archive identity (archive not committed to this repository):
   agentic-workshop-materials-2026-10-15.tar.gz
   SHA-256: adb4440ce3a709a2b4f6718beb1115bf56f443c82b4cce8200b7d867b47271ce
 

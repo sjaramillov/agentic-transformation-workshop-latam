@@ -1,4 +1,6 @@
-# Diagramas del módulo J
+# Referencia histórica: diagramas del módulo J del evento
+
+Los seis tableros originales de la réplica están publicados en [la galería de diagramas](../diagramas/README.md), con sus archivos SVG. Esta página conserva referencias de la captura del evento; esos recursos externos no son necesarios para ejecutar el workshop público.
 
 La sección final del taller enlaza cinco diagramas para presentar el modelo operativo. Durante la captura, sus enlaces abrieron una página de Workshop Studio con error “Page not found”; por eso este directorio no incluye PNG originales. Los títulos, rutas y conceptos del texto de la página quedan anotados aquí.
 

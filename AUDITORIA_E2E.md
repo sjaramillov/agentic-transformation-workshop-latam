@@ -1,6 +1,6 @@
 # Verificación del workshop público
 
-**Versión ampliada comprobada:** [28/28 escenarios E2E con PostgreSQL en dos ejecuciones y 86 pruebas públicas](evidence/agent-workshop/README.md), con código, artefacto de CI y clon público vinculados a una revisión. El índice distingue ejecución del agente, contrato Bedrock y evaluación histórica ARA/MODA.
+**Versión actual comprobada:** [112 pruebas, 28/28 escenarios E2E deterministas en dos ejecuciones y 7/7 casos con Bedrock real en CCS](evidence/bedrock/README.md). Cada capa conserva su fuente, fecha y alcance; la [evidencia determinista anterior](evidence/agent-workshop/README.md) sigue disponible.
 
 La aceptación del recorrido ampliado distingue estas capas:
 
@@ -8,6 +8,7 @@ La aceptación del recorrido ampliado distingue estas capas:
 | --- | --- | --- |
 | Materiales y herramientas | `python3 -m unittest discover -s tests -v` | CI pública, enlaces y preparación desde Git |
 | Agente y contrato con PostgreSQL | `python3 booking_lab/run.py e2e --output .local/db-e2e.json` | JSON y artefactos `database-e2e-evidence-1` y `database-e2e-evidence-2` de cada ejecución de CI; referencia anterior en [CCS_DATABASE_E2E.md](CCS_DATABASE_E2E.md) |
+| Agente con Bedrock real y PostgreSQL | `python3 booking_lab/bedrock_e2e.py --live-bedrock --confirm-test-operator --model-id amazon.nova-micro-v1:0 --region us-east-1 --output .local/bedrock-live-01.json` | [Recibos en CCS](evidence/bedrock/README.md): cuatro inferencias, siete casos, fallo inicial y corrección |
 | Evaluación de AWS Transform | [Ejecución AWS](EJECUCION_AWS.md) | [CCS_E2E.md](CCS_E2E.md), informes históricos del 16 de octubre con sus commits |
 | Hipótesis de negocio | [Ficha de valor](FICHA_VALOR.md) y [AI-DLC](AI_DLC.md) | Línea base y resultado medidos por cada equipo; el caso incluido es ilustrativo |
 
@@ -28,9 +29,9 @@ La suite de base de datos incluye los 18 casos originales y diez casos adicional
 - Reiniciar la API después de un cobro confirmado por el proveedor: recuperar sin volver a cobrar.
 - Cancelar con aprobación nueva y repetir: un reembolso.
 
-El resultado aceptable tiene `result: passed`, todos los casos aprobados, cinco invariantes en cero y `test_containers_running: 0`. `source_sha256` vincula el recibo al código y `repository_commit` registra la revisión. La CI ejecuta la suite unitaria en Linux/macOS con Python 3.11/3.14 y dos repeticiones independientes del E2E de DB en Linux. La barrera `snapshot_barrier` debe estar aprobada, con los escritores detenidos y las colas vacías antes del backup.
+El resultado aceptable tiene `result: passed`, todos los casos aprobados, cinco invariantes en cero y cierre comprobado (`cleanup.result: passed`, `cleanup.unknown_count: 0` y `test_containers_running: 0`). Un error al detener o inspeccionar recursos hace fallar el runner y conserva la evidencia. `source_sha256` vincula el recibo al código y `repository_commit` registra la revisión. La CI ejecuta la suite unitaria en Linux/macOS con Python 3.11/3.14 y dos repeticiones independientes del E2E de DB en Linux. La barrera `snapshot_barrier` debe estar aprobada, con los escritores detenidos y las colas vacías antes del backup.
 
-El modo comprobado por la suite es `rules`: las llamadas HTTP, la persistencia y las fallas son reales en el entorno sintético. El adaptador Bedrock tiene pruebas de contrato con respuestas controladas; estas no representan una inferencia real ni una evaluación de calidad de modelos. La propuesta final siempre exige revisión para escribir.
+La suite habitual comprueba `rules`: las llamadas HTTP, la persistencia y las fallas son reales en el entorno sintético. Las pruebas unitarias de Bedrock usan respuestas controladas. Además, el runner independiente `bedrock_e2e.py` pasó con **Amazon Nova Micro real en CCS**: tres planes exactos y un rechazo semántico esperado, sin fallback a reglas. Sus [recibos](evidence/bedrock/README.md) incluyen DB, restauración y recuperación sin otra inferencia. Esta prueba acotada no mide calidad general del modelo. Escribir requiere aprobación; el E2E usa un aprobador automatizado limitado a sus fixtures sintéticos.
 
 La revisión adversarial añadió regresiones para proxies y redirecciones, respuestas con otra reserva, aprobación vencida en tránsito y retiro después del envío. El E2E registra confirmaciones explícitas de un operador de prueba; no acredita identidad humana independiente del emisor local.
 

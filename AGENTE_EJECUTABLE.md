@@ -7,7 +7,7 @@ Este agente de workflow convierte un objetivo en una acción permitida, muestra 
 | `rules` — predeterminado | `create BOG-MDE 12500`, `list`, `cancel ID` | Python 3.11+ y el laboratorio Docker | Flujo determinista reproducible con DB y herramientas HTTP reales; no invoca un LLM |
 | `bedrock` — opcional | Objetivo en lenguaje natural | AWS CLI, credenciales y un modelo compatible elegido por ti | El LLM propone una acción; el mismo controlador valida, pide aprobación y ejecuta |
 
-La validación automatizada con PostgreSQL utiliza `rules`. El contrato del adaptador Bedrock se prueba con respuestas controladas. Una llamada real a Bedrock necesita su propio recibo de ejecución y no se da por realizada a partir de esas pruebas.
+La suite habitual `booking_lab/run.py e2e` utiliza `rules`. La [validación del 18 de octubre](evidence/agent-workshop/README.md) conserva ese alcance y sus pruebas de contrato del adaptador Bedrock con respuestas controladas. La sección 7 permite ejecutar una validación distinta con inferencias reales y recibo propio; sus resultados se consultan en [evidencia Bedrock](evidence/bedrock/README.md).
 
 ## 1. Inicia la aplicación
 
@@ -91,18 +91,55 @@ export AWS_REGION=us-east-1
 python3 booking_lab/agent.py --session "$DEMO_SESSION" \
   --state .local/bedrock-001.json --planner bedrock \
   --model-id "$BEDROCK_MODEL_ID" --region "$AWS_REGION" \
+  --planner-evidence .local/bedrock-001-planner.json \
   --goal 'Propón una reserva BOG-MDE por 12500 unidades sintéticas' run
 ```
 
 Se envían únicamente el objetivo y el esquema permitido. El modelo puede proponer `list`, `create` o `cancel`; no elige identidad, URL, cabeceras, código ni permisos. JSON inválido, campos adicionales, importes inválidos y acciones desconocidas se rechazan. Una falla del modelo termina sin ejecutar una escritura ni cambiar silenciosamente de planificador. La propuesta siempre necesita revisión humana antes de escribir, incluso si tiene estructura válida.
 
-## 7. Verifica y cierra
+`--planner-evidence` crea un recibo JSON privado adicional, con modo 0600. Registra modelo/región, tiempos, hashes del objetivo, prompt de sistema y respuesta, estado de validación, código de salida del CLI y los tokens/latencia que devuelva Bedrock. Conserva `request_id: null` si el CLI no expone ese dato. No incluye claves ni el stderr de AWS. El archivo debe ser nuevo y distinto de la sesión y del estado; la opción se usa con `plan` o `run` y planificador `bedrock`. Revisa el recibo antes de publicarlo.
+
+## 7. Ejecuta el E2E con Bedrock real y PostgreSQL
+
+Este recorrido necesita AWS CLI, Docker, Python 3.11+ y acceso al modelo elegido. Invoca Bedrock y puede generar consumo facturable. El ejemplo elige `amazon.nova-micro-v1:0` en `us-east-1`; comprueba que tu cuenta tenga acceso antes de ejecutarlo. El runner [bedrock_e2e.py](booking_lab/bedrock_e2e.py) crea su propio laboratorio; no requiere mantener abierta la demo de las secciones anteriores.
+
+Desde la raíz del repo:
+
+```bash
+python3 booking_lab/bedrock_e2e.py \
+  --live-bedrock --confirm-test-operator \
+  --model-id amazon.nova-micro-v1:0 --region us-east-1 \
+  --output .local/bedrock-live-01.json
+```
+
+La ejecución del **18 de octubre de 2026 en CCS** pasó **7/7 casos con cuatro inferencias reales**; el [registro público](evidence/bedrock/README.md) incluye el rechazo incorrecto de consulta del primer intento y la corrección.
+
+Ambas opciones de autorización son necesarias. `--live-bedrock` habilita **hasta cuatro llamadas reales** a Converse: un intento por llamada, sin reintentos automáticos del CLI, con un máximo de 512 tokens de salida solicitado por llamada y sin fallback a `rules`. El adaptador solicita `temperature=0.00001`, el mínimo documentado de Nova, sin prometer determinismo del modelo. Una falla detiene el recorrido y conserva la evidencia; no se repite la inferencia para buscar una respuesta favorable.
+
+`--confirm-test-operator` activa un **aprobador de fixture sintético**. El runner compara la acción del modelo con la acción exacta esperada y solo entonces envía `APROBAR <digest>` a la CLI. Esta confirmación comprueba el contrato de aprobación y su aplicación en la API; no acredita una identidad humana independiente del emisor didáctico. La demo interactiva de la sección 6 conserva la revisión manual de cada propuesta.
+
+| Inferencia | Intención en lenguaje natural | Aceptación requerida |
+| --- | --- | --- |
+| 1. Importe ausente | Preparar BOG-MDE sin proporcionar importe y sin inventarlo | Respuesta exacta `{"action":"unsupported"}`; rechazo antes de crear plan, reserva o cobro |
+| 2. Crear | Proponer BOG-MDE por exactamente 12500 unidades menores sintéticas | Acción `create` con esos dos valores exactos; sin aprobación no hay efectos |
+| 3. Consultar | Mostrar las reservas actuales sin modificarlas | Acción `list`; resultado HTTP con la reserva creada y aislamiento por sujeto |
+| 4. Cancelar | Proponer cancelar únicamente el ID creado y esperar aprobación | Acción `cancel` con ese ID exacto; aprobación nueva y un solo reembolso |
+
+Si el modelo inventa el importe del caso negativo o propone otra acción, el recorrido falla y no la aprueba. Un JSON rechazado por formato o una indisponibilidad de AWS tampoco se contabilizan como rechazo semántico correcto.
+
+Después de aprobar la creación, la prueba interrumpe el proveedor de pagos y reanuda desde el mismo estado persistido. Comprueba la recuperación **sin una inferencia adicional ni otro cobro**. También compara una restauración PostgreSQL con una instantánea consistente, verifica auditoría firmada y revisa las invariantes finales.
+
+Para aceptar una ejecución, exige `result: passed`, todos los casos aprobados, cuatro respuestas de modelo completas, tres planes positivos exactos, un rechazo semántico esperado, `rules_fallback_used: false`, invariantes finales satisfechas, `cleanup.result: passed`, `cleanup.all_stopped_verified: true`, cero estados desconocidos y `test_containers_running: 0`. El cierre registra los resultados de `stop` e `inspect` por contenedor: una inspección fallida no equivale a estar detenido y hace fallar la ejecución. El JSON registra el commit y hashes del código, los recibos de inferencia y los resultados de DB. Un preflight de acceso o una propuesta del modelo por sí solos no cumplen esa aceptación.
+
+**Cada repetición necesita un archivo nuevo**, por ejemplo `.local/bedrock-live-02.json`; el runner rechaza un destino existente. Conserva también las ejecuciones fallidas. Si deseas etiquetar el entorno, antepone `LAB_EVIDENCE_ENV='AWS CloudShell CCS'` al comando; esa etiqueta describe el entorno declarado y no sustituye la evidencia de ejecución.
+
+## 8. Verifica el recorrido determinista y cierra
 
 ```bash
 python3 -m unittest discover -s tests -v
 python3 booking_lab/run.py e2e --output .local/agent-db-e2e.json
 ```
 
-El E2E incluye la CLI real, denegaciones de aprobación en la API, rechazo sin efectos, creación/consulta/cancelación, integridad del plan, aislamiento de sujeto, caída del proveedor y caída de API después de cobrar. Los casos existentes siguen comprobando concurrencia, compensación, auditoría y restauración de PostgreSQL/SQLite. El recibo registra casos, invariantes, hashes y modo del planificador.
+El E2E determinista incluye la CLI real, denegaciones de aprobación en la API, rechazo sin efectos, creación/consulta/cancelación, integridad del plan, aislamiento de sujeto, caída del proveedor y caída de API después de cobrar. Los casos existentes siguen comprobando concurrencia, compensación, auditoría y restauración de PostgreSQL/SQLite. El recibo registra casos, invariantes, hashes y modo del planificador. Este comando y la CI habitual no activan el runner de Bedrock real.
 
 Termina la demo con Ctrl+C en su primera terminal. El runner detiene solo sus contenedores y conserva los archivos privados para revisión. Relaciona el resultado con tu [ficha de valor](FICHA_VALOR.md) y registra la decisión en los [artefactos de AI-DLC](AI_DLC.md).

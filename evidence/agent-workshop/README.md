@@ -50,3 +50,7 @@ python3 scripts/workshop.py prepare --output .local/agent-practice --revision HE
 ```
 
 Conserva commit, hashes, salida y resultado de tu corrida. Un nuevo estado del agente representa una intención nueva; para reanudar, sigue [Agente ejecutable](../../AGENTE_EJECUTABLE.md) y conserva su archivo original.
+
+## Validación posterior con Bedrock real
+
+La [ejecución específica de Bedrock en CCS](../bedrock/README.md) conserva sus propios recibos, commits y fallo corregido. Los resultados y el alcance `rules` de este directorio permanecen como evidencia fechada.

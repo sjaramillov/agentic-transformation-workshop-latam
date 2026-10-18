@@ -29,7 +29,7 @@ class DocumentationTests(unittest.TestCase):
     @staticmethod
     def docs():
         paths=list(ROOT.glob('*.md'))+[ROOT/'evidence/mit/README.md']
-        for folder in ('diagramas','assets','booking_lab','workshop','historico','evidence/agent-workshop','examples'):
+        for folder in ('diagramas','assets','booking_lab','workshop','historico','evidence/agent-workshop','evidence/bedrock','examples'):
             paths.extend((ROOT/folder).rglob('*.md'))
         return paths
 

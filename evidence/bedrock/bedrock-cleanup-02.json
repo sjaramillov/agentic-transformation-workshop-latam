@@ -1,0 +1,15 @@
+{
+  "checked_at_utc": "2026-10-18T13:43:24.633921+00:00",
+  "receipt": "bedrock-live-02.json",
+  "inspect_exit_code": 0,
+  "checked_containers": 6,
+  "all_stopped": true,
+  "states": {
+    "db": false,
+    "audit": false,
+    "payments": false,
+    "api-a": false,
+    "api-b": false,
+    "worker": false
+  }
+}

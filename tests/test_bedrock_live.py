@@ -49,6 +49,27 @@ class PlannerReceiptTests(unittest.TestCase):
         self.assertEqual(runner.call_args.kwargs['env']['AWS_MAX_ATTEMPTS'], '1')
         self.assertNotIn('--debug', runner.call_args.args[0])
 
+    def test_system_distinguishes_read_create_cancel_requirements_without_changing_user_goal(self):
+        goal = 'Consulta y muestra mis reservas actuales sin modificarlas.'
+        self.assertEqual(bedrock_e2e.LIST_GOAL, goal)
+        runner = Mock(return_value=self.response())
+        self.assertEqual(agent.bedrock_plan(goal, 'amazon.nova-micro-v1:0', 'us-east-1',
+                                           runner, evidence_path=self.path), {'action': 'list'})
+        command = runner.call_args.args[0]
+        messages = json.loads(command[command.index('--messages')+1])
+        self.assertEqual(messages, [{'role': 'user', 'content': [{'text': goal}]}])
+        system = json.loads(command[command.index('--system')+1])[0]['text']
+        self.assertIn('List requires no\nbooking_id, itinerary or amount', system)
+        for phrase in ('consulta', 'muestra', 'mis reservas actuales', 'sin modificarlas'):
+            self.assertIn(phrase, system)
+        self.assertIn('If itinerary OR amount is missing, return {"action":"unsupported"}', system)
+        self.assertIn('Cancellation requires no itinerary or amount', system)
+        self.assertIn('Never invent or choose an ID', system)
+        self.assertIn('requires a separate human approval before any write', system)
+        self.assertEqual(json.loads(command[command.index('--inference-config')+1]),
+                         {'maxTokens': 512, 'temperature': 0.00001})
+        self.assertEqual(json.loads(self.path.read_text())['temperature'], 0.00001)
+
     def test_cli_metadata_absence_is_explicit_and_invalid_fields_are_not_published(self):
         response = self.response(usage={'inputTokens': True, 'outputTokens': -1, 'totalTokens': 'ten', 'secret': 'private'},
                                  metrics={'latencyMs': float('inf')},

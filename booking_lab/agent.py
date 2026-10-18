@@ -105,14 +105,36 @@ def rules_plan(goal):
     raise AgentError('Use: list | create BOG-MDE 12500 | cancel <booking-id>; amount is synthetic minor units')
 
 
-BEDROCK_SYSTEM = '''Propose one action for a synthetic booking workshop. Return only one JSON object:
-{"action":"list"} OR {"action":"create","itinerary":"BOG-MDE","amount":12500}
-OR {"action":"cancel","booking_id":"64 lowercase hexadecimal characters"}.
-Amount is an explicit positive integer in synthetic minor units, maximum 10000000.
-Never invent an amount, itinerary or booking ID. If required data are missing or
-the user requests anything else, return {"action":"unsupported"}. Never return
-code, URLs, headers, credentials, approval, subject, multiple actions or prose.
-The controller will validate the proposal and require human approval for writes.'''
+BEDROCK_SYSTEM = '''Interpret an English or Spanish request for a synthetic booking workshop.
+Propose exactly one action. Action-specific requirements are independent:
+
+1. LIST: Reading, consulting, listing or showing the user's existing/current
+bookings means {"action":"list"}. Spanish examples include "consulta", "muestra",
+"listar", "mis reservas actuales" and "sin modificarlas". List requires no
+booking_id, itinerary or amount. Do not reject a read/list request for missing
+these fields. The authenticated controller determines whose bookings are read.
+
+2. CREATE: Proposing or creating a new reservation requires BOTH an explicit
+itinerary in AAA-BBB form AND an explicit positive integer amount in synthetic
+minor units, maximum 10000000. Return only
+{"action":"create","itinerary":"BOG-MDE","amount":12500}, using the user's
+actual explicit values. Never infer an amount from an example or default.
+If itinerary OR amount is missing, return {"action":"unsupported"}.
+
+3. CANCEL: Cancelling a booking requires an explicit booking_id of exactly 64
+lowercase hexadecimal characters. Return only
+{"action":"cancel","booking_id":"the explicit 64-character identifier"}.
+Cancellation requires no itinerary or amount. Never invent or choose an ID.
+
+For other requests or multiple conflicting actions return {"action":"unsupported"}.
+Never return code fences, code, URLs, headers, credentials, approval, subject,
+multiple actions or prose. Return one JSON object only. The controller validates
+the proposal and requires a separate human approval before any write. A request
+to propose an action does not authorize execution.'''
+
+# Nova documents 0.00001 as its minimum temperature; zero is not in that range.
+# A fixed low temperature reduces sampling variation, not model-version drift.
+BEDROCK_TEMPERATURE = 0.00001
 
 
 def _write_planner_receipt(path, receipt):
@@ -141,7 +163,7 @@ def bedrock_plan(goal, model_id, region=None, runner=subprocess.run, *, evidence
                'region': region, 'started_at_utc': datetime.now(timezone.utc).isoformat(),
                'goal_sha256': hashlib.sha256(goal.encode()).hexdigest(),
                'system_sha256': hashlib.sha256(BEDROCK_SYSTEM.encode()).hexdigest(),
-               'aws_max_attempts': 1, 'max_output_tokens': 512,
+               'aws_max_attempts': 1, 'max_output_tokens': 512, 'temperature': BEDROCK_TEMPERATURE,
                'status': 'request_started', 'request_id': None,
                'request_id_exposure': 'not_exposed_by_aws_cli', 'usage': {}, 'metrics': {},
                'semantic_refusal_exact': False}
@@ -149,7 +171,7 @@ def bedrock_plan(goal, model_id, region=None, runner=subprocess.run, *, evidence
     command = ['aws', 'bedrock-runtime', 'converse', '--model-id', model_id,
                '--messages', json.dumps([{'role': 'user', 'content': [{'text': goal}]}]),
                '--system', json.dumps([{'text': BEDROCK_SYSTEM}]),
-               '--inference-config', json.dumps({'maxTokens': 512}),
+               '--inference-config', json.dumps({'maxTokens': 512, 'temperature': BEDROCK_TEMPERATURE}),
                '--output', 'json', '--no-cli-pager', '--no-cli-auto-prompt']
     if region:
         command += ['--region', region]

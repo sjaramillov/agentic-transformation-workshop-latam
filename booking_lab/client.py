@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Operator client for the synthetic workshop; session file is a private issuer fixture."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
 import uuid
-from urllib.request import Request, urlopen
+from urllib.request import Request, ProxyHandler, build_opener
 from urllib.error import HTTPError
 from auth import encode
+from approval import HEADER as APPROVAL_HEADER, canonical, issue as issue_approval
+from agent import NoRedirect
 
 
 def main():
@@ -24,7 +27,9 @@ def main():
     cancel.add_argument('booking_id')
     args=p.parse_args()
     session=json.loads(args.session.read_text())
-    if not re.fullmatch(r'db-lab-[a-f0-9]{10}',session['prefix']) or type(session['port']) is not int:
+    if (not re.fullmatch(r'db-lab-[a-f0-9]{10}',session['prefix']) or type(session['port']) is not int
+            or not 0 < session['port'] < 65536
+            or not isinstance(session.get('approval_key'), str) or len(session['approval_key']) < 32):
         p.error('Invalid workshop session')
     headers={'Authorization':'Bearer '+encode(session['key'],args.subject),'X-Correlation-ID':str(uuid.uuid4())}
     method,path,data='GET','/bookings',None
@@ -36,9 +41,25 @@ def main():
         if not re.fullmatch(r'[a-f0-9]{64}',args.booking_id):
             p.error('Invalid booking ID')
         method,path='DELETE','/bookings/'+args.booking_id
+    if method in ('POST', 'DELETE'):
+        payload = json.loads(data) if data else None
+        proposal = {'subject': args.subject, 'method': method, 'path': path, 'payload': payload,
+                    'request_key': args.key if args.action == 'create' else ''}
+        digest = hashlib.sha256(canonical(proposal)).hexdigest()
+        print(json.dumps({'proposal': proposal, 'digest': digest}, indent=2))
+        try:
+            confirmation = input('Escribe APROBAR '+digest+' para ejecutar: ')
+        except EOFError:
+            confirmation = ''
+        if confirmation.strip() != 'APROBAR '+digest:
+            print(json.dumps({'result': 'rejected', 'writes': 0}))
+            return 2
+        headers[APPROVAL_HEADER] = issue_approval(session['approval_key'], args.subject, method, path,
+                                                 payload, proposal['request_key'])
+    headers['Authorization'] = 'Bearer '+encode(session['key'],args.subject)
     req=Request(f'http://127.0.0.1:{session["port"]}'+path,data=data,headers=headers,method=method)
     try:
-        with urlopen(req,timeout=15) as r:
+        with build_opener(ProxyHandler({}), NoRedirect()).open(req,timeout=15) as r:
             status,body=r.status,json.load(r)
     except HTTPError as e:
         status,body=e.code,json.load(e)

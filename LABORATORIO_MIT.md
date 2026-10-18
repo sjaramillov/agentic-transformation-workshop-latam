@@ -20,6 +20,8 @@ El runner crea nombres únicos, descubre puertos libres y publica la API en `127
 
 ## Explorar el servicio manualmente
 
+Para el recorrido con planificación, aprobación y recuperación usa primero el [agente ejecutable](AGENTE_EJECUTABLE.md). El cliente de operador de esta sección también pide aprobación antes de crear o cancelar; ambos llaman al mismo contrato de API.
+
 En una primera terminal inicia la demo:
 
 ```bash
@@ -37,7 +39,7 @@ python3 booking_lab/client.py --session "$DEMO_SESSION" --subject agent-b list
 python3 booking_lab/client.py --session "$DEMO_SESSION" cancel ID_DE_RESERVA
 ```
 
-Repite `create` con la misma clave y cuerpo para observar el replay. Cambia `--amount` con la misma clave para recibir 409. La lista de agent-b no muestra reservas de agent-a. Termina con Ctrl+C en la primera terminal; los contenedores se detienen y sus datos quedan disponibles para revisión. La demo es interactiva; el comando `e2e` produce la evidencia automatizada.
+Antes de cada escritura el cliente muestra la acción y pide `APROBAR <digest>`. Repite `create` con la misma clave y cuerpo para observar el replay. Cambia `--amount` con la misma clave y aprueba esa propuesta para recibir 409. La lista de agent-b no muestra reservas de agent-a. Termina con Ctrl+C en la primera terminal; los contenedores se detienen y sus datos quedan disponibles para revisión. La demo es interactiva; el comando `e2e` produce la evidencia automatizada.
 
 ## Integridad y atribución
 
@@ -71,14 +73,16 @@ flowchart LR
 | --- | --- | --- |
 | GET `/health/live` | Público local | Proceso atiende |
 | GET `/health/ready` | Público local | DB y tabla de operaciones accesibles; 503 si fallan |
-| POST `/bookings` | `bookings:write` | `{"itinerary":"BOG-MDE","amount":12500}`; requiere `Idempotency-Key`; 201 al confirmar |
+| POST `/bookings` | `bookings:write` | `{"itinerary":"BOG-MDE","amount":12500}`; requiere `Idempotency-Key` y `X-Booking-Approval`; 201 al confirmar |
 | GET `/bookings` | `bookings:read` | Solo reservas del principal autenticado |
 | GET `/bookings/{id}` | `bookings:read` | Detalle propio o 404 |
-| DELETE `/bookings/{id}` | `bookings:cancel` | Cancelación y reembolso; repetir no duplica el reembolso |
+| DELETE `/bookings/{id}` | `bookings:cancel` | Requiere su propia `X-Booking-Approval`; cancelación y reembolso idempotente |
 
 `amount` es entero en unidades mínimas de la moneda del laboratorio. Una clave se delimita por principal y operación; el cuerpo se canoniza y compara por hash. Cambiar el cuerpo con la misma clave da 409. La misma solicitud enviada en paralelo a dos instancias produce una reserva y un cobro. Se conserva la respuesta original del POST después de cancelar; GET muestra el estado actual.
 
 El emisor del laboratorio firma tokens HS256 de cinco minutos con clave aleatoria. La API comprueba firma, algoritmo, issuer, audience, caducidad, activación y scope; no tiene un modo de autenticación desactivada. Este emisor es un fixture local. Una integración externa requiere un proveedor de identidad, gestión de claves, TLS e ingress apropiados. El servidor HTTP de Python es un runtime didáctico; la prueba en CloudShell no certifica exposición pública ni alta disponibilidad.
+
+Además, la API exige una aprobación firmada para cada escritura. [approval.py](booking_lab/approval.py) vincula sujeto, método, ruta, hash del payload y clave idempotente, con vigencia máxima de cinco minutos y clave distinta a JWT. Una autorización ausente, vencida, alterada o dirigida a otra operación devuelve 403 antes de crear intención/cobro. La sesión del operador es el emisor didáctico; la prueba acredita el vínculo de la capacidad y la decisión en la CLI, no identidad independiente de un aprobador. Las llamadas HTTP de cliente, pagos y auditoría rechazan redirecciones y no heredan proxies del sistema.
 
 ## Revisar la evidencia y continuar
 
@@ -88,7 +92,7 @@ El archivo `review.json` privado identifica el prefijo del laboratorio y sus pue
 
 El registro de auditoría autoritativo vive en un servicio y volumen separados, con cadena de hashes y firmas HMAC; PostgreSQL conserva una proyección consultable. El administrador de la DB de reservas no recibe el volumen ni la clave del ledger. La retención, verificación y frontera de confianza están descritas en [AUDIT.md](booking_lab/AUDIT.md). El outbox conserva eventos durante una caída del destino; una caída permanente requiere intervención operativa. El reconciliador debe ejecutarse para resolver estados pendientes, y las garantías del proveedor real deben verificarse antes de sustituir el simulador.
 
-La evaluación de esta implementación y su comparación están en [CCS_E2E.md](CCS_E2E.md). Para repetirla sigue [Ejecución AWS](EJECUCION_AWS.md); el preparador crea las fuentes desde el código público y conserva commit y hashes.
+La evaluación ARA/MODA del **16 de octubre de 2026**, previa al nuevo agente y la aprobación verificada por la API, se conserva en [CCS_E2E.md](CCS_E2E.md). La [auditoría vigente](AUDITORIA_E2E.md) enlaza la aceptación técnica del recorrido ampliado. Para repetir los análisis sigue [Ejecución AWS](EJECUCION_AWS.md); el preparador crea las fuentes desde el código público y conserva commit y hashes.
 
 ## Compatibilidad comprobada con CloudShell
 

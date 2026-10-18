@@ -9,12 +9,14 @@ import threading
 import time
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.request import Request, urlopen
+from urllib.request import Request
 from urllib.error import HTTPError
 import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 from auth import verify
+from approval import HEADER as APPROVAL_HEADER, verify as verify_approval
+from http_safety import direct_open
 
 
 def db(name='DATABASE_URL'):
@@ -41,7 +43,7 @@ def payment(action, op):
     req = Request(os.environ['PAYMENT_URL']+'/'+action, data=data,
                   headers={'Content-Type': 'application/json', 'Authorization': 'Bearer '+os.environ['PAYMENT_TOKEN']})
     try:
-        with urlopen(req, timeout=4) as response:
+        with direct_open(req, timeout=4) as response:
             return json.load(response)
     except HTTPError as e:
         if e.code == 402:
@@ -170,7 +172,7 @@ def deliver():
                 event={k:str(row[k]) for k in ('id','operation_id','principal','correlation_id','event_type','created_at')}
                 request=Request(os.environ['AUDIT_URL']+'/events',data=json.dumps(event).encode(),
                     headers={'Content-Type':'application/json','Authorization':'Bearer '+os.environ['AUDIT_WRITE_TOKEN']})
-                with urlopen(request,timeout=4) as response:
+                with direct_open(request,timeout=4) as response:
                     receipt=json.load(response)
                 if receipt.get('event')!=event:
                     raise RuntimeError('invalid audit receipt')
@@ -232,10 +234,16 @@ class Handler(BaseHTTPRequestHandler):
                         or not 0 < p['amount'] <= 10000000 or not isinstance(p['itinerary'], str)
                         or not re.fullmatch(r'[A-Z]{3}-[A-Z]{3}', p['itinerary'])):
                     raise ValueError()
+                if not verify_approval(self.headers.get(APPROVAL_HEADER, ''), os.environ['APPROVAL_KEY'],
+                                       principal, 'POST', self.path, p, key):
+                    return self.send(403, {'error': 'approval_required_or_invalid'})
                 correlation = uuid.UUID(self.headers.get('X-Correlation-ID', str(uuid.uuid4())))
                 code, body = create(principal, key, p, correlation)
                 return self.send(code, body)
             if self.command == 'DELETE' and self.path != '/bookings':
+                if not verify_approval(self.headers.get(APPROVAL_HEADER, ''), os.environ['APPROVAL_KEY'],
+                                       principal, 'DELETE', self.path):
+                    return self.send(403, {'error': 'approval_required_or_invalid'})
                 return self.send(*cancel(principal, self.path.rsplit('/', 1)[1], uuid.UUID(self.headers.get('X-Correlation-ID', str(uuid.uuid4())))))
             if self.command == 'GET':
                 with db() as c:
@@ -302,6 +310,9 @@ def main():
     else:
         if mode == 'api' and len(os.environ.get('JWT_KEY','')) < 32:
             raise SystemExit('JWT_KEY must contain at least 32 characters')
+        if mode == 'api' and (len(os.environ.get('APPROVAL_KEY', '')) < 32
+                              or os.environ['APPROVAL_KEY'] == os.environ['JWT_KEY']):
+            raise SystemExit('APPROVAL_KEY must contain at least 32 characters and differ from JWT_KEY')
         server = ThreadingHTTPServer(('0.0.0.0',8080), Handler)
         server.mode = mode
         server.serve_forever()

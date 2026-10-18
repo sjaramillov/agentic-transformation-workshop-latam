@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1500" viewBox="0 0 1200 1500" role="img" aria-labelledby="title desc">
+  <title id="title">Qué merece construirse: del problema de negocio a una decisión con evidencia</title>
+  <desc id="desc">Tablero de seis notas adhesivas conectadas. Uno: describir el problema. Dos: acordar una métrica y una hipótesis de valor. Tres: definir la autonomía del agente y la aprobación humana. Cuatro: evaluar preparación técnica con ARA y brechas de modernización con MODA. Cinco: implementar y probar agente, API y PostgreSQL, incluidos fallos y recuperación. Seis: medir el resultado de negocio para continuar, ajustar o detener. Inception comprende las decisiones uno a tres, Construction las cuatro y cinco, Operations la sexta. Las pruebas técnicas verifican comportamiento; el impacto se mide en operación.</desc>
+  <defs>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#dedbd1"/></pattern>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1L8 5L1 9" fill="none" stroke="#6b756e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #17392f; }
+      .eyebrow { font-size: 19px; font-weight: 700; letter-spacing: 2.5px; }
+      .title { font-size: 75px; font-weight: 700; letter-spacing: -2.5px; }
+      .subtitle { font-size: 27px; fill: #52675e; }
+      .number { font-size: 24px; font-weight: 700; }
+      .label { font-size: 18px; font-weight: 700; letter-spacing: 1.5px; }
+      .heading { font-size: 36px; font-weight: 700; letter-spacing: -.7px; }
+      .body { font-size: 25px; }
+      .caption { font-size: 18px; font-weight: 700; letter-spacing: .6px; }
+      .arrow { fill: none; stroke: #6b756e; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1200" height="1500" fill="#f4f2ea"/>
+  <rect x="0" y="278" width="1200" height="1016" fill="url(#dots)"/>
+  <rect x="64" y="54" width="46" height="7" rx="3.5" fill="#ee986e"/>
+  <text x="127" y="66" class="eyebrow">AGENTIC TRANSFORMATION · WORKSHOP ABIERTO</text>
+  <text x="62" y="161" class="title">¿Qué merece construirse?</text>
+  <text x="66" y="211" class="subtitle">Del problema de negocio a una decisión con evidencia.</text>
+  <text x="66" y="250" class="subtitle">Seis preguntas para orientar el trabajo con agentes.</text>
+
+  <!-- The numbering follows the arrows, like a working wall. -->
+  <path d="M555 466H638" class="arrow"/>
+  <path d="M894 613V670" class="arrow"/>
+  <path d="M645 824H562" class="arrow"/>
+  <path d="M310 972V1020" class="arrow"/>
+  <path d="M555 1175H638" class="arrow"/>
+
+  <!-- 01 · Problem -->
+  <g transform="rotate(-.7 310 467)">
+    <rect x="71" y="333" width="490" height="284" rx="3" fill="#263c31" opacity=".09"/>
+    <path d="M65 324H555V588L534 608H65Z" fill="#f9de8b"/>
+    <path d="M534 588H555L534 608Z" fill="#dfc36f"/>
+    <rect x="253" y="312" width="114" height="28" transform="rotate(-3 310 326)" fill="#e4d2ae" opacity=".8"/>
+    <circle cx="105" cy="365" r="21" fill="#17392f"/>
+    <text x="105" y="373" class="number" text-anchor="middle" style="fill:#fffdf7">1</text>
+    <text x="140" y="373" class="label">PROBLEMA</text>
+    <text x="94" y="432" class="heading">¿Qué fricción importa?</text>
+    <text x="94" y="477" class="body">Reservas interrumpidas.</text>
+    <text x="94" y="512" class="body">Reintentos. Trabajo manual.</text>
+    <path d="M94 543H523" stroke="#b89a43" stroke-opacity=".4"/>
+    <text x="94" y="577" class="caption">INCEPTION · CONTEXTO Y USUARIO</text>
+  </g>
+
+  <!-- 02 · Value hypothesis -->
+  <g transform="rotate(.6 890 467)">
+    <rect x="651" y="333" width="490" height="284" rx="3" fill="#263c31" opacity=".09"/>
+    <path d="M645 324H1135V588L1114 608H645Z" fill="#f5c8ad"/>
+    <path d="M1114 588H1135L1114 608Z" fill="#daaa8f"/>
+    <rect x="833" y="312" width="114" height="28" transform="rotate(3 890 326)" fill="#e4d2ae" opacity=".8"/>
+    <circle cx="685" cy="365" r="21" fill="#17392f"/>
+    <text x="685" y="373" class="number" text-anchor="middle" style="fill:#fffdf7">2</text>
+    <text x="720" y="373" class="label">HIPÓTESIS DE VALOR</text>
+    <text x="674" y="432" class="heading">¿Qué queremos mejorar?</text>
+    <text x="674" y="477" class="body">Tiempo para resolver</text>
+    <text x="674" y="512" class="body">una reserva fallida.</text>
+    <path d="M674 543H1103" stroke="#bb8a70" stroke-opacity=".4"/>
+    <text x="674" y="577" class="caption">INCEPTION · MÉTRICA Y OBJETIVO</text>
+  </g>
+
+  <!-- 03 · Agent autonomy -->
+  <g transform="rotate(-.5 890 825)">
+    <rect x="651" y="690" width="490" height="284" rx="3" fill="#263c31" opacity=".09"/>
+    <path d="M645 681H1135V945L1114 965H645Z" fill="#d6e6cb"/>
+    <path d="M1114 945H1135L1114 965Z" fill="#b8cbaa"/>
+    <rect x="833" y="669" width="114" height="28" transform="rotate(-2 890 683)" fill="#e4d2ae" opacity=".8"/>
+    <circle cx="685" cy="722" r="21" fill="#17392f"/>
+    <text x="685" y="730" class="number" text-anchor="middle" style="fill:#fffdf7">3</text>
+    <text x="720" y="730" class="label">AUTONOMÍA</text>
+    <text x="674" y="789" class="heading">¿Qué puede decidir?</text>
+    <text x="674" y="834" class="body">Proponer → aprobar → ejecutar.</text>
+    <text x="674" y="869" class="body">Recuperar sin duplicar cobros.</text>
+    <path d="M674 900H1103" stroke="#89a47a" stroke-opacity=".4"/>
+    <text x="674" y="934" class="caption">INCEPTION · LÍMITES Y RESPONSABLE</text>
+  </g>
+
+  <!-- 04 · Technical readiness -->
+  <g transform="rotate(.7 310 825)">
+    <rect x="71" y="690" width="490" height="284" rx="3" fill="#263c31" opacity=".09"/>
+    <path d="M65 681H555V945L534 965H65Z" fill="#cce3e7"/>
+    <path d="M534 945H555L534 965Z" fill="#abc9ce"/>
+    <rect x="253" y="669" width="114" height="28" transform="rotate(2 310 683)" fill="#e4d2ae" opacity=".8"/>
+    <circle cx="105" cy="722" r="21" fill="#17392f"/>
+    <text x="105" y="730" class="number" text-anchor="middle" style="fill:#fffdf7">4</text>
+    <text x="140" y="730" class="label">ARA + MODA</text>
+    <text x="94" y="789" class="heading">¿Qué falta en el sistema?</text>
+    <text x="94" y="834" class="body">Seguridad de interacción.</text>
+    <text x="94" y="869" class="body">Brechas de modernización.</text>
+    <path d="M94 900H523" stroke="#7fa7af" stroke-opacity=".4"/>
+    <text x="94" y="934" class="caption">CONSTRUCTION · EVALUAR Y PRIORIZAR</text>
+  </g>
+
+  <!-- 05 · Demonstrated technical behavior -->
+  <g transform="rotate(-.5 310 1174)">
+    <rect x="71" y="1039" width="490" height="248" rx="3" fill="#263c31" opacity=".09"/>
+    <path d="M65 1030H555V1258L534 1278H65Z" fill="#e0d8eb"/>
+    <path d="M534 1258H555L534 1278Z" fill="#bfb4cf"/>
+    <rect x="253" y="1018" width="114" height="28" transform="rotate(-3 310 1032)" fill="#e4d2ae" opacity=".8"/>
+    <circle cx="105" cy="1071" r="21" fill="#17392f"/>
+    <text x="105" y="1079" class="number" text-anchor="middle" style="fill:#fffdf7">5</text>
+    <text x="140" y="1079" class="label">IMPLEMENTACIÓN Y PRUEBAS</text>
+    <text x="94" y="1138" class="heading">¿Qué cambio probamos?</text>
+    <text x="94" y="1183" class="body">Agente + API + PostgreSQL.</text>
+    <text x="94" y="1218" class="body">Fallos, reintentos y recuperación.</text>
+    <text x="94" y="1252" class="caption">CONSTRUCTION · EVIDENCIA TÉCNICA</text>
+  </g>
+
+  <!-- 06 · Business outcome to measure -->
+  <g transform="rotate(.7 890 1174)">
+    <rect x="651" y="1039" width="490" height="248" rx="3" fill="#263c31" opacity=".09"/>
+    <path d="M645 1030H1135V1258L1114 1278H645Z" fill="#e6e8ba"/>
+    <path d="M1114 1258H1135L1114 1278Z" fill="#c8cb98"/>
+    <rect x="833" y="1018" width="114" height="28" transform="rotate(2 890 1032)" fill="#e4d2ae" opacity=".8"/>
+    <circle cx="685" cy="1071" r="21" fill="#17392f"/>
+    <text x="685" y="1079" class="number" text-anchor="middle" style="fill:#fffdf7">6</text>
+    <text x="720" y="1079" class="label">RESULTADO DE NEGOCIO</text>
+    <text x="674" y="1138" class="heading">¿Qué valor observamos?</text>
+    <text x="674" y="1183" class="body">Comparar la métrica acordada.</text>
+    <text x="674" y="1218" class="body">Continuar, ajustar o detener.</text>
+    <text x="674" y="1252" class="caption">OPERATIONS · IMPACTO POR MEDIR</text>
+  </g>
+
+  <rect x="65" y="1322" width="1070" height="120" rx="16" fill="#17392f"/>
+  <text x="96" y="1368" style="fill:#fffdf7;font-size:26px;font-weight:700">Las pruebas técnicas verifican comportamiento.</text>
+  <text x="96" y="1407" style="fill:#dce6db;font-size:26px">El impacto de negocio se mide en operación.</text>
+  <text x="66" y="1480" class="caption" style="fill:#52675e">CÓDIGO ORIGINAL MIT · GUÍA EN ESPAÑOL · INFORMES Y PRUEBAS PÚBLICOS</text>
+</svg>

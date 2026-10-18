@@ -13,10 +13,12 @@ import subprocess
 import sys
 import time
 import uuid
-from urllib.request import Request, urlopen
+from urllib.request import Request, ProxyHandler, build_opener
 from urllib.error import HTTPError, URLError
 from auth import encode
+from approval import HEADER as APPROVAL_HEADER, issue as issue_approval
 from audit import verify as verify_audit
+from agent import NoRedirect
 
 ROOT = Path(__file__).resolve().parent
 IMAGES = json.loads((ROOT/'images.lock.json').read_text())
@@ -39,6 +41,7 @@ class Lab:
         self.prefix = self.work.name
         self.envs = {}
         self.key = secrets.token_hex(32)
+        self.approval_key = secrets.token_hex(32)
         self.tokens = {n: encode(self.key,n) for n in ('agent-a','agent-b')}
         self.containers = []
         self.passwords = {n:secrets.token_hex(24) for n in ('postgres','booking_app','payment_app','audit_writer','audit_reader')}
@@ -52,6 +55,10 @@ class Lab:
                          'implementation':'original MIT booking_lab', 'environment':os.environ.get('LAB_EVIDENCE_ENV','local Docker'),
                          'payments':'synthetic HTTP provider backed by PostgreSQL; no money moved',
                          'evaluation_kind':'database_e2e','cases':self.tests}
+        revision = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=ROOT.parent, text=True, capture_output=True)
+        dirty = subprocess.run(['git', 'status', '--porcelain'], cwd=ROOT.parent, text=True, capture_output=True)
+        self.evidence['repository_commit'] = revision.stdout.strip() if revision.returncode == 0 else None
+        self.evidence['working_tree_dirty'] = bool(dirty.stdout.strip()) if dirty.returncode == 0 else None
 
     def sql(self, text, role='postgres', check=True):
         return docker('exec','-i',self.prefix+'-db','psql','-X','-v','ON_ERROR_STOP=1','-U',role,'-d','workshop','-At',data=text,check=check)
@@ -81,7 +88,7 @@ class Lab:
         values = {'DATABASE_URL':f'postgresql://{role}:{self.passwords[role]}@{self.prefix}-db/workshop',
                   'PAYMENT_URL':f'http://{self.prefix}-payments:8080','PAYMENT_TOKEN':self.pay_token}
         if mode == 'api':
-            values.update(JWT_KEY=self.key,LAB_FAULTS='1')
+            values.update(JWT_KEY=self.key,APPROVAL_KEY=self.approval_key,LAB_FAULTS='1')
         if audit:
             values.update(AUDIT_URL=f'http://{self.prefix}-audit:8080',AUDIT_WRITE_TOKEN=self.audit_write)
             values['AUDIT_DATABASE_URL']=f'postgresql://audit_writer:{self.passwords["audit_writer"]}@{self.prefix}-db/workshop'
@@ -122,25 +129,36 @@ class Lab:
             time.sleep(0.2)
         raise AssertionError('condition did not become true')
 
-    def req(self, method, path='/bookings', payload=None, key=None, principal='agent-a', token=None, port=18881, correlation=None):
-        headers={'Authorization':'Bearer '+(self.tokens[principal] if token is None else token)}
+    def req(self, method, path='/bookings', payload=None, key=None, principal='agent-a', token=None, port=18881, correlation=None, approval=True):
+        headers={'Authorization':'Bearer '+(encode(self.key, principal) if token is None else token)}
         if key is not None:
             headers['Idempotency-Key']=key
         if correlation:
             headers['X-Correlation-ID']=correlation
+        # This test-admin fixture explicitly authorizes its synthetic mutations.
+        # The user-facing agent requires interactive approval; negative cases
+        # pass False or a deliberately invalid capability to test server denial.
+        if method in ('POST', 'DELETE') and approval is not False:
+            headers[APPROVAL_HEADER] = (issue_approval(self.approval_key, principal, method, path, payload, key or '')
+                                        if approval is True else approval)
         raw=None
         if payload is not None:
             raw=json.dumps(payload).encode();headers['Content-Type']='application/json'
         req=Request(f'http://127.0.0.1:{port}'+path,data=raw,headers=headers,method=method)
         try:
-            with urlopen(req,timeout=12) as r:
+            with build_opener(ProxyHandler({}), NoRedirect()).open(req,timeout=12) as r:
                 return r.status,json.load(r)
         except HTTPError as e:
             return e.code,json.load(e)
 
     def case(self, name, fn):
         start=time.monotonic()
-        fn()
+        try:
+            fn()
+        except BaseException as error:
+            self.tests.append({'name':name, 'result':'failed', 'failure_type':type(error).__name__,
+                               'duration_seconds':round(time.monotonic()-start,3)})
+            raise
         self.tests.append({'name':name,'result':'passed','duration_seconds':round(time.monotonic()-start,3)})
         print('PASS '+name,flush=True)
 
@@ -193,6 +211,13 @@ class Lab:
         self.wait(lambda: self.req('GET','/health/ready',port=self.port_b)[0]==200)
         self.tokens={n:encode(self.key,n) for n in ('agent-a','agent-b')}
 
+    def session_file(self):
+        session = self.work/'session.json'
+        session.write_text(json.dumps({'prefix': self.prefix, 'port': self.port_a,
+                                       'key': self.key, 'approval_key': self.approval_key}))
+        session.chmod(0o600)
+        return session
+
     def run_tests(self):
         p={'itinerary':'BOG-MDE','amount':12500}
         def auth():
@@ -202,6 +227,21 @@ class Lab:
             assert self.req('DELETE','/bookings/'+'a'*64,token=encode(self.key,scope='bookings:read bookings:write'),port=self.port_a)[0]==403
             assert self.scalar('SELECT count(*) FROM charges;')=='0'
         self.case('authentication_issuer_audience_expiry_signature_scope',auth)
+        def approval_binding():
+            key = 'approval-gate'
+            invalid = [False, 'malformed',
+                issue_approval(self.approval_key, 'agent-b', 'POST', '/bookings', p, key),
+                issue_approval(self.approval_key, 'agent-a', 'POST', '/bookings', {**p, 'amount': 1}, key),
+                issue_approval(self.approval_key, 'agent-a', 'POST', '/bookings', p, 'another-key'),
+                issue_approval(self.approval_key, 'agent-a', 'POST', '/bookings', p, key, now=int(time.time())-301),
+                issue_approval(self.approval_key, 'agent-a', 'DELETE', '/bookings/'+'a'*64),
+                issue_approval('x'*64, 'agent-a', 'POST', '/bookings', p, key)]
+            for capability in invalid:
+                code, body = self.req('POST', payload=p, key=key, port=self.port_a, approval=capability)
+                assert (code, body) == (403, {'error': 'approval_required_or_invalid'}), (code, body)
+            assert self.scalar('SELECT count(*) FROM operations;') == '0'
+            assert self.scalar('SELECT count(*) FROM charges;') == '0'
+        self.case('server_approval_missing_expired_subject_payload_key_action_signature_denied', approval_binding)
         correlation=str(uuid.uuid4())
         def happy():
             code,body=self.req('POST',payload=p,key='happy',port=self.port_a,correlation=correlation)
@@ -348,6 +388,7 @@ class Lab:
             self.wait(lambda:self.refresh_ports() and self.req('GET',port=self.port_b)==before)
             assert self.scalar("SELECT count(*) FROM charges WHERE operation_id='"+self.oid('db-down')+"';")=='0'
         self.case('database_outage_fail_closed_and_volume_survives_restart',restart)
+        self.run_agent_tests()
         def dump_restore():
             dump=docker('exec',self.prefix+'-db','pg_dump','-U','postgres','--no-owner','--no-acl','workshop').stdout
             path=self.work/'workshop.sql';path.write_text(dump);path.chmod(0o600)
@@ -419,6 +460,162 @@ class Lab:
         self.evidence['audit_event_count']=int(self.scalar('SELECT count(*) FROM audit_events;'))
         self.evidence['result']='passed'
 
+    def run_agent_tests(self):
+        """Drive the real CLI in fresh processes against the same live PostgreSQL."""
+        session = self.session_file()
+
+        def cli(state, command, goal=None, answer='', subject='agent-a', expected=0):
+            argv = [sys.executable, str(ROOT/'agent.py'), '--session', str(session),
+                    '--state', str(state), '--subject', subject]
+            if goal is not None:
+                argv += ['--goal', goal]
+            process = subprocess.run(argv+[command], input=answer, text=True, capture_output=True, timeout=30)
+            assert process.returncode == expected, (command, process.returncode, process.stderr[-1500:], process.stdout[-1500:])
+            return json.loads(process.stdout) if process.stdout.strip() else {'error': 'CLI rejected request'}
+
+        def plan(name, goal):
+            state = self.work/(name+'.json')
+            cli(state, 'plan', goal)
+            return state
+
+        def approve(state):
+            proposal = json.loads(state.read_text())
+            cli(state, 'approve', answer='APROBAR '+proposal['plan_digest']+'\n')
+            return proposal
+
+        def no_write_before_approval():
+            before = self.scalar('SELECT count(*) FROM operations;')
+            state = plan('agent-rejected', 'create BOG-MDE 12500')
+            cli(state, 'execute', expected=2)
+            cli(state, 'approve', answer='no\n', expected=2)
+            cli(state, 'execute', expected=2)
+            assert self.scalar('SELECT count(*) FROM operations;') == before
+        self.case('agent_cli_plan_unapproved_execute_and_rejection_have_no_writes', no_write_before_approval)
+
+        def approved_create():
+            state = plan('agent-create', 'create BOG-MDE 12500')
+            proposal = approve(state)
+            outcome = cli(state, 'execute')
+            assert outcome['status'] == 'completed'
+            oid = self.oid(proposal['plan']['request_key'])
+            self.agent_booking_id = oid
+            assert self.req('GET', '/bookings/'+oid, port=self.port_b)[1]['status'] == 'CONFIRMED'
+            assert cli(state, 'execute')['status'] == 'completed'
+            assert self.scalar("SELECT captures FROM charges WHERE operation_id='"+oid+"';") == '1'
+            # Persisted controller state has no key or capability; it records the approval digest.
+            raw = state.read_text()
+            assert self.key not in raw and self.approval_key not in raw and 'X-Booking-Approval' not in raw
+            assert (state.stat().st_mode & 0o777) == 0o600
+            cli(state, 'inspect', subject='agent-b', expected=2)
+        self.case('agent_cli_approved_create_observe_replay_and_subject_binding', approved_create)
+
+        def simultaneous_cli():
+            state = plan('agent-concurrent-cli', 'create BOG-MDE 12500')
+            proposal = approve(state)
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                outcomes = list(pool.map(lambda _: cli(state, 'execute'), range(2)))
+            assert all(outcome['status'] == 'completed' for outcome in outcomes)
+            oid = self.oid(proposal['plan']['request_key'])
+            assert self.scalar("SELECT captures FROM charges WHERE operation_id='"+oid+"';") == '1'
+            assert json.loads(state.read_text())['attempts'] == 1
+        self.case('agent_cli_two_processes_same_state_one_attempt_one_charge', simultaneous_cli)
+
+        def state_tampering():
+            state = plan('agent-tamper', 'create BOG-MDE 12500')
+            approve(state)
+            before = self.scalar('SELECT count(*) FROM operations;')
+            contents = json.loads(state.read_text())
+            contents['plan']['action']['amount'] += 1
+            state.write_text(json.dumps(contents))
+            cli(state, 'execute', expected=2)
+            assert self.scalar('SELECT count(*) FROM operations;') == before
+        self.case('agent_cli_modified_approved_plan_is_rejected', state_tampering)
+
+        def list_subject():
+            own = cli(self.work/'agent-list.json', 'run', 'list')
+            assert any(b['id'] == self.agent_booking_id for b in own['result']['body']['bookings'])
+            other = cli(self.work/'agent-list-other.json', 'run', 'list', subject='agent-b')
+            assert all(b['id'] != self.agent_booking_id for b in other['result']['body']['bookings'])
+        self.case('agent_cli_read_only_tool_lists_only_authenticated_subject', list_subject)
+
+        def provider_recovery():
+            state = plan('agent-provider-retry', 'create BOG-MDE 12500')
+            proposal = approve(state)
+            oid = self.oid(proposal['plan']['request_key'])
+            docker('stop', self.prefix+'-payments')
+            try:
+                assert cli(state, 'execute', expected=3)['status'] == 'pending'
+                assert self.scalar("SELECT status FROM operations WHERE id='"+oid+"';") == 'NEW'
+            finally:
+                docker('start', self.prefix+'-payments')
+            self.wait(lambda: docker('exec', self.prefix+'-payments', 'python', '-c',
+                "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health/ready')", check=False).returncode == 0)
+            assert cli(state, 'execute')['status'] == 'completed'
+            assert self.scalar("SELECT captures FROM charges WHERE operation_id='"+oid+"';") == '1'
+        self.case('agent_cli_provider_outage_and_resume_from_persisted_plan', provider_recovery)
+
+        def withdraw_after_send():
+            state = plan('agent-withdraw-pending', 'create BOG-MDE 12500')
+            proposal = approve(state)
+            oid = self.oid(proposal['plan']['request_key'])
+            docker('stop', self.prefix+'-payments')
+            try:
+                cli(state, 'execute', expected=3)
+                withdrawn = cli(state, 'reject', expected=2)
+                assert withdrawn['status'] == 'needs_approval'
+                assert withdrawn['result']['remote_operation_may_continue'] is True
+                cli(state, 'execute', expected=2)
+            finally:
+                docker('start', self.prefix+'-payments')
+            self.wait(lambda: self.scalar("SELECT status FROM operations WHERE id='"+oid+"';") == 'CONFIRMED')
+            approve(state)
+            outcome = cli(state, 'execute')
+            assert outcome['status'] == 'completed' and outcome['result']['reconciled'] is True
+            assert self.scalar("SELECT captures FROM charges WHERE operation_id='"+oid+"';") == '1'
+        self.case('agent_cli_withdraw_after_send_preserves_remote_reconciliation', withdraw_after_send)
+
+        def ambiguous_capture():
+            docker('stop', self.prefix+'-worker')
+            state = plan('agent-ambiguous-capture', 'create BOG-MDE 12500')
+            proposal = approve(state)
+            oid = self.oid(proposal['plan']['request_key'])
+            self.fault('crash_after_charge', oid)
+            try:
+                assert cli(state, 'execute', expected=3)['status'] == 'pending'
+                self.wait(lambda: docker('inspect', '-f', '{{.State.Running}}', self.prefix+'-api-a').stdout.strip() == 'false')
+                assert self.scalar("SELECT state||':'||captures FROM charges WHERE operation_id='"+oid+"';") == 'CAPTURED:1'
+                self.fault('crash_after_charge', oid, False)
+                docker('start', self.prefix+'-api-a')
+                self.wait(self.refresh_ports)
+                self.session_file()
+                self.wait(lambda: self.req('GET', '/health/ready', port=self.port_a)[0] == 200)
+                assert cli(state, 'execute')['status'] == 'completed'
+                assert self.scalar("SELECT captures FROM charges WHERE operation_id='"+oid+"';") == '1'
+                assert self.scalar("SELECT status FROM operations WHERE id='"+oid+"';") == 'CONFIRMED'
+            finally:
+                self.fault('crash_after_charge', oid, False)
+                docker('start', self.prefix+'-worker')
+        self.case('agent_cli_api_crash_after_capture_resume_no_double_charge', ambiguous_capture)
+
+        def cancel_with_new_approval():
+            oid = self.agent_booking_id
+            route = '/bookings/'+oid
+            assert self.req('DELETE', route, port=self.port_a, approval=False)[0] == 403
+            state = plan('agent-cancel', 'cancel '+oid)
+            cli(state, 'execute', expected=2)
+            assert self.req('GET', route, port=self.port_b)[1]['status'] == 'CONFIRMED'
+            approve(state)
+            assert cli(state, 'execute')['status'] == 'completed'
+            assert cli(state, 'execute')['status'] == 'completed'
+            assert self.req('GET', route, port=self.port_b)[1]['status'] == 'CANCELLED'
+            assert self.scalar("SELECT refunds FROM charges WHERE operation_id='"+oid+"';") == '1'
+        self.case('agent_cli_cancel_requires_new_approval_and_refunds_once', cancel_with_new_approval)
+        self.evidence['agent'] = {'planner': 'rules', 'live_bedrock_invoked': False,
+                                  'transport': 'real CLI subprocesses and HTTP against PostgreSQL',
+                                  'approval': 'explicit test-operator confirmation bound to request; enforced by API',
+                                  'state': 'atomic private files, no keys or bearer tokens',
+                                  'test_confirmation_is_human_identity_proof': False}
+
     def finish(self):
         for container in self.containers:
             log=docker('logs',container,check=False)
@@ -439,18 +636,16 @@ def main():
         raise SystemExit('Run without -O: E2E assertions must remain enabled')
     ap=argparse.ArgumentParser()
     ap.add_argument('command',choices=['e2e','demo'])
-    ap.add_argument('--output',default='.local/db-e2e.json')
+    ap.add_argument('--output')
     args=ap.parse_args()
-    lab=Lab(args.output)
+    lab=Lab(args.output or ('.local/demo.json' if args.command == 'demo' else '.local/db-e2e.json'))
     try:
         lab.setup()
         if args.command == 'e2e':
             lab.run_tests()
         else:
             lab.start('worker','worker','booking_app',audit=True)
-            session=lab.work/'session.json'
-            session.write_text(json.dumps({'prefix':lab.prefix,'port':lab.port_a,'key':lab.key}))
-            session.chmod(0o600)
+            session=lab.session_file()
             lab.evidence['result']='demo_running'
             print('DEMO_READY session='+str(session),flush=True)
             print('Use client.py --session <path> list/create/cancel. Ctrl+C stops only this lab.',flush=True)

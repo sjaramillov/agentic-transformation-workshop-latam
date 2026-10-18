@@ -1,5 +1,7 @@
 # ARA y MODA sobre Booking MIT en CCS
 
+**Registro histórico del 16 de octubre de 2026.** Los resultados de esta página pertenecen a los commits indicados en la tabla. El agente ejecutable y la aprobación que ahora valida la API se incorporaron después; su [aceptación técnica](AUDITORIA_E2E.md) no cambia retroactivamente estas puntuaciones ni cierra hallazgos del evaluador.
+
 **ARA pasó de 1 a 0 bloqueadores.** La versión corregida recibió **Pilot-Ready (Safety Concerns)** y pasó los **18 escenarios E2E con PostgreSQL** en CCS y GitHub Actions. Todo el código de entrada, los contextos, la transformación original, las pruebas y los informes aceptados están publicados. [Índice de evidencia](evidence/mit/README.md).
 
 Las fuentes `local` de Transform son clones del código público dentro de CloudShell. El campo `compute_mode: LOCAL` describe la ejecución del cliente de análisis en CCS; el código y los resultados aceptados están disponibles en GitHub.

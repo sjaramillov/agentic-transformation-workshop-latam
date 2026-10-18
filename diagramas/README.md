@@ -1,6 +1,6 @@
 # Tableros visuales del proceso
 
-Cinco tableros originales convierten el recorrido del taller en notas de pared: el journey y sus fricciones, dónde conviene un agente, cómo se conserva la aprobación humana, cómo se cierra el ciclo ARA/MODA y quién opera cada control.
+Seis tableros originales convierten el recorrido del taller en notas de pared: el journey y sus fricciones, dónde conviene un agente, cómo se conserva la aprobación humana, cómo se cierra el ciclo ARA/MODA, quién opera cada control y cómo conectar el trabajo con una hipótesis de valor y AI-DLC.
 
 Abre [`index.html`](index.html) para una galería local, o revisa los SVG directamente. Los tableros son esquemáticos y cualitativos; no son capturas originales de Workshop Studio, no inventan puntuaciones y no deben interpretarse como métricas.
 
@@ -11,6 +11,8 @@ Abre [`index.html`](index.html) para una galería local, o revisa los SVG direct
 | [03 · Workflow de reserva](03-workflow-rebooking.svg) | Qué hace el agente, dónde espera la persona y qué ocurre tras aprobar o pedir cambios. | C |
 | [04 · Ciclo ARA/MODA](04-ciclo-ara-moda.svg) | Evaluar, priorizar, remediar con revisión y volver a medir con el mismo alcance. | D–I |
 | [05 · Modelo operativo](05-modelo-operativo.svg) | Prerrequisitos, dueños, revisiones y operación gradual de las TD. | J |
+| [06 · Valor y AI-DLC](06-valor-ai-dlc.svg) | Problema → métrica → autonomía → ARA/MODA → pruebas → medición de valor, con fases de AI-DLC. | A–J |
+
 
 ## Convenciones
 

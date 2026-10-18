@@ -10,5 +10,73 @@
   "selected": "booking-assistant",
   "invariants": ["una reserva confirmada implica un cobro capturado", "un fallo posterior al cobro exige compensación durable", "la misma clave y sujeto no duplican efectos", "cada sujeto solo accede a sus reservas", "transiciones y auditoría comparten transacción local"],
   "workflow": ["recoger itinerario e importe sintéticos", "mostrar propuesta y obtener confirmación", "crear reserva con identidad y clave de idempotencia", "consultar estado y reintentar con la misma clave ante respuesta ambigua", "si se solicita cancelar, confirmar y reembolsar idempotentemente", "reconciliar y revisar auditoría"],
-  "roles": {"product":"acepta la intención y límites de autonomía", "engineering":"implementa contrato y recuperación", "security":"revisa identidad, scopes y auditoría", "operations":"observa, restaura y reconcilia"}
+  "roles": {"product":"acepta la intención, hipótesis de valor y límites de autonomía", "engineering":"implementa contrato y recuperación", "security":"revisa identidad, scopes, aprobación y auditoría", "operations":"observa, restaura, reconcilia y mide tiempo humano"},
+  "assumption_notice": "Las puntuaciones de oportunidad y las métricas de negocio son supuestos pedagógicos. El E2E prueba contratos técnicos; no mide impacto comercial.",
+  "value_case": {
+    "id": "V-BOOKING-01",
+    "title": "Reducir trabajo manual en reservas recuperables",
+    "status": "illustrative_not_measured",
+    "problem": "Las respuestas ambiguas y los fallos después de un cobro exigen consultas, reintentos y conciliación manual.",
+    "users": ["operador que asiste al viajero", "viajero"],
+    "hypothesis": "Preparar una propuesta y observar su resultado podría reducir el tiempo humano por caso completado manteniendo aprobación explícita, identidad y recuperación durable.",
+    "measurement": {
+      "primary_metric": "human_minutes_per_completed_case",
+      "definition": "Minutos de trabajo humano, incluida revisión, rechazo y recuperación, divididos por casos completados; reportar también casos fallidos.",
+      "baseline": {"value": 8, "unit": "minutes_per_completed_case", "status": "illustrative_not_measured"},
+      "target": {"value": 6, "unit": "minutes_per_completed_case", "status": "hypothesis"},
+      "monthly_cases": {"value": 200, "status": "illustrative_not_measured"},
+      "illustrative_gross_time_saved": {"value": 400, "unit": "minutes_per_month", "formula": "200 * (8 - 6)", "status": "illustrative_not_measured"},
+      "guardrails": ["cero cobros duplicados", "cero escrituras sin aprobación", "cero acceso cruzado entre sujetos"],
+      "pilot_method": "Medir línea base, elegir casos equivalentes, alternar orden manual/asistido e incluir revisión, rechazos y recuperación. Acordar umbral antes de observar resultados."
+    },
+    "alternatives": [
+      {"id": "manual-improved", "description": "Mejorar instrucciones y procedimiento manual"},
+      {"id": "deterministic-form", "description": "Formulario con validación y automatización determinista"},
+      {"id": "read-only-assistant", "description": "Asistente que consulta y explica el estado"},
+      {"id": "approval-agent", "description": "Agente que propone y ejecuta después de aprobación"}
+    ],
+    "workshop_choice": "approval-agent",
+    "choice_reason": "Practicar el ciclo de preparación técnica y validación; una elección de inversión exige comparar resultados medidos con las otras alternativas.",
+    "effort_and_cost": {"implementation_hours": null, "monthly_maintenance_hours": null, "human_review_cost": null, "model_and_runtime_cost": null, "measurement_status": "to_measure", "decision_owner": "product"},
+    "autonomy": "propose-and-confirm",
+    "scope": "Identidades y pagos sintéticos; crear, consultar y cancelar reservas propias.",
+    "abort_conditions": ["escritura sin aprobación", "cruce de identidad", "cobro duplicado", "secreto expuesto", "operación imposible de reconciliar"],
+    "decision": "requires_human_review",
+    "owner": "product",
+    "measurement_owner": "operations"
+  },
+  "traceability": [
+    {"requirement_id":"R1","business_metric":"duplicate_captures_per_completed_case","use_case":"Reintentar creación después de respuesta ambigua","autonomy":"propose-and-confirm","analysis_reference":"ARA: API-Q4; STATE-Q3; revisión histórica por commit","change":"Identidad y clave de idempotencia estables entre réplicas y reinicios","acceptance_test":"eight_concurrent_requests_two_api_replicas_one_charge","technical_evidence":"evidence/mit/runtime/final-db-e2e-02.json; repetir en el commit de la práctica","business_measurement":"Medir duplicados en casos reales; objetivo de guarda cero","status":"historical_technical_evidence_business_unmeasured","owner":"engineering"},
+    {"requirement_id":"R2","business_metric":"human_minutes_reconciling_failed_booking","use_case":"Recuperar un cobro sin reserva confirmada","autonomy":"recover-approved-operation","analysis_reference":"ARA: STATE-Q1; revisión histórica por commit","change":"Saga durable y reembolso idempotente","acceptance_test":"real_insert_failure_after_charge_refunds_without_orphan; refund_outage_durable_state_and_worker_recovery","technical_evidence":"evidence/mit/runtime/final-db-e2e-02.json; repetir en el commit de la práctica","business_measurement":"Medir casos pendientes y minutos humanos de resolución","status":"historical_technical_evidence_business_unmeasured","owner":"operations"},
+    {"requirement_id":"R3","business_metric":"cross_subject_access_incidents","use_case":"Consultar y cancelar reservas propias","autonomy":"subject-scoped","analysis_reference":"ARA: AUTH-Q3; revisión histórica por commit","change":"Aislamiento por sujeto y scopes de operación separados","acceptance_test":"identity_isolation_and_identity_scoped_idempotency","technical_evidence":"evidence/mit/runtime/final-db-e2e-02.json; repetir en el commit de la práctica","business_measurement":"Cualquier acceso cruzado detiene el experimento","status":"historical_technical_evidence_business_unmeasured","owner":"security"},
+    {"requirement_id":"R4","business_metric":"human_minutes_reconstructing_operation","use_case":"Explicar una operación controvertida","autonomy":"read-only","analysis_reference":"ARA: AUTH-Q6; MODA: DATA-Q1; revisión histórica por commit","change":"Ledger independiente con firma y checkpoints; evaluar archivo fuera del host para el entorno destino","acceptance_test":"independent_signed_audit_retention_tamper_restart_restore","technical_evidence":"evidence/mit/runtime/final-db-e2e-02.json; repetir en el commit de la práctica","business_measurement":"Tiempo de reconstrucción y casos con evidencia completa","status":"technical_lab_evidence_offhost_archive_pending","owner":"operations"},
+    {"requirement_id":"R5","business_metric":"unapproved_or_unwanted_write_count","use_case":"Revisar y aprobar creación o cancelación","autonomy":"propose-and-confirm","analysis_reference":"ARA: HITL-Q1; HITL-Q2; nueva evaluación requerida para nuevos controles","change":"Agente ejecutable y aprobación vinculada a la escritura concreta","acceptance_test":"agent_cli_plan_unapproved_execute_and_rejection_have_no_writes; server_approval_missing_expired_subject_payload_key_action_signature_denied; agent_cli_modified_approved_plan_is_rejected","technical_evidence":"Adjuntar recibo actual del agente y DB; no atribuirlo al informe histórico","business_measurement":"Escrituras no deseadas y tiempo de revisión incluidos en el costo por caso","status":"requires_current_execution_and_managed_reassessment","owner":"product"}
+  ],
+  "ai_dlc": {
+    "inception": {
+      "status": "requires_human_review",
+      "owners": ["product", "security", "operations"],
+      "inputs": ["0-value.json", "0-value-worksheet.md", "A-eventstorming.json", "B-opportunities.json", "C-workflow.json"],
+      "decisions": ["aceptar problema y objetivo medible", "elegir alternativa con evidencia", "acordar autonomía y condiciones de parada"],
+      "exit_evidence": ["ficha con fuentes y supuestos", "requisitos e invariantes", "decisión humana fechada"],
+      "next_phase": "construction"
+    },
+    "construction": {
+      "status": "requires_human_review",
+      "owners": ["engineering", "security"],
+      "inputs": ["G-traceability.csv", "contexts/ara.txt", "contexts/moda.txt", "ai-dlc/inception.json"],
+      "units": ["crear una reserva aprobada sin duplicar efectos", "cancelar con autorización y recuperación durable", "reconstruir la operación con evidencia"],
+      "exit_evidence": ["diff revisado", "pruebas positivas y negativas del mismo commit", "E2E con DB", "hallazgos y riesgos pendientes", "decisión humana fechada"],
+      "next_phase": "operations"
+    },
+    "operations": {
+      "status": "requires_human_review",
+      "owners": ["operations", "product"],
+      "inputs": ["G-traceability.csv", "ai-dlc/construction.json", "manifest.json"],
+      "runtime_scope": "Contenedores de laboratorio, datos sintéticos y evidencia de recuperación; despliegue productivo y métricas de usuarios requieren evaluación propia.",
+      "checks": ["guardar recibos e incidentes", "comprobar recuperación y restauración", "cerrar recursos de la práctica", "medir resultado frente a línea base"],
+      "exit_evidence": ["recibo de runtime y commit", "métricas con fuente y periodo", "responsable y fecha de revisión", "decisión continuar, ajustar o detener"],
+      "next_phase": "inception"
+    }
+  }
 }

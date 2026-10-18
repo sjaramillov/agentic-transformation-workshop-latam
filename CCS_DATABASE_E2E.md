@@ -1,5 +1,7 @@
 # Validación de base de datos en CCS
 
+**Registro histórico del 16 de octubre de 2026.** Esta página conserva los 18 casos y hashes de esa versión. El recorrido ampliado con agente y aprobación en servidor se documenta en [Auditoría E2E](AUDITORIA_E2E.md).
+
 El código original MIT se prueba con PostgreSQL real, dos instancias de API, pagos sintéticos, un worker y un ledger independiente de auditoría. Todos los recursos de aplicación están en [booking_lab](booking_lab/README.md).
 
 ## Ejecución verificada

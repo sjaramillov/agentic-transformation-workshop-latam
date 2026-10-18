@@ -2,6 +2,8 @@
 !Dockerfile
 !requirements.txt
 !auth.py
+!approval.py
+!http_safety.py
 !service.py
 !schema.sql
 !audit.py

@@ -11,10 +11,13 @@ Requisitos: Python 3.11+, Docker y acceso al daemon. La guía completa, el contr
 - `service.py`: API, saga durable, worker y proveedor HTTP de pagos sintéticos.
 - `schema.sql`: esquema, permisos de roles separados y fallos de DB administrados por el test.
 - `auth.py`: emisor y verificador de tokens locales para los fixtures.
+- `agent.py`: controlador de objetivos, propuesta, aprobación, herramientas y recuperación; planificador determinista y adaptador Bedrock opcional.
+- `approval.py`: capacidad de aprobación firmada y vinculada a la operación; el servidor la exige para escribir.
+- `http_safety.py`: transporte directo sin proxies del entorno ni redirecciones para pagos y auditoría.
 - `run.py`: creación aislada del entorno y aceptación E2E con DB real.
 - `requirements.txt`, `images.lock.json`, `Dockerfile`: versiones e imágenes fijadas.
 
-Para una sesión interactiva usa `python3 booking_lab/run.py demo --output .local/demo.json` y `client.py` como explica la guía. Para ARA/MODA sigue [Ejecución AWS](../EJECUCION_AWS.md).
+Para una sesión interactiva usa `python3 booking_lab/run.py demo --output .local/demo.json` y sigue [Agente ejecutable](../AGENTE_EJECUTABLE.md). El cliente `client.py` también exige aprobar cada escritura. Para ARA/MODA sigue [Ejecución AWS](../EJECUCION_AWS.md).
 
 
 ## Security and audit changes

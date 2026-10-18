@@ -85,7 +85,7 @@ Selecciona los hallazgos concretos en el contexto de la remediación según `atx
 
 ## 6. I–J: vuelve a medir y publica evidencia
 
-Integra los cambios revisados en tu repositorio. Ejecuta:
+Registra los cambios revisados en un commit de tu repositorio antes de preparar las nuevas fuentes. `prepare --revision HEAD` extrae archivos comprometidos en Git; deja fuera cambios sin commit. Ejecuta las pruebas y el análisis sobre esa misma revisión:
 
 ```bash
 python3 -m unittest discover -s tests -v

@@ -29,7 +29,7 @@ class DocumentationTests(unittest.TestCase):
     @staticmethod
     def docs():
         paths=list(ROOT.glob('*.md'))+[ROOT/'evidence/mit/README.md']
-        for folder in ('diagramas','assets','booking_lab','workshop','historico'):
+        for folder in ('diagramas','assets','booking_lab','workshop','historico','evidence/agent-workshop'):
             paths.extend((ROOT/folder).rglob('*.md'))
         return paths
 
@@ -50,7 +50,7 @@ class DocumentationTests(unittest.TestCase):
         path = ROOT / "diagramas/index.html"
         parsed = Links()
         parsed.feed(path.read_text())
-        self.assertEqual(len(parsed.images), 5)
+        self.assertEqual(len(parsed.images), 6)
         for img in parsed.images:
             self.assertTrue(img.get("alt"))
         for link in parsed.links:
@@ -63,7 +63,7 @@ class DocumentationTests(unittest.TestCase):
 
     def test_svg_accessible_and_self_contained(self):
         paths = list((ROOT / "diagramas").glob("*.svg"))
-        self.assertEqual(len(paths), 5)
+        self.assertEqual(len(paths), 6)
         for path in paths:
             root = ET.fromstring(path.read_text())
             self.assertEqual(root.attrib["role"], "img")

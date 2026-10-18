@@ -24,6 +24,8 @@ jobs:
         with:
           python-version: '3.13'
       - run: python booking_lab/run.py e2e --output .local/db-e2e.json
+        env:
+          LAB_EVIDENCE_ENV: GitHub Actions ubuntu-latest
       - uses: actions/upload-artifact@v4
         if: always()
         with:

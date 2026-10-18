@@ -98,7 +98,11 @@ La evaluación ARA/MODA del **16 de octubre de 2026**, previa al nuevo agente y 
 
 CloudShell puede informar que su kernel no admite límites cgroup de CPU, memoria y PIDs. El runner registra `resource_limits_available: false` y mantiene las restricciones de usuario, capabilities, filesystem y red de los contenedores de aplicación. En hosts con las tres capacidades aplica esos límites. La API usa una red de entrada y otra red interna hacia DB/pagos: publicar puertos directamente sobre una red `--internal` no produjo bindings en el Docker de CloudShell.
 
+La detección actual usa los nombres `MemoryLimit`, `CpuCfsQuota` y `PidsLimit` del [contrato Docker](https://docs.docker.com/reference/api/engine/version/v1.56/) y conserva solo esos campos de capacidades. Corrige un falso negativo posible por el nombre de CPU utilizado anteriormente; no se publica el `docker info` completo, que puede contener configuración privada.
+
 Los volúmenes Docker residen en el almacenamiento del daemon; no presupongas que sobreviven al reciclado de CloudShell. El E2E demuestra persistencia tras reiniciar la DB y restaura un `pg_dump` en una DB distinta, comparando conteos y hashes de todas las filas de seis tablas. Descarga el dump si necesitas conservar datos más allá de la sesión. Esa restauración de datos no reconstruye permisos: para una instalación nueva ejecuta también el bootstrap de roles y el esquema.
+
+Antes de comparar la restauración con la fuente, la prueba cierra las dos API de su propio entorno, drena operaciones y outbox con worker/pagos activos y detiene esos escritores. Verifica que siguen detenidos y las colas están vacías antes de `pg_dump`. `snapshot_barrier` registra el punto estable: comparar un dump con una base que sigue recibiendo eventos puede producir diferencias legítimas de tiempo. El E2E conserva ese incidente y su corrección en [la evidencia](evidence/agent-workshop/README.md).
 
 Referencias técnicas: [transacciones de Psycopg](https://www.psycopg.org/psycopg3/docs/basic/transactions.html), [bloqueos PostgreSQL](https://www.postgresql.org/docs/16/explicit-locking.html), [pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html) e [instalación del adaptador](https://www.psycopg.org/psycopg3/docs/basic/install.html).
 

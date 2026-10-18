@@ -22,7 +22,7 @@ LAB_EVIDENCE_ENV='AWS CloudShell CCS' python3 booking_lab/run.py e2e --output .l
 python3 scripts/workshop.py prepare --output .local/workshop-01
 ```
 
-El runner detecta si el daemon soporta límites cgroup. En el CCS observado no los soportaba; esa condición queda explícita en el JSON. Los puertos de API solo se publican en `127.0.0.1`; la DB y pagos usan la red interna de Docker. Si reinicias un contenedor, consulta de nuevo el puerto asignado: puede cambiar.
+El runner consulta `MemoryLimit`, `CpuCfsQuota` y `PidsLimit` del daemon y guarda las capacidades declaradas en el JSON antes de decidir si aplica límites. La implementación anterior consultaba mal el nombre de CPU y podía registrar un falso negativo: los recibos históricos `resource_limits_available: false` demuestran que no se aplicaron esos límites, sin probar por sí solos que el host no los soportara. Los puertos de API solo se publican en `127.0.0.1`; la DB y pagos usan la red interna de Docker. Si reinicias un contenedor, consulta de nuevo el puerto asignado: puede cambiar.
 
 ## 3. Instala ATX si falta
 

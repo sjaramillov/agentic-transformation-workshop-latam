@@ -83,7 +83,7 @@ Se conservan los juicios originales del evaluador. El resultado MODA no invalida
 
 Los ocho RISK-SAFETY son `AUTH-Q4` (delegación), `AUTH-Q5` (gestión/rotación de credenciales), `AUTH-Q7` (suspensión individual), `STATE-Q4` (circuit breaker/backoff), `STATE-Q5` (límites de tasa/concurrencia), `STATE-Q6` (presupuesto acumulado), `HITL-Q1` (borrador revisable) y `HITL-Q2` (puerta de aprobación configurable).
 
-Para repetir el workshop se utilizan pagos sintéticos, identidades de prueba y puertos en loopback. El diseño de confirmación del módulo C no es una puerta implementada en la API. CloudShell no admitió límites cgroup en esta ejecución: no se presentan esos límites como control efectivo de CCS. El ledger detecta alteraciones frente al administrador de la DB; su [frontera de confianza](booking_lab/AUDIT.md) no protege frente a un administrador del host con todas las claves y checkpoints. Estas condiciones explican el calificativo **Safety Concerns**; no hay aprobación de producción.
+Para repetir el workshop se utilizan pagos sintéticos, identidades de prueba y puertos en loopback. En esta versión histórica la confirmación del módulo C no era una puerta implementada en la API. El runner no aplicó límites cgroup y registró `resource_limits_available: false`; una revisión posterior detectó un nombre de campo CPU incorrecto, por lo que ese indicador no determina por sí solo la capacidad real de CloudShell. El ledger detecta alteraciones frente al administrador de la DB; su [frontera de confianza](booking_lab/AUDIT.md) no protege frente a un administrador del host con todas las claves y checkpoints. Estas condiciones explican el calificativo **Safety Concerns**; no hay aprobación de producción.
 
 ## Evidencia funcional y transformación
 

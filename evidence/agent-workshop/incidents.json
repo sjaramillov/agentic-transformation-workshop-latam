@@ -1,0 +1,21 @@
+[
+  {
+    "ci_run_id": 39130162323,
+    "source_commit": "dbe11e4445d8c80c91203c34d948bbf527ddd2bf",
+    "ci_url": "https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/39130162323",
+    "failed_case": "actual_pg_dump_restore_into_separate_database",
+    "observed_restored_counts": "12 bookings, 15 charges, 50 audit events",
+    "observed_live_counts": "12 bookings, 15 charges, 52 audit events",
+    "cause": "Asynchronous audit worker added two committed events after pg_dump snapshot but before live-source comparison. The test compared different database instants.",
+    "correction": "Stop intake APIs, drain pending operations and audit outbox while worker/payments run, stop remaining writers, verify quiescence, then dump/restore/hash-compare.",
+    "receipt_sha256": "9b092a99d45d3c6c572c69884a51907a43592d89005013764ef389ac63fdd478",
+    "new_validation": "Two independent PostgreSQL E2E repetitions in CI; see current verification.json."
+  },
+  {
+    "affected_revision": "dbe11e4445d8c80c91203c34d948bbf527ddd2bf and earlier",
+    "cause": "Docker capability detection read CPUCfsQuota instead of the documented CpuCfsQuota JSON field. Historical false values do not demonstrate host lack of support.",
+    "correction": "Read MemoryLimit, CpuCfsQuota and PidsLimit as strict booleans; record null for unknown. Apply limits only when all three are true.",
+    "documentation": "https://docs.docker.com/reference/api/engine/version/v1.56/",
+    "new_validation": "Three unit tests and capability observations in both current E2E receipts."
+  }
+]

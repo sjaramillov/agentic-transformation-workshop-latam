@@ -28,7 +28,7 @@ Los valores de esta tabla son **ilustrativos, sin medición de usuarios ni ahorr
 | Costos | Modelo, runtime, almacenamiento, observabilidad y errores | Por medir; usar unidades y factura/estimación fechada |
 | Responsable | Producto acepta valor; operaciones mide tiempos; ingeniería y seguridad verifican controles | Roles que cada equipo debe asignar |
 
-El beneficio neto requiere restar el esfuerzo y los costos incrementales, incluida la revisión humana. La práctica no infiere ingresos, reducción de plantilla ni retorno de inversión a partir de los 400 minutos supuestos.
+Los seis minutos por caso ya incluyen revisión y recuperación: no restes ese tiempo una segunda vez. Para estimar beneficio neto añade el esfuerzo de implementación y mantenimiento y los costos incrementales de operación, usando unidades compatibles. Convertir tiempo disponible en dinero requiere un valor por hora explícito y una justificación de cómo se aprovechará esa capacidad. La práctica no infiere ingresos, reducción de plantilla ni retorno de inversión a partir de los 400 minutos supuestos.
 
 ### Comparar alternativas antes de elegir
 

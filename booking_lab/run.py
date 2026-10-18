@@ -25,6 +25,15 @@ IMAGES = json.loads((ROOT/'images.lock.json').read_text())
 PG_IMAGE, PY_IMAGE = IMAGES['postgres'], IMAGES['python']
 
 
+def resource_limits(info):
+    """Read Docker's case-sensitive capabilities; unknown is not support."""
+    capabilities = {name: info.get(name) if type(info.get(name)) is bool else None
+                    for name in ('MemoryLimit', 'CpuCfsQuota', 'PidsLimit')}
+    options = ['--memory', '256m', '--cpus', '1', '--pids-limit', '128'] if all(
+        value is True for value in capabilities.values()) else []
+    return capabilities, options
+
+
 def docker(*args, data=None, check=True):
     p = subprocess.run(['docker', *args], input=data, text=True, capture_output=True)
     if check and p.returncode:
@@ -164,11 +173,11 @@ class Lab:
 
     def setup(self):
         info=json.loads(docker('info','--format','{{json .}}').stdout)
-        self.evidence['resource_limits_available']=all(info.get(k,False) for k in ('MemoryLimit','CPUCfsQuota','PidsLimit'))
-        if self.evidence['resource_limits_available']:
-            self.resource_options=['--memory','256m','--cpus','1','--pids-limit','128']
-        else:
-            print('Host does not support cgroup limits; retaining network, filesystem and capability isolation',flush=True)
+        capabilities, self.resource_options = resource_limits(info)
+        self.evidence['resource_limit_capabilities'] = capabilities
+        self.evidence['resource_limits_available'] = bool(self.resource_options)
+        if not self.evidence['resource_limits_available']:
+            print('Docker did not confirm all cgroup limits; retaining network, filesystem and capability isolation',flush=True)
         for image in (PG_IMAGE,PY_IMAGE):
             print('Pull '+image,flush=True)
             docker('pull',image)
@@ -217,6 +226,96 @@ class Lab:
                                        'key': self.key, 'approval_key': self.approval_key}))
         session.chmod(0o600)
         return session
+
+    def quiesce_for_snapshot(self):
+        """Freeze owned writers after draining recovery and audit delivery.
+
+        pg_dump has its own consistent snapshot. Comparing that dump with a
+        later live database requires stopping all writers first; otherwise the
+        worker can legitimately deliver more audit events between the snapshots.
+        """
+        roles = ('api-a', 'api-b', 'worker', 'payments')
+        barrier = {'result': 'pending', 'phase': 'verify_ownership',
+                   'started_at_utc': datetime.now(timezone.utc).isoformat(),
+                   'stop_order': [], 'drain_polls': 0}
+        self.evidence['snapshot_barrier'] = barrier
+
+        def running(role):
+            value = docker('inspect', '-f', '{{.State.Running}}', self.prefix+'-'+role).stdout.strip()
+            if value not in ('true', 'false'):
+                raise RuntimeError('Cannot verify snapshot writer state: '+role)
+            return value == 'true'
+
+        def queue_counts():
+            # One statement observes both counts at the same PostgreSQL snapshot.
+            raw = self.scalar("SELECT (SELECT count(*) FROM operations WHERE status IN "
+                              "('NEW','CHARGED','COMPENSATING','CANCELLING')),"
+                              "(SELECT count(*) FROM outbox WHERE delivered_at IS NULL);")
+            values = raw.split('|')
+            if len(values) != 2 or any(not value.isdigit() for value in values):
+                raise RuntimeError('Invalid snapshot queue counts')
+            return dict(zip(('pending_operations', 'undelivered_audit_events'), map(int, values)))
+
+        try:
+            if any(self.prefix+'-'+role not in self.containers for role in roles):
+                raise AssertionError('Snapshot barrier only stops registered lab writers')
+            # Close ingress first so even an external caller of the lab cannot
+            # add a new intention between the final drain and the snapshot.
+            barrier['phase'] = 'stop_ingress'
+            for role in ('api-a', 'api-b'):
+                docker('stop', self.prefix+'-'+role)
+                barrier['stop_order'].append(role)
+                if running(role):
+                    raise AssertionError('Snapshot ingress still running: '+role)
+            barrier['phase'] = 'drain_recovery_and_audit'
+
+            def drained():
+                counts = queue_counts()
+                barrier['drain_polls'] += 1
+                barrier['last_drain_counts'] = counts
+                return all(value == 0 for value in counts.values())
+
+            self.wait(drained, timeout=60)
+            barrier['phase'] = 'stop_background_writers'
+            for role in ('worker', 'payments'):
+                docker('stop', self.prefix+'-'+role)
+                barrier['stop_order'].append(role)
+                if running(role):
+                    raise AssertionError('Snapshot background writer still running: '+role)
+            barrier['phase'] = 'verify_quiescence'
+            barrier['writers_running_before_dump'] = {role: running(role) for role in roles}
+            barrier['final_queue_counts'] = queue_counts()
+            if any(barrier['writers_running_before_dump'].values()):
+                raise AssertionError('Snapshot writer restarted before dump')
+            if any(barrier['final_queue_counts'].values()):
+                raise AssertionError('Snapshot is not quiescent after writers stopped')
+            barrier['phase'], barrier['result'] = 'verified', 'passed'
+            barrier['verified_at_utc'] = datetime.now(timezone.utc).isoformat()
+        except BaseException as error:
+            barrier['result'] = 'failed'
+            barrier['failure_type'] = type(error).__name__
+            raise
+
+    def verify_database_restore(self):
+        self.quiesce_for_snapshot()
+        dump=docker('exec',self.prefix+'-db','pg_dump','-U','postgres','--no-owner','--no-acl','workshop').stdout
+        path=self.work/'workshop.sql';path.write_text(dump);path.chmod(0o600)
+        self.sql('CREATE DATABASE restore_check;')
+        docker('exec','-i',self.prefix+'-db','psql','-X','-v','ON_ERROR_STOP=1','-U','postgres','-d','restore_check',data=dump)
+        counts=docker('exec',self.prefix+'-db','psql','-X','-U','postgres','-d','restore_check','-Atc',
+                      'SELECT (SELECT count(*) FROM bookings),(SELECT count(*) FROM charges),(SELECT count(*) FROM audit_events);').stdout.strip()
+        expected=self.scalar('SELECT (SELECT count(*) FROM bookings),(SELECT count(*) FROM charges),(SELECT count(*) FROM audit_events);')
+        assert counts==expected,(counts,expected)
+        hashes={}
+        for table in ('operations','bookings','charges','outbox','audit_events','faults'):
+            query="SELECT md5(coalesce(string_agg(row_to_json(r)::text,'' ORDER BY row_to_json(r)::text),'')) FROM "+table+" r;"
+            original=self.scalar(query)
+            restored=docker('exec',self.prefix+'-db','psql','-X','-U','postgres','-d','restore_check','-Atc',query).stdout.strip()
+            assert original==restored,(table,original,restored)
+            hashes[table]=original
+        self.evidence['restored_table_row_hashes']=hashes
+        self.evidence['restore_counts_bookings_charges_audit']=counts
+        self.evidence['synthetic_dump_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
 
     def run_tests(self):
         p={'itinerary':'BOG-MDE','amount':12500}
@@ -389,26 +488,7 @@ class Lab:
             assert self.scalar("SELECT count(*) FROM charges WHERE operation_id='"+self.oid('db-down')+"';")=='0'
         self.case('database_outage_fail_closed_and_volume_survives_restart',restart)
         self.run_agent_tests()
-        def dump_restore():
-            dump=docker('exec',self.prefix+'-db','pg_dump','-U','postgres','--no-owner','--no-acl','workshop').stdout
-            path=self.work/'workshop.sql';path.write_text(dump);path.chmod(0o600)
-            self.sql('CREATE DATABASE restore_check;')
-            docker('exec','-i',self.prefix+'-db','psql','-X','-v','ON_ERROR_STOP=1','-U','postgres','-d','restore_check',data=dump)
-            counts=docker('exec',self.prefix+'-db','psql','-X','-U','postgres','-d','restore_check','-Atc',
-                          'SELECT (SELECT count(*) FROM bookings),(SELECT count(*) FROM charges),(SELECT count(*) FROM audit_events);').stdout.strip()
-            expected=self.scalar('SELECT (SELECT count(*) FROM bookings),(SELECT count(*) FROM charges),(SELECT count(*) FROM audit_events);')
-            assert counts==expected,(counts,expected)
-            hashes={}
-            for table in ('operations','bookings','charges','outbox','audit_events','faults'):
-                query="SELECT md5(coalesce(string_agg(row_to_json(r)::text,'' ORDER BY row_to_json(r)::text),'')) FROM "+table+" r;"
-                original=self.scalar(query)
-                restored=docker('exec',self.prefix+'-db','psql','-X','-U','postgres','-d','restore_check','-Atc',query).stdout.strip()
-                assert original==restored,(table,original,restored)
-                hashes[table]=original
-            self.evidence['restored_table_row_hashes']=hashes
-            self.evidence['restore_counts_bookings_charges_audit']=counts
-            self.evidence['synthetic_dump_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
-        self.case('actual_pg_dump_restore_into_separate_database',dump_restore)
+        self.case('actual_pg_dump_restore_into_separate_database', self.verify_database_restore)
         self.wait(lambda:self.scalar('SELECT count(*) FROM outbox WHERE delivered_at IS NULL;')=='0')
         self.evidence['invariants']={
           'captured_without_confirmed_booking':int(self.scalar("SELECT count(*) FROM charges c LEFT JOIN bookings b ON b.id=c.operation_id AND b.status='CONFIRMED' WHERE c.state='CAPTURED' AND b.id IS NULL;")),

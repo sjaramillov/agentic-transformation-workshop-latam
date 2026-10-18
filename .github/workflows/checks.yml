@@ -16,6 +16,10 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s tests -v
   database-e2e:
+    strategy:
+      fail-fast: false
+      matrix:
+        repetition: [1, 2]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -25,10 +29,10 @@ jobs:
           python-version: '3.13'
       - run: python booking_lab/run.py e2e --output .local/db-e2e.json
         env:
-          LAB_EVIDENCE_ENV: GitHub Actions ubuntu-latest
+          LAB_EVIDENCE_ENV: GitHub Actions ubuntu-latest repetition ${{ matrix.repetition }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: database-e2e-evidence
+          name: database-e2e-evidence-${{ matrix.repetition }}
           path: .local/db-e2e.json
           # Credentials, private .env files, dumps and raw logs are excluded.

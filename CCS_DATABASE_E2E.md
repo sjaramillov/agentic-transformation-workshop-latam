@@ -48,6 +48,6 @@ El resultado debe contener `result: passed`, 18 casos aprobados, invariantes cer
 
 PostgreSQL es el sistema de registro de operaciones, reservas, pagos y outbox. Su tabla `audit_events` es una proyección. El ledger independiente conserva el historial autoritativo; tiene volumen y clave separados y retención mínima de 90 días sin purga automática. [AUDIT.md](booking_lab/AUDIT.md) documenta la verificación y la frontera de confianza.
 
-Los pagos son sintéticos. La evidencia incluye imágenes fijadas, hashes de fuente, resultados de restore y conteos; los secretos se conservan en archivos privados excluidos de Git. CloudShell observado no admite límites cgroup y el JSON registra esa capacidad.
+Los pagos son sintéticos. La evidencia incluye imágenes fijadas, hashes de fuente, resultados de restore y conteos; los secretos se conservan en archivos privados excluidos de Git. El runner histórico registró `resource_limits_available: false` y no aplicó límites cgroup. La revisión posterior encontró un nombre de campo CPU incorrecto en esa detección; ese JSON no basta para concluir que el host no soportara límites. La [guía actual](CLOUDSHELL.md) explica la corrección.
 
 La [prueba inicial de 17 escenarios](historico/CCS_DATABASE_E2E.md) queda disponible para comparar la evolución. Los informes de cada corrida deben conservarse por separado para evitar sobrescribir un fallo con un éxito.

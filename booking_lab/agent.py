@@ -7,6 +7,7 @@ approval, state, HTTP calls, and recovery. Never send session files to a model.
 """
 import argparse
 from contextlib import contextmanager
+from datetime import datetime, timezone
 import fcntl
 import hashlib
 import hmac
@@ -114,13 +115,36 @@ code, URLs, headers, credentials, approval, subject, multiple actions or prose.
 The controller will validate the proposal and require human approval for writes.'''
 
 
-def bedrock_plan(goal, model_id, region=None, runner=subprocess.run):
+def _write_planner_receipt(path, receipt):
+    """An allowlisted sidecar records observations, never CLI debug/credentials."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_NOFOLLOW', 0), 0o600)
+    with os.fdopen(fd, 'wb') as stream:
+        stream.write(canonical(receipt) + b'\n')
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def bedrock_plan(goal, model_id, region=None, runner=subprocess.run, *, evidence_path=None):
     if not isinstance(goal, str) or not 0 < len(goal) <= 4096:
         raise AgentError('Goal must be text up to 4096 characters')
     if not isinstance(model_id, str) or not 0 < len(model_id) <= 2048 or model_id.startswith('-'):
         raise AgentError('Bedrock requires an explicit model or inference profile ID')
     if region is not None and not re.fullmatch(r'[a-z]{2}(?:-[a-z]+)+-[0-9]', region):
         raise AgentError('Invalid AWS region')
+    if evidence_path is not None and (Path(evidence_path).exists() or Path(evidence_path).is_symlink()):
+        raise AgentError('Planner evidence already exists; choose a new path')
+    receipt = {'schema_version': 1, 'transport': 'aws-cli-bedrock-runtime-converse',
+               'model_id': re.sub(r'(?<=:)\d{12}(?=:)', '<account>', model_id),
+               'model_id_sha256': hashlib.sha256(model_id.encode()).hexdigest(),
+               'region': region, 'started_at_utc': datetime.now(timezone.utc).isoformat(),
+               'goal_sha256': hashlib.sha256(goal.encode()).hexdigest(),
+               'system_sha256': hashlib.sha256(BEDROCK_SYSTEM.encode()).hexdigest(),
+               'aws_max_attempts': 1, 'max_output_tokens': 512,
+               'status': 'request_started', 'request_id': None,
+               'request_id_exposure': 'not_exposed_by_aws_cli', 'usage': {}, 'metrics': {},
+               'semantic_refusal_exact': False}
     # AWS CLI receives only the goal and fixed schema, never local state/secrets.
     command = ['aws', 'bedrock-runtime', 'converse', '--model-id', model_id,
                '--messages', json.dumps([{'role': 'user', 'content': [{'text': goal}]}]),
@@ -130,18 +154,39 @@ def bedrock_plan(goal, model_id, region=None, runner=subprocess.run):
     if region:
         command += ['--region', region]
     try:
-        completed = runner(command, capture_output=True, text=True, timeout=90, check=False)
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise AgentError('Bedrock request unavailable; verify AWS CLI, credentials and model access') from exc
-    if completed.returncode:
-        # CLI stderr can contain account/profile details; do not copy it into public evidence.
-        raise AgentError('Bedrock request failed; verify credentials, region and model permission')
-    if len(completed.stdout) > 32768:
-        raise AgentError('Bedrock response too large')
-    try:
+        try:
+            completed = runner(command, capture_output=True, text=True, timeout=90, check=False,
+                               env={**os.environ, 'AWS_MAX_ATTEMPTS': '1', 'AWS_RETRY_MODE': 'standard'})
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            receipt['status'] = 'request_failed'
+            raise AgentError('Bedrock request unavailable; verify AWS CLI, credentials and model access') from exc
+        receipt['cli_exit_code'] = completed.returncode
+        if completed.returncode:
+            receipt['status'] = 'request_failed'
+            # CLI stderr can contain account/profile details; do not copy it into public evidence.
+            raise AgentError('Bedrock request failed; verify credentials, region and model permission')
+        receipt['response_sha256'] = hashlib.sha256(completed.stdout.encode()).hexdigest()
+        receipt['status'] = 'proposal_rejected'
+        if len(completed.stdout) > 32768:
+            raise AgentError('Bedrock response too large')
         envelope = strict_json(completed.stdout)
         if not isinstance(envelope, dict):
             raise AgentError('Malformed Bedrock response envelope')
+        if isinstance(envelope.get('stopReason'), str) and re.fullmatch(r'[a-z_]{1,64}', envelope['stopReason']):
+            receipt['stop_reason'] = envelope['stopReason']
+        usage = envelope.get('usage', {})
+        if isinstance(usage, dict):
+            receipt['usage'] = {key: usage[key] for key in (
+                'inputTokens', 'outputTokens', 'totalTokens', 'cacheReadInputTokens', 'cacheWriteInputTokens')
+                if type(usage.get(key)) is int and usage[key] >= 0}
+        metrics = envelope.get('metrics', {})
+        if isinstance(metrics, dict) and type(metrics.get('latencyMs')) is int and metrics['latencyMs'] >= 0:
+            receipt['metrics']['latencyMs'] = metrics['latencyMs']
+        response_metadata = envelope.get('ResponseMetadata', {})
+        if isinstance(response_metadata, dict) and isinstance(response_metadata.get('RequestId'), str) and re.fullmatch(
+                r'[A-Za-z0-9-]{1,128}', response_metadata['RequestId']):
+            receipt['request_id'] = response_metadata['RequestId']
+            receipt['request_id_exposure'] = 'returned_in_response_metadata'
         if envelope.get('stopReason') != 'end_turn':
             raise AgentError('Bedrock did not finish a complete proposal')
         message = envelope['output']['message']
@@ -149,9 +194,19 @@ def bedrock_plan(goal, model_id, region=None, runner=subprocess.run):
         if (message['role'] != 'assistant' or not isinstance(blocks, list) or len(blocks) != 1
                 or not isinstance(blocks[0], dict) or set(blocks[0]) != {'text'}):
             raise AgentError('Bedrock must return one text proposal')
-        return validate_action(strict_json(blocks[0]['text']))
+        proposed = strict_json(blocks[0]['text'])
+        receipt['semantic_refusal_exact'] = isinstance(proposed, dict) and proposed == {'action': 'unsupported'}
+        action = validate_action(proposed)
+        receipt['status'] = 'proposal_validated'
+        receipt['action_sha256'] = hashlib.sha256(canonical(action)).hexdigest()
+        return action
     except (KeyError, TypeError) as exc:
+        receipt['status'] = 'proposal_rejected'
         raise AgentError('Malformed Bedrock proposal') from exc
+    finally:
+        receipt['finished_at_utc'] = datetime.now(timezone.utc).isoformat()
+        if evidence_path is not None:
+            _write_planner_receipt(evidence_path, receipt)
 
 
 def binding(action, request_key):
@@ -250,7 +305,7 @@ def load_state(path, session, subject):
     return state
 
 
-def propose(path, session, subject, goal, planner='rules', model_id=None, region=None, now=None):
+def propose(path, session, subject, goal, planner='rules', model_id=None, region=None, now=None, planner_evidence=None):
     path = Path(path)
     if path.exists() or path.is_symlink():
         raise AgentError('State already exists; inspect/execute it or choose a new state path')
@@ -258,7 +313,9 @@ def propose(path, session, subject, goal, planner='rules', model_id=None, region
         raise AgentError('Unsupported workshop subject')
     if planner not in ('rules', 'bedrock') or now is not None and type(now) is not int:
         raise AgentError('Invalid planner or plan timestamp')
-    action = rules_plan(goal) if planner == 'rules' else bedrock_plan(goal, model_id, region)
+    if planner == 'rules' and planner_evidence is not None:
+        raise AgentError('Planner evidence is only available for Bedrock')
+    action = rules_plan(goal) if planner == 'rules' else bedrock_plan(goal, model_id, region, evidence_path=planner_evidence)
     identifier = uuid.uuid4().hex
     plan = {'id': identifier, 'session': session['prefix'], 'subject': subject,
             'action': action, 'request_key': 'agent-' + identifier,
@@ -443,17 +500,23 @@ def main(argv=None):
     parser.add_argument('--planner', choices=['rules', 'bedrock'], default='rules')
     parser.add_argument('--model-id')
     parser.add_argument('--region')
+    parser.add_argument('--planner-evidence', type=Path, help='New private JSON sidecar for Bedrock usage/response hashes')
     parser.add_argument('command', choices=['plan', 'approve', 'reject', 'execute', 'run', 'inspect'], nargs='?', default='run')
     args = parser.parse_args(argv)
     try:
         session = session_from(args.session)
         if args.state.resolve() == args.session.resolve():
             raise AgentError('State and session paths must differ')
+        if args.planner_evidence is not None and args.planner_evidence.resolve() in (args.state.resolve(), args.session.resolve()):
+            raise AgentError('Planner evidence must differ from state and session paths')
+        if args.planner_evidence is not None and args.command not in ('plan', 'run'):
+            raise AgentError('Planner evidence is only used by plan/run')
         with state_lock(args.state):
             if args.command in ('plan', 'run'):
                 if not args.goal:
                     raise AgentError('--goal is required for plan/run')
-                state = propose(args.state, session, args.subject, args.goal, args.planner, args.model_id, args.region)
+                state = propose(args.state, session, args.subject, args.goal, args.planner, args.model_id, args.region,
+                                planner_evidence=args.planner_evidence)
                 if args.command == 'plan':
                     print(json.dumps(public_state(state), indent=2, ensure_ascii=False))
                     return 0

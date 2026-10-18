@@ -1,21 +1,29 @@
 # Validación del workshop con agente, valor y AI-DLC
 
-**18 de octubre de 2026 — resultado aprobado.** Código de aplicación y pruebas: [`926265a55a301c8d54e64876fd28a34c50208e94`](https://github.com/sjaramillov/agentic-transformation-workshop-latam/commit/926265a55a301c8d54e64876fd28a34c50208e94).
+**18 de octubre de 2026 — resultado aprobado.** Código de aplicación y pruebas: [`9e028a85a381f68374fdfa121c70d4114811d1ac`](https://github.com/sjaramillov/agentic-transformation-workshop-latam/commit/9e028a85a381f68374fdfa121c70d4114811d1ac).
 
 | Comprobación | Resultado | Evidencia |
 | --- | --- | --- |
-| CI de la revisión | 5/5 trabajos aprobados | [GitHub Actions 39129820064](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/39129820064) |
-| Suite pública | 76 pruebas; matriz Linux/macOS y Python 3.11/3.14 aprobada | Trabajos `public-checks` de la misma ejecución |
-| Agente + API + PostgreSQL 16.15 | **28/28 escenarios E2E**, incluidos nueve recorridos CLI | [Recibo completo](database-e2e.json) |
-| Invariantes | Cinco en cero; cero contenedores de prueba activos al terminar | Recibo completo |
-| Auditoría | 52 eventos; integridad y restauración PostgreSQL/SQLite comprobadas | `independent_audit` y `restored_table_row_hashes` del recibo |
+| CI de la revisión | 6/6 trabajos aprobados | [GitHub Actions 39130821144](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/39130821144) |
+| Suite pública | 86 pruebas; matriz Linux/macOS y Python 3.11/3.14 aprobada | Trabajos `public-checks` de la misma ejecución |
+| Agente + API + PostgreSQL 16.15 | **28/28 escenarios E2E en dos ejecuciones independientes**, incluidos nueve recorridos CLI | [Repetición 1](database-e2e.json) y [repetición 2](database-e2e-repeat.json) |
+| Invariantes | Cinco en cero; cero contenedores de prueba activos al terminar, en ambas corridas | Ambos recibos |
+| Auditoría | 52 eventos por corrida; integridad y restauración PostgreSQL/SQLite comprobadas | `independent_audit` y `restored_table_row_hashes` de ambos recibos |
+| Backup estable | Cuatro escritores detenidos y dos colas vacías antes de `pg_dump`; seis tablas restauradas con hashes iguales | `snapshot_barrier` y `restored_table_row_hashes` |
+| Límites Docker | Memoria, CPU y procesos confirmados y activados en ambos entornos | `resource_limit_capabilities` y `resource_limits_available` |
 | Identidad del código | Los 16 archivos de `booking_lab/` coinciden por SHA256 con el commit probado | [Verificación](verification.json) |
-| Clon público nuevo | 76 pruebas aprobadas, sin paquete privado; 16 entregables preparados con hashes coincidentes | [Recibo del clon](public-clone.json) |
+| Clon público nuevo | 86 pruebas aprobadas, sin paquete privado; 16 entregables preparados con hashes coincidentes | [Recibo del clon](public-clone.json) |
 | Artefactos didácticos visibles | Ejemplo generado del mismo commit, con decisiones humanas pendientes | [Ejemplo completo](../../examples/workshop/README.md) |
 
-El E2E se ejecutó en **GitHub Actions, Ubuntu**, de `13:02:40` a `13:03:41 UTC` (61 segundos observados, incluido montaje y cierre). Ese tiempo pertenece a esta corrida y no es una estimación para otros hosts. Las comprobaciones de clon público se realizaron en macOS con Python 3.14.0.
+El E2E se ejecutó en **dos runners independientes de GitHub Actions, Ubuntu**. La primera repetición fue de `13:16:33` a `13:17:33 UTC`; la segunda, de `13:16:31` a `13:17:27 UTC`, el 18 de octubre. Son tiempos observados de estas corridas, incluido montaje y cierre, no estimaciones para otros hosts. El clon público se comprobó en macOS con Python 3.14.0.
 
-El archivo `database-e2e.json` es el artefacto de CI conservado byte a byte. `verification.json` registra su SHA256, el commit, los trabajos y la comparación de nombres de casos extraídos del runner con los efectivamente ejecutados. Los hashes identifican los archivos; la ejecución de los escenarios aporta la evidencia de comportamiento.
+Los archivos `database-e2e.json` y `database-e2e-repeat.json` conservan los artefactos de CI byte a byte. `verification.json` registra sus SHA256, el commit, los seis trabajos y los nombres de casos contrastados con el runner. Los hashes identifican los archivos; los escenarios aportan evidencia de comportamiento.
+
+## Fallo encontrado y corregido
+
+La repetición anterior detectó una carrera: `pg_dump` conservó 50 eventos y el worker agregó dos antes de comparar la base activa, que ya tenía 52. Ahora el runner detiene ambas API, drena operaciones y auditoría, detiene worker y pagos, y comprueba que no queden escritores ni pendientes antes del backup. Mantiene las comparaciones estrictas de conteos y hashes de las seis tablas.
+
+También se corrigió `CPUCfsQuota` por el campo real `CpuCfsQuota` de Docker; el valor falso de corridas antiguas no demostraba falta de soporte del host. Hay diez pruebas de regresión nuevas sobre la barrera y las capacidades. Consulta [incidentes y correcciones](incidents.json), el [recibo fallido conservado](runs/39130162323-database-e2e.json) y la [primera corrida aprobada](runs/39129820064-database-e2e.json). Los recibos históricos no se reescribieron.
 
 ## Qué se comprobó en el agente
 

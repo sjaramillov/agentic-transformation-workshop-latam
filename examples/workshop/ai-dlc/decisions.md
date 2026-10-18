@@ -1,6 +1,6 @@
 # Registro de decisiones humanas
 
-Commit de entrada: `926265a55a301c8d54e64876fd28a34c50208e94`. La preparación no aprueba decisiones.
+Commit de entrada: `9e028a85a381f68374fdfa121c70d4114811d1ac`. La preparación no aprueba decisiones.
 
 | Fecha | Fase | Responsable | Decisión | Evidencia / artefactos | Riesgos y próxima revisión |
 | --- | --- | --- | --- | --- | --- |

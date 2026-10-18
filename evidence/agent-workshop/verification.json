@@ -1,12 +1,20 @@
 {
-  "verified_at_utc": "2026-10-18T13:04:47.955025+00:00",
-  "source_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
-  "ci_run_id": 39129820064,
-  "ci_url": "https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/39129820064",
+  "verified_at_utc": "2026-10-18T13:18:34.652598+00:00",
+  "source_commit": "9e028a85a381f68374fdfa121c70d4114811d1ac",
+  "ci_run_id": 39130821144,
+  "ci_url": "https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/39130821144",
   "ci_result": "success",
   "ci_jobs": [
     {
-      "name": "database-e2e",
+      "name": "database-e2e (2)",
+      "conclusion": "success"
+    },
+    {
+      "name": "database-e2e (1)",
+      "conclusion": "success"
+    },
+    {
+      "name": "public-checks (ubuntu-latest, 3.11)",
       "conclusion": "success"
     },
     {
@@ -18,15 +26,13 @@
       "conclusion": "success"
     },
     {
-      "name": "public-checks (ubuntu-latest, 3.11)",
-      "conclusion": "success"
-    },
-    {
       "name": "public-checks (ubuntu-latest, 3.14)",
       "conclusion": "success"
     }
   ],
-  "postgres_cases": 28,
+  "unit_tests": 86,
+  "postgres_cases_per_repetition": 28,
+  "independent_repetitions": 2,
   "expected_cases_extracted_from": "booking_lab/run.py at source_commit",
   "case_names": [
     "authentication_issuer_audience_expiry_signature_scope",
@@ -58,11 +64,38 @@
     "agent_cli_api_crash_after_capture_resume_no_double_charge",
     "agent_cli_cancel_requires_new_approval_and_refunds_once"
   ],
-  "source_hashes_match_git": true,
-  "source_files_verified": 16,
-  "receipt_sha256": "07bcfe55ff59881a4fd9429d1d9c30ab5c84adbdada8db41f98c34a9acadae42",
-  "five_invariants_zero": true,
-  "test_containers_running": 0,
+  "repetitions": [
+    {
+      "repetition": 1,
+      "receipt": "database-e2e.json",
+      "receipt_sha256": "82b990dad90c6015e9cd0a597ab7e3b2273aa7e963399dddb10474a93c54af94",
+      "postgres_cases": 28,
+      "source_files_verified": 16,
+      "source_hashes_match_git": true,
+      "five_invariants_zero": true,
+      "snapshot_barrier_passed": true,
+      "resource_limits_available": true,
+      "test_containers_running": 0,
+      "audit_events": 52,
+      "started_at_utc": "2026-10-18T13:16:33.500281+00:00",
+      "finished_at_utc": "2026-10-18T13:17:33.634025+00:00"
+    },
+    {
+      "repetition": 2,
+      "receipt": "database-e2e-repeat.json",
+      "receipt_sha256": "a4d68438d20633264d9311dc9ba19bc55a67052a1c0d617c4115fc43625a668f",
+      "postgres_cases": 28,
+      "source_files_verified": 16,
+      "source_hashes_match_git": true,
+      "five_invariants_zero": true,
+      "snapshot_barrier_passed": true,
+      "resource_limits_available": true,
+      "test_containers_running": 0,
+      "audit_events": 52,
+      "started_at_utc": "2026-10-18T13:16:31.156146+00:00",
+      "finished_at_utc": "2026-10-18T13:17:27.773792+00:00"
+    }
+  ],
   "new_ara_moda_executed": false,
   "live_bedrock_invoked": false,
   "business_outcome_measured": false

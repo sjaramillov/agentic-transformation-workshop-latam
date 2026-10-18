@@ -1,155 +1,160 @@
 {
   "schema_version": 1,
-  "started_at_utc": "2026-10-18T13:02:40.106532+00:00",
+  "started_at_utc": "2026-10-18T13:16:33.500281+00:00",
   "implementation": "original MIT booking_lab",
-  "environment": "GitHub Actions ubuntu-latest",
+  "environment": "GitHub Actions ubuntu-latest repetition 1",
   "payments": "synthetic HTTP provider backed by PostgreSQL; no money moved",
   "evaluation_kind": "database_e2e",
   "cases": [
     {
       "name": "authentication_issuer_audience_expiry_signature_scope",
       "result": "passed",
-      "duration_seconds": 0.261
+      "duration_seconds": 0.294
     },
     {
       "name": "server_approval_missing_expired_subject_payload_key_action_signature_denied",
       "result": "passed",
-      "duration_seconds": 0.245
+      "duration_seconds": 0.272
     },
     {
       "name": "create_charge_persist_read_list_with_attribution",
       "result": "passed",
-      "duration_seconds": 0.204
+      "duration_seconds": 0.239
     },
     {
       "name": "stable_replay_and_payload_conflict_across_replicas",
       "result": "passed",
-      "duration_seconds": 0.101
+      "duration_seconds": 0.116
     },
     {
       "name": "identity_isolation_and_identity_scoped_idempotency",
       "result": "passed",
-      "duration_seconds": 0.103
+      "duration_seconds": 0.117
     },
     {
       "name": "eight_concurrent_requests_two_api_replicas_one_charge",
       "result": "passed",
-      "duration_seconds": 0.279
+      "duration_seconds": 0.276
     },
     {
       "name": "real_insert_failure_after_charge_refunds_without_orphan",
       "result": "passed",
-      "duration_seconds": 0.239
+      "duration_seconds": 0.273
     },
     {
       "name": "refund_outage_durable_state_and_worker_recovery",
       "result": "passed",
-      "duration_seconds": 0.798
+      "duration_seconds": 0.883
     },
     {
       "name": "process_crash_after_external_commit_reconciles_without_double_charge",
       "result": "passed",
-      "duration_seconds": 1.465
+      "duration_seconds": 1.58
     },
     {
       "name": "payment_provider_outage_retains_intent_and_recovers",
       "result": "passed",
-      "duration_seconds": 0.864
+      "duration_seconds": 0.959
     },
     {
       "name": "process_crash_after_refund_recovers_without_second_refund",
       "result": "passed",
-      "duration_seconds": 1.385
+      "duration_seconds": 1.809
     },
     {
       "name": "declined_payment_does_not_create_booking",
       "result": "passed",
-      "duration_seconds": 0.158
+      "duration_seconds": 0.179
     },
     {
       "name": "cancel_refund_repeat_and_preserve_create_response",
       "result": "passed",
-      "duration_seconds": 0.174
+      "duration_seconds": 0.196
     },
     {
       "name": "audit_delivery_failure_restart_and_durable_outbox_drain",
       "result": "passed",
-      "duration_seconds": 1.184
+      "duration_seconds": 1.31
     },
     {
       "name": "runtime_roles_cannot_rewrite_audit_or_cross_service_tables",
       "result": "passed",
-      "duration_seconds": 0.536
+      "duration_seconds": 0.617
     },
     {
       "name": "audit_redelivery_deduplicates_event_ids",
       "result": "passed",
-      "duration_seconds": 0.711
+      "duration_seconds": 1.017
     },
     {
       "name": "database_outage_fail_closed_and_volume_survives_restart",
       "result": "passed",
-      "duration_seconds": 1.658
+      "duration_seconds": 1.831
     },
     {
       "name": "agent_cli_plan_unapproved_execute_and_rejection_have_no_writes",
       "result": "passed",
-      "duration_seconds": 0.36
+      "duration_seconds": 0.419
     },
     {
       "name": "agent_cli_approved_create_observe_replay_and_subject_binding",
       "result": "passed",
-      "duration_seconds": 0.498
+      "duration_seconds": 0.587
     },
     {
       "name": "agent_cli_two_processes_same_state_one_attempt_one_charge",
       "result": "passed",
-      "duration_seconds": 0.332
+      "duration_seconds": 0.401
     },
     {
       "name": "agent_cli_modified_approved_plan_is_rejected",
       "result": "passed",
-      "duration_seconds": 0.308
+      "duration_seconds": 0.343
     },
     {
       "name": "agent_cli_read_only_tool_lists_only_authenticated_subject",
       "result": "passed",
-      "duration_seconds": 0.2
+      "duration_seconds": 0.234
     },
     {
       "name": "agent_cli_provider_outage_and_resume_from_persisted_plan",
       "result": "passed",
-      "duration_seconds": 1.136
+      "duration_seconds": 1.337
     },
     {
       "name": "agent_cli_withdraw_after_send_preserves_remote_reconciliation",
       "result": "passed",
-      "duration_seconds": 1.364
+      "duration_seconds": 1.502
     },
     {
       "name": "agent_cli_api_crash_after_capture_resume_no_double_charge",
       "result": "passed",
-      "duration_seconds": 1.418
+      "duration_seconds": 1.656
     },
     {
       "name": "agent_cli_cancel_requires_new_approval_and_refunds_once",
       "result": "passed",
-      "duration_seconds": 0.536
+      "duration_seconds": 0.659
     },
     {
       "name": "actual_pg_dump_restore_into_separate_database",
       "result": "passed",
-      "duration_seconds": 0.991
+      "duration_seconds": 1.938
     },
     {
       "name": "independent_signed_audit_retention_tamper_restart_restore",
       "result": "passed",
-      "duration_seconds": 10.979
+      "duration_seconds": 11.141
     }
   ],
-  "repository_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
+  "repository_commit": "9e028a85a381f68374fdfa121c70d4114811d1ac",
   "working_tree_dirty": false,
-  "resource_limits_available": false,
+  "resource_limit_capabilities": {
+    "MemoryLimit": true,
+    "CpuCfsQuota": true,
+    "PidsLimit": true
+  },
+  "resource_limits_available": true,
   "base_images": {
     "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea": [
       "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea"
@@ -158,7 +163,7 @@
       "python@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f"
     ]
   },
-  "app_image_id": "sha256:de8550a6125521105347923f827b8d972ce5db7b3684d5d76b0e4228cba08e4f",
+  "app_image_id": "sha256:1e81c7d739922806eb61c889eeaaf5f15cfb02349bb238fbcc95c496d469f626",
   "source_sha256": {
     ".dockerignore": "7ba9125ab3e191d2d51e111f6d7d6c26ee19c34e91e8e8036d806011cec61725",
     "AUDIT.md": "3172e3e519a87ee23787547a509457d6d15a9cbaa9ad1d22ae18f1978117d313",
@@ -173,7 +178,7 @@
     "http_safety.py": "9ba9315e397ecab5432d01e08495904a926928c4a5827080efea10a8a008b2df",
     "images.lock.json": "1f61102e10a0e14d4b1cb78bf5c37c1fa47071d526f7cbdea028ef223b1e72a0",
     "requirements.txt": "281f4fe5b5deb728449e2e3c762b88249931daebc04f65a098c757ac3f37d80f",
-    "run.py": "e97c7205183c09beefc8f6ebb977169953bd3eec33cd87729410329aa9c2236b",
+    "run.py": "f5f709ce1941d5758e0c29c25f2c4e4cc9d95c946cc2d256a2b0d7fafe83af47",
     "schema.sql": "609d859f6db317669ca56a81ad55bbf624e8ced5b133e963c554f920770ae598",
     "service.py": "325784a8c639139e3eab0eca8d960ed48226200bfd54d9424b6bdfcdea8777e8"
   },
@@ -187,16 +192,43 @@
     "state": "atomic private files, no keys or bearer tokens",
     "test_confirmation_is_human_identity_proof": false
   },
+  "snapshot_barrier": {
+    "result": "passed",
+    "phase": "verified",
+    "started_at_utc": "2026-10-18T13:17:09.825580+00:00",
+    "stop_order": [
+      "api-a",
+      "api-b",
+      "worker",
+      "payments"
+    ],
+    "drain_polls": 1,
+    "last_drain_counts": {
+      "pending_operations": 0,
+      "undelivered_audit_events": 0
+    },
+    "writers_running_before_dump": {
+      "api-a": false,
+      "api-b": false,
+      "worker": false,
+      "payments": false
+    },
+    "final_queue_counts": {
+      "pending_operations": 0,
+      "undelivered_audit_events": 0
+    },
+    "verified_at_utc": "2026-10-18T13:17:10.610055+00:00"
+  },
   "restored_table_row_hashes": {
-    "operations": "99d8ed7d0c79460dc8f564005a150d5a",
-    "bookings": "64dd94b236d26f196e5b58d35b24b89e",
-    "charges": "c3e6793b249566391b8795e17f27a220",
-    "outbox": "24b6b898084c281c8c1e880c41938018",
-    "audit_events": "c920b3893e5b7c57bfc3874c80fc4732",
+    "operations": "0a486772472f46893693f89e602f8198",
+    "bookings": "41c766ee374c0f3bf163724795b4ac89",
+    "charges": "fa665dcf1dd74e7fcf3994239d8e52b4",
+    "outbox": "c58d22f8d7f6f4f3a550885a7bfb8e36",
+    "audit_events": "48855fd57df1e8b777724442770b1260",
     "faults": "6d3384cbcbfbd7a3d9e62f0d80769237"
   },
   "restore_counts_bookings_charges_audit": "12|15|52",
-  "synthetic_dump_sha256": "0fef28b441b13c4a95f9cbcb19e3c87fb625bbafaae949a0d73c37c47e80a6dc",
+  "synthetic_dump_sha256": "3003cac492f5624084539a9006c13471f2b26ac4753304262a0c276e38f898f3",
   "invariants": {
     "captured_without_confirmed_booking": 0,
     "confirmed_without_captured_payment": 0,
@@ -207,7 +239,7 @@
   "independent_audit": {
     "records": 52,
     "checkpoint": {
-      "digest": "87082029ab83176b78ba16be947c9c31efc7f62553a8b39c4309f98f86b44e50",
+      "digest": "493bba2480c3527c9278da669339a14de93940dbe44dd8e0f6c57289c1850a3b",
       "sequence": 52
     },
     "retention_days": 90,
@@ -219,6 +251,6 @@
   },
   "audit_event_count": 52,
   "result": "passed",
-  "finished_at_utc": "2026-10-18T13:03:41.094547+00:00",
+  "finished_at_utc": "2026-10-18T13:17:33.634025+00:00",
   "test_containers_running": 0
 }

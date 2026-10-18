@@ -1,13 +1,13 @@
 # Verificación del workshop público
 
-**Versión ampliada comprobada:** [28/28 escenarios E2E con PostgreSQL y 76 pruebas públicas](evidence/agent-workshop/README.md), con código, artefacto de CI y clon público vinculados a una revisión. El índice distingue ejecución del agente, contrato Bedrock y evaluación histórica ARA/MODA.
+**Versión ampliada comprobada:** [28/28 escenarios E2E con PostgreSQL en dos ejecuciones y 86 pruebas públicas](evidence/agent-workshop/README.md), con código, artefacto de CI y clon público vinculados a una revisión. El índice distingue ejecución del agente, contrato Bedrock y evaluación histórica ARA/MODA.
 
 La aceptación del recorrido ampliado distingue estas capas:
 
 | Capa | Cómo reproducir | Evidencia |
 | --- | --- | --- |
 | Materiales y herramientas | `python3 -m unittest discover -s tests -v` | CI pública, enlaces y preparación desde Git |
-| Agente y contrato con PostgreSQL | `python3 booking_lab/run.py e2e --output .local/db-e2e.json` | JSON y artefacto `database-e2e-evidence` de cada ejecución de CI; referencia anterior en [CCS_DATABASE_E2E.md](CCS_DATABASE_E2E.md) |
+| Agente y contrato con PostgreSQL | `python3 booking_lab/run.py e2e --output .local/db-e2e.json` | JSON y artefactos `database-e2e-evidence-1` y `database-e2e-evidence-2` de cada ejecución de CI; referencia anterior en [CCS_DATABASE_E2E.md](CCS_DATABASE_E2E.md) |
 | Evaluación de AWS Transform | [Ejecución AWS](EJECUCION_AWS.md) | [CCS_E2E.md](CCS_E2E.md), informes históricos del 16 de octubre con sus commits |
 | Hipótesis de negocio | [Ficha de valor](FICHA_VALOR.md) y [AI-DLC](AI_DLC.md) | Línea base y resultado medidos por cada equipo; el caso incluido es ilustrativo |
 
@@ -28,7 +28,7 @@ La suite de base de datos incluye los 18 casos originales y diez casos adicional
 - Reiniciar la API después de un cobro confirmado por el proveedor: recuperar sin volver a cobrar.
 - Cancelar con aprobación nueva y repetir: un reembolso.
 
-El resultado aceptable tiene `result: passed`, todos los casos aprobados, cinco invariantes en cero y `test_containers_running: 0`. `source_sha256` vincula el recibo al código y `repository_commit` registra la revisión. La CI ejecuta la suite unitaria en Linux/macOS con Python 3.11/3.14 y el E2E de DB en Linux.
+El resultado aceptable tiene `result: passed`, todos los casos aprobados, cinco invariantes en cero y `test_containers_running: 0`. `source_sha256` vincula el recibo al código y `repository_commit` registra la revisión. La CI ejecuta la suite unitaria en Linux/macOS con Python 3.11/3.14 y dos repeticiones independientes del E2E de DB en Linux. La barrera `snapshot_barrier` debe estar aprobada, con los escritores detenidos y las colas vacías antes del backup.
 
 El modo comprobado por la suite es `rules`: las llamadas HTTP, la persistencia y las fallas son reales en el entorno sintético. El adaptador Bedrock tiene pruebas de contrato con respuestas controladas; estas no representan una inferencia real ni una evaluación de calidad de modelos. La propuesta final siempre exige revisión para escribir.
 

@@ -1,6 +1,6 @@
 {
-  "public_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
-  "analysis_commit": "2dffdada5869e4ac904241308d36e94cf176c6c6",
+  "public_commit": "9e028a85a381f68374fdfa121c70d4114811d1ac",
+  "analysis_commit": "613be8269aca63a831b43a5f6c17168dc3df73f2",
   "source_sha256": {
     "LICENSE": "498bd8d5de305a7c4cd061178b58c19062604de3dfbed9953e536cac74b14768",
     "booking_lab/.dockerignore": "7ba9125ab3e191d2d51e111f6d7d6c26ee19c34e91e8e8036d806011cec61725",
@@ -16,7 +16,7 @@
     "booking_lab/http_safety.py": "9ba9315e397ecab5432d01e08495904a926928c4a5827080efea10a8a008b2df",
     "booking_lab/images.lock.json": "1f61102e10a0e14d4b1cb78bf5c37c1fa47071d526f7cbdea028ef223b1e72a0",
     "booking_lab/requirements.txt": "281f4fe5b5deb728449e2e3c762b88249931daebc04f65a098c757ac3f37d80f",
-    "booking_lab/run.py": "e97c7205183c09beefc8f6ebb977169953bd3eec33cd87729410329aa9c2236b",
+    "booking_lab/run.py": "f5f709ce1941d5758e0c29c25f2c4e4cc9d95c946cc2d256a2b0d7fafe83af47",
     "booking_lab/schema.sql": "609d859f6db317669ca56a81ad55bbf624e8ced5b133e963c554f920770ae598",
     "booking_lab/service.py": "325784a8c639139e3eab0eca8d960ed48226200bfd54d9424b6bdfcdea8777e8"
   },
@@ -46,10 +46,10 @@
     "0-value.json": "0723aa4743c5c414a8f7415a669d8ff64fc37ac906d1c7645fa33def46040f73",
     "0-value-worksheet.md": "daff67605413a8e0e6ad308f9d9c51d05cb9ca730d47184675b358f4edb62053",
     "G-traceability.csv": "3bc6b4ea29ef8789c230d2f6876531d6f5a1c91b00d56d0dcca1743cd4913396",
-    "ai-dlc/inception.json": "d4288fd50e18986131ef6dd7d1793d65cf289abdfc21f2182a3f3a24302c2194",
-    "ai-dlc/construction.json": "349232e5ce749981085191ba3e2cebccd450c0fd0494bc3b97a049fc4287fbae",
-    "ai-dlc/operations.json": "403fd444708dd1e186c5a830962b00c398df9809cad2b14b1de3482f22b19cf7",
-    "ai-dlc/decisions.md": "9094be0b53936b44ebc5805879fb1d6b15190a5135fdb05f62be63d96023e90d"
+    "ai-dlc/inception.json": "e3aac0a418a55f9b360a077ce9bb2bdd2ffdcdec14ac20e588290c5c4da0da5b",
+    "ai-dlc/construction.json": "95415ac9a2de336a02b4df428549dcf60c3aafe2e6cf46562e9f411ad7bce661",
+    "ai-dlc/operations.json": "3ad3f2e39569c4e3d80721edebfbae68b2009305b4763d0428369daf09e611e7",
+    "ai-dlc/decisions.md": "9371bfc6ed221c7d1f7045a78cb5c952edc188fbcb8987d9daba1cf37141c058"
   },
   "preparer_sha256": "3264c08a5fece928a73c1e6b24e126fda1e4f25489969f0f7ece3fc9052f9ad7",
   "value_and_ai_dlc_available": true,

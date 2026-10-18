@@ -2,14 +2,22 @@
 
 Prerrequisitos: [CloudShell preparado](CLOUDSHELL.md), ATX disponible y acceso autorizado a Transform. Todo el código de entrada está en el repo. El análisis administrado requiere tu cuenta AWS y genera resultados nuevos.
 
-## 1. Prepara un conjunto trazable
+## 1. Selecciona un conjunto trazable
 
-Desde la raíz del clon público:
+Desde la raíz del clon público, reutiliza `.local/workshop-01`, preparado en Inicio rápido o CloudShell. El bloque lo crea solo si todavía no existe. La revisión analizada es la que registra su `manifest.json`; preparar no incorpora cambios sin commit. Si ese directorio ya contiene resultados de análisis, elige otro nombre para `PRACTICE` y sufijos nuevos para las fuentes antes de ejecutar el bloque. `mkdir results` evita sobrescribir una corrida anterior.
 
 ```bash
 set -euo pipefail
-python3 scripts/workshop.py prepare --output .local/workshop-01
 export PRACTICE="$(pwd)/.local/workshop-01"
+if [ ! -e "$PRACTICE" ]; then
+  python3 scripts/workshop.py prepare --output "$PRACTICE"
+fi
+test -f "$PRACTICE/manifest.json"
+test -f "$PRACTICE/contexts/ara.txt"
+test -f "$PRACTICE/contexts/moda.txt"
+test -d "$PRACTICE/sources/ara/booking-mit/.git"
+test -d "$PRACTICE/sources/moda/booking-mit/.git"
+mkdir "$PRACTICE/results"
 export AWS_REGION=us-east-1
 # Elige un sufijo nuevo para cada comparación.
 export SOURCE_ARA=mit-ara-01
@@ -22,7 +30,6 @@ atx ct source add --name "$SOURCE_MODA" --provider local --path "$PRACTICE/sourc
 atx ct discovery scan --source "$SOURCE_MODA"
 atx ct repository list --source "$SOURCE_ARA"
 atx ct repository list --source "$SOURCE_MODA"
-mkdir "$PRACTICE/results"
 ```
 
 Cada fuente debe mostrar `booking-mit`. Los dos clones contienen el mismo commit. El alcance de esta comparación es el servicio. La CI y las guías de la raíz se verifican aparte; los informes pueden señalar su ausencia en el clon reducido. No interpretes esa ausencia como falta de CI en el repo público. No registres informes históricos como código de entrada: el preparador selecciona `booking_lab/` y `LICENSE` del commit indicado, registra hashes y excluye secretos y resultados anteriores.
@@ -90,10 +97,20 @@ Registra los cambios revisados en un commit de tu repositorio antes de preparar 
 ```bash
 python3 -m unittest discover -s tests -v
 python3 booking_lab/run.py e2e --output .local/db-after.json
-python3 scripts/workshop.py prepare --output .local/workshop-02 --revision HEAD
+export PRACTICE="$(pwd)/.local/workshop-02"
+python3 scripts/workshop.py prepare --output "$PRACTICE" --revision HEAD
+export SOURCE_ARA=mit-ara-02
+export SOURCE_MODA=mit-moda-02
+mkdir "$PRACTICE/results"
+atx ct source add --name "$SOURCE_ARA" --provider local --path "$PRACTICE/sources/ara"
+atx ct discovery scan --source "$SOURCE_ARA"
+atx ct source add --name "$SOURCE_MODA" --provider local --path "$PRACTICE/sources/moda"
+atx ct discovery scan --source "$SOURCE_MODA"
+atx ct repository list --source "$SOURCE_ARA"
+atx ct repository list --source "$SOURCE_MODA"
 ```
 
-Repite D/E con fuentes nuevas y los mismos contextos. Compara por pregunta con [la plantilla CSV](workshop/templates/comparison.csv) o genera JSON y CSV automáticamente:
+Con esas variables actualizadas, repite los comandos D/E de las secciones 2 y 3. Usa nombres nuevos si `.local/workshop-02` o esas fuentes ya existen. Comprueba los hashes de contexto de ambos `manifest.json`: si cambió el contexto, registra esa diferencia antes de interpretar el resultado. Compara por pregunta con [la plantilla CSV](workshop/templates/comparison.csv) o genera JSON y CSV automáticamente:
 
 ```bash
 python3 scripts/compare_reports.py ANTES_ARA.json DESPUES_ARA.json \

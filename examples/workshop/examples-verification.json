@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "public_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
+  "public_commit": "9e028a85a381f68374fdfa121c70d4114811d1ac",
   "purpose": "Read-only published educational outputs; no human decisions or cloud analyses executed by preparation.",
   "copied_artifacts": {
     "0-value.json": {
@@ -28,24 +28,24 @@
       "matches_generated_manifest": true
     },
     "ai-dlc/inception.json": {
-      "sha256": "d4288fd50e18986131ef6dd7d1793d65cf289abdfc21f2182a3f3a24302c2194",
+      "sha256": "e3aac0a418a55f9b360a077ce9bb2bdd2ffdcdec14ac20e588290c5c4da0da5b",
       "matches_generated_manifest": true
     },
     "ai-dlc/construction.json": {
-      "sha256": "349232e5ce749981085191ba3e2cebccd450c0fd0494bc3b97a049fc4287fbae",
+      "sha256": "95415ac9a2de336a02b4df428549dcf60c3aafe2e6cf46562e9f411ad7bce661",
       "matches_generated_manifest": true
     },
     "ai-dlc/operations.json": {
-      "sha256": "403fd444708dd1e186c5a830962b00c398df9809cad2b14b1de3482f22b19cf7",
+      "sha256": "3ad3f2e39569c4e3d80721edebfbae68b2009305b4763d0428369daf09e611e7",
       "matches_generated_manifest": true
     },
     "ai-dlc/decisions.md": {
-      "sha256": "9094be0b53936b44ebc5805879fb1d6b15190a5135fdb05f62be63d96023e90d",
+      "sha256": "9371bfc6ed221c7d1f7045a78cb5c952edc188fbcb8987d9daba1cf37141c058",
       "matches_generated_manifest": true
     }
   },
   "copied_artifact_count": 10,
-  "manifest_sha256": "c742b436b6133eeb0fdd74971753cc24e383e92b2bda962965fd16bbdeba8545",
+  "manifest_sha256": "c33c1660fd2588891b7c999e8e982795fe368f85593065ad2153712620038a3b",
   "manifest_preserved_without_edits": true,
   "publication_scope": "Selected generated worksheets and handoffs only; manifest also records artifacts outside this example directory.",
   "manifest_artifacts_not_copied": [

@@ -2,7 +2,7 @@
 
 Puedes recorrer aquí los entregables del workshop antes de instalar herramientas. Son una **instantánea educativa generada**, con la hipótesis resuelta y las decisiones humanas pendientes. La ficha usa supuestos ilustrativos; estos archivos no demuestran ahorro comercial ni aprobación de un despliegue.
 
-Fuente pública: commit [`926265a55a301c8d54e64876fd28a34c50208e94`](https://github.com/sjaramillov/agentic-transformation-workshop-latam/commit/926265a55a301c8d54e64876fd28a34c50208e94). El código, las guías y estos entregables originales se distribuyen bajo [MIT](../../LICENSE).
+Fuente pública: commit [`9e028a85a381f68374fdfa121c70d4114811d1ac`](https://github.com/sjaramillov/agentic-transformation-workshop-latam/commit/9e028a85a381f68374fdfa121c70d4114811d1ac). El código, las guías y estos entregables originales se distribuyen bajo [MIT](../../LICENSE).
 
 ## Recorre el caso
 
@@ -36,7 +36,7 @@ Desde la raíz de un clon del repositorio, con Git y Python 3.11+:
 
 ```bash
 python3 scripts/workshop.py prepare \
-  --revision 926265a55a301c8d54e64876fd28a34c50208e94 \
+  --revision 9e028a85a381f68374fdfa121c70d4114811d1ac \
   --output .local/mi-workshop
 ```
 

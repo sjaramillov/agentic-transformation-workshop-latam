@@ -9,10 +9,10 @@ AWS organiza AI-DLC en **Inception**, **Construction** y **Operations**, con con
 | Fase | Entrada | Actividad del workshop | Artefactos de salida | Responsable y condición para avanzar |
 | --- | --- | --- | --- | --- |
 | **Inception** | Problema, evidencia del proceso y alternativas | Ficha de valor; EventStorming A; oportunidad B; autonomía C; lectura inicial ARA/MODA D–F | Hipótesis, métricas, límites, requisitos y unidades de trabajo | Producto acepta problema/objetivo y alternativa; seguridad acepta el límite de autonomía. Sin línea base, registrar una tarea de medición |
-| **Construction** | Requisitos aceptados, contexto y hallazgos comprobados | Priorización G; cambios H; agente con aprobación; pruebas de DB y comparación I | Diff revisado, pruebas, trazabilidad y decisiones técnicas | Ingeniería revisa; seguridad verifica identidad/aprobación; aceptación técnica ligada al comportamiento y commit |
-| **Operations** | Artefactos y resultados del mismo commit | Recuperación, restauración, observación y cierre J; medición de valor | Recibo de ejecución, incidencias, runbook, dueño y decisión de continuar | Operaciones acepta recuperación; producto revisa resultados. Un despliegue productivo exige su propia infraestructura y validación |
+| **Construction** | Requisitos aceptados, contexto y hallazgos comprobados | Priorización G; cambios H; agente con aprobación; pruebas de DB y evaluación I | Código revisado, pruebas, trazabilidad y decisiones técnicas | Ingeniería revisa; seguridad verifica identidad/aprobación; cada requisito tiene una prueba de aceptación |
+| **Operations** | Aplicación y resultados de sus pruebas | Recuperación, restauración, observación y cierre J; medición de valor | Recibo de ejecución, runbook, dueño y decisión de continuar | Operaciones acepta recuperación; producto revisa resultados. Un despliegue productivo exige su propia infraestructura y validación |
 
-ARA/MODA pueden repetirse durante las tres fases cuando cambian código, contexto o alcance. Aportan hallazgos a los requisitos y a las decisiones; no sustituyen la ficha de valor ni la aceptación del comportamiento. Las pruebas del backend tampoco establecen por sí mismas la calidad de un planificador con LLM.
+Repite ARA/MODA cuando cambien código, contexto o alcance. Usa sus hallazgos para priorizar requisitos y verifica el comportamiento con pruebas. Evalúa la calidad del modelo y el valor de negocio con las métricas de la ficha de valor.
 
 ## Preparar los artefactos de una práctica
 
@@ -22,7 +22,7 @@ Desde un clon público:
 python3 scripts/workshop.py prepare --output .local/workshop-01
 ```
 
-El preparador toma **un mismo commit** para aplicación, escenario, contextos y plantillas. Registra hashes de entradas y entregables en `manifest.json`, además del hash del script preparador utilizado. Si necesitas repetir una versión, usa `--revision` con su SHA público. Los cambios sin commit no forman parte de esa instantánea.
+El preparador toma la aplicación, escenario, contextos y plantillas registrados en Git, y guarda su procedencia en `manifest.json`. Registra tus cambios en Git antes de preparar una práctica; los cambios pendientes quedan fuera. Elige un directorio de salida nuevo para cada práctica.
 
 Las siguientes rutas son relativas al directorio elegido con `--output`, por ejemplo `.local/workshop-01/`.
 
@@ -40,7 +40,7 @@ Las siguientes rutas son relativas al directorio elegido con `--output`, por eje
 | `ai-dlc/decisions.md` | Registro vacío de decisiones humanas con fecha y evidencia |
 | `contexts/` y `sources/` | Contextos y clones aislados para ARA/MODA |
 
-Los archivos generados son puntos de partida para revisión; los tres handoffs JSON de AI-DLC incluyen el estado `requires_human_review`. Crearlos no aprueba decisiones ni ejecuta AWS. Las revisiones anteriores a la incorporación de estos materiales conservan sus artefactos originales; el manifiesto indica qué entregables estaban disponibles.
+Los archivos generados son puntos de partida para revisión. Los tres archivos de entrega de AI-DLC incluyen el estado `requires_human_review`; sus responsables completan las decisiones antes de avanzar. Este comando prepara archivos sin ejecutar AWS.
 
 ## Inception: aceptar la oportunidad
 
@@ -62,54 +62,43 @@ Para cada unidad:
 1. Revisar la propuesta, la identidad del sujeto y el contrato de herramientas. Registrar qué decisión depende del usuario y qué puede resolver el agente.
 2. Implementar el cambio en una rama. El [agente ejecutable](AGENTE_EJECUTABLE.md) tiene un planificador determinista para el recorrido reproducible y una integración Bedrock opcional; ambos desembocan en el mismo flujo de aprobación y herramientas permitidas.
 3. Ejecutar pruebas unitarias y el E2E con PostgreSQL. Probar rechazo de aprobación, reintento, reinicio, identidad ajena y recuperación, además del caso exitoso.
-4. Revisar el diff y las evidencias del mismo commit. Si se repite ARA/MODA, conservar contexto, alcance, IDs, versión del CLI y hashes. Comparar por pregunta y verificar los hallazgos antes de decidir.
-5. Actualizar `G-traceability.csv` y el registro de decisiones. Un control implementado puede quedar `pendiente de reevaluación ARA` sin alterar el informe histórico.
+4. Revisar el código y sus resultados de prueba. Para cerrar un hallazgo ARA/MODA, volver a evaluar la aplicación con el contexto y alcance definidos y comprobar la evidencia del control.
+5. Actualizar `G-traceability.csv` y el registro de decisiones: requisito, cambio, prueba, responsable y medición de negocio pendiente.
 
 ### Aceptar una ejecución con un LLM real
 
-Cuando una unidad de trabajo incluya el planificador Bedrock, conserva una ejecución específica además del E2E determinista. En una cuenta autorizada con acceso al modelo, desde la raíz del repo:
+Cuando una unidad de trabajo incluya el planificador Bedrock, verifica también sus propuestas con el modelo real. Necesitas Docker, AWS CLI y acceso al modelo en tu cuenta. Desde la raíz del repo:
 
 ```bash
 python3 booking_lab/bedrock_e2e.py \
   --live-bedrock --confirm-test-operator \
   --model-id amazon.nova-micro-v1:0 --region us-east-1 \
-  --output .local/bedrock-live-01.json
+  --output .local/bedrock-e2e.json
 ```
 
-El runner limita el recorrido a cuatro inferencias: tres acciones con argumentos exactos —crear, consultar y cancelar— y un rechazo por importe ausente. Una respuesta inventada, inválida o una falla de acceso detienen la aceptación, sin fallback a reglas ni aprobación del plan inesperado. Las escrituras exigen aprobación y el ensayo recupera una caída del proveedor con el mismo plan, sin volver a inferir ni cobrar.
+El recorrido realiza hasta cuatro inferencias: crear, consultar y cancelar con argumentos exactos, y rechazar una petición sin importe. Las escrituras exigen aprobación. La recuperación reutiliza el mismo plan sin volver a inferir ni cobrar. Una propuesta inesperada detiene la prueba.
 
-`--confirm-test-operator` habilita una confirmación automatizada y acotada al fixture. Es evidencia del contrato de aprobación aplicado por el controlador/API; la validación de decisiones de producto y la identidad humana del aprobador siguen siendo responsabilidades independientes. Usa [la demo interactiva](AGENTE_EJECUTABLE.md) para una revisión manual de las propuestas.
+`--confirm-test-operator` habilita un aprobador automatizado para los casos sintéticos exactos. Usa [la demo interactiva](AGENTE_EJECUTABLE.md) para revisar y aprobar cada propuesta personalmente. Las decisiones de producto se registran por separado en `ai-dlc/decisions.md`.
 
-Registra el recibo que pasó, el commit, modelo/región, hashes, uso/latencia devueltos, casos negativos y resultados de DB. La CLI individual permite guardar un recibo privado con `--planner-evidence` al planificar. Cada repetición usa un archivo de salida nuevo; conserva también fallos e intentos incompletos. Las instrucciones de [CloudShell](CLOUDSHELL.md) y el índice de [evidencia Bedrock](evidence/bedrock/README.md) vinculan ejecución y procedencia.
+Usa un archivo de salida nuevo en cada ejecución. Revisa el resultado, las propuestas, la recuperación, la restauración y el cierre de recursos siguiendo la [referencia de verificación](AUDITORIA_E2E.md). La [guía de CloudShell](CLOUDSHELL.md) explica la preparación del entorno; la [evidencia publicada](evidence/bedrock/README.md) muestra los resultados del recorrido.
 
-Esta aceptación comprueba un conjunto acotado de intenciones y controles. La calidad con usuarios, otras formulaciones, carga y costo por caso requiere el experimento definido en la ficha de valor. La [evidencia histórica del 18 de octubre](evidence/agent-workshop/README.md) conserva su alcance de `rules` y no se convierte en una inferencia real por incorporar este runner.
+Mide después la calidad con usuarios, otras formulaciones, carga y costo por caso mediante el experimento definido en la ficha de valor.
 
 **Prompt para el agente de desarrollo:**
 
-> Trabaja en la unidad aprobada y enlaza cada cambio con su requisito. Muestra el plan y los archivos afectados. Conserva identidad, autorización, claves de idempotencia y estado durable. Implementa y ejecuta las pruebas de aceptación, incluidas las negativas. Entrega diff, comandos, resultado, commit y riesgos pendientes; no marques aprobado un requisito sin evidencia correspondiente.
+> Trabaja en la unidad aprobada y enlaza cada cambio con su requisito. Muestra el plan y los archivos afectados. Conserva identidad, autorización, claves de idempotencia y estado durable. Implementa y ejecuta las pruebas de aceptación, incluidas las negativas. Entrega los cambios, comandos, resultados y riesgos pendientes. Marca un requisito como aprobado cuando su evidencia lo demuestre.
 
 ## Operations: operar el experimento y decidir
 
-El laboratorio opera contenedores y datos sintéticos, conserva recibos y prueba restauración. La infraestructura productiva, el proveedor de identidad externo, la supervisión sostenida y los resultados con usuarios pertenecen al entorno de destino.
+Asigna responsables de operación y define cómo medirás el resultado del piloto. Usa la recuperación y restauración del laboratorio como base para preparar el runbook de tu entorno.
 
 - Operaciones conserva el JSON de ejecución, los tiempos y los incidentes. Los secretos y estados privados de sesión permanecen fuera de Git.
-- Ingeniería comprueba que la versión desplegada corresponde a la versión probada. El operador comprueba recuperación, conciliación y cierre de recursos de la práctica.
+- Ingeniería comprueba que se desplegó el código probado. El operador comprueba recuperación, conciliación y cierre de recursos de la práctica.
 - Producto mide la hipótesis con los usuarios y compara con la línea base usando la misma unidad y periodo.
 - El equipo registra continuar, ajustar o detener, con dueño y fecha de revisión. Las brechas de modernización se convierten en trabajo explícito para el despliegue elegido.
 
 **Prompt para el agente de desarrollo:**
 
-> Reúne las evidencias de esta versión y prepara un cierre operativo: estado del runtime, restauración, recursos de la práctica, incidentes, métricas y responsables. Separa observaciones de hipótesis y tareas pendientes. Propón la siguiente decisión con referencias verificables. Conserva la aprobación humana para cambios de entorno y para aceptar el riesgo residual.
+> Reúne las evidencias del experimento y prepara un cierre operativo: estado del runtime, restauración, recursos de la práctica, métricas y responsables. Separa observaciones de hipótesis y tareas pendientes. Propón la siguiente decisión con referencias verificables. Conserva la aprobación humana para cambios de entorno y para aceptar el riesgo residual.
 
-## Qué evidencia demuestra cada afirmación
-
-| Afirmación | Evidencia necesaria |
-| --- | --- |
-| Se reprodujo el flujo técnico | Recibo E2E, casos/invariantes y hashes de la versión |
-| El agente respeta una aprobación concreta | Pruebas negativas de la API y del agente, más prueba positiva sobre DB |
-| Un planificador Bedrock funcionó en el recorrido acotado | [Recibo real](evidence/bedrock/README.md) con modelo/región, tres acciones exactas, rechazo semántico y DB; los tests con respuestas simuladas conservan su alcance de contrato |
-| Se cerró un hallazgo ARA/MODA | Informe nuevo del mismo alcance y revisión de la evidencia; el informe histórico mantiene su fecha y commit |
-| Se obtuvo valor para el negocio | Línea base y resultados medidos con usuarios, costos y guardas de calidad |
-| Se puede operar en producción | Diseño, despliegue y validación específica del entorno aceptados por sus responsables |
-
-La guía de [ejecución AWS](EJECUCION_AWS.md), la [comparación histórica](CCS_E2E.md) y la [evidencia pública](evidence/mit/README.md) permiten continuar el ciclo con fuentes visibles. El equipo conserva sus artefactos de AI-DLC junto al código para que la siguiente sesión pueda reconstruir decisiones y resultados.
+Continúa con la [guía de ejecución AWS](EJECUCION_AWS.md) para ARA/MODA. Conserva los artefactos de AI-DLC junto al código para que el equipo pueda retomar las decisiones y la medición de resultados.

@@ -11,6 +11,4 @@ La TD original [hardening](workshop/transformations/hardening/transformation_def
 5. Ejecuta el E2E con PostgreSQL y conserva el resultado, commit y hashes.
 6. Repite ARA/MODA con el mismo contexto. Conserva también las observaciones que continúan abiertas.
 
-No aceptes como prueba de despliegue un Dockerfile, una plantilla o una ejecución de análisis. Tampoco aceptes una corrección que elimine preguntas de la rúbrica o cambie el alcance a solo lectura para ocultar un fallo de escritura.
-
-Los detalles de las transformaciones antiguas se conservan en [el archivo histórico](historico/LIMITACIONES_TD.md). Las correcciones actuales se documentan en [CCS_E2E.md](CCS_E2E.md).
+Mantén la misma rúbrica y alcance al comparar. Si la transformación incluye despliegue, comprueba también la aplicación ejecutándose en su entorno de destino. Usa la [plantilla de decisión](workshop/templates/decision.md) para registrar la aceptación.

@@ -1,32 +1,37 @@
-# Runtime reproducible: Docker y PostgreSQL
+# Ejecutar el laboratorio con Docker y PostgreSQL
 
-El runtime se implementa en [booking_lab/run.py](booking_lab/run.py), con imágenes fijadas en [images.lock.json](booking_lab/images.lock.json). El mismo comando sirve en Linux con Docker, macOS con Docker y CloudShell con Docker disponible:
+Necesitas Python 3.11+ y Docker activo en Linux, macOS, WSL o AWS CloudShell. Desde la raíz del repositorio:
 
 ```bash
 python3 booking_lab/run.py e2e --output .local/db-e2e.json
 ```
 
+El [runner](booking_lab/run.py) usa imágenes fijadas en [images.lock.json](booking_lab/images.lock.json). Para conversar con el agente y aprobar sus propuestas, sigue la [demo interactiva](AGENTE_EJECUTABLE.md).
+
 ## Qué se crea
 
 - PostgreSQL con un volumen exclusivo y roles separados.
-- Dos instancias API, un proveedor de pagos sintéticos y un worker.
-- Una red interna para DB/pagos y otra para los puertos de API publicados en loopback.
-- Archivos privados por ejecución en `.local/db-lab-<id>/` con permisos restringidos.
+- Dos instancias API, un proveedor de pagos sintéticos, un worker y un servicio de auditoría.
+- Una red interna para DB/pagos y otra para publicar la API en loopback.
+- Archivos privados por ejecución en `.local/db-lab-<id>/`.
 
-La API corre como usuario no root, sin capacidades, con sistema de archivos de solo lectura y tmpfs. El runner aplica límites de CPU/memoria/PID cuando el daemon declara las tres capacidades. En la [ejecución Bedrock en CloudShell](evidence/bedrock/README.md), el daemon declaró soporte de CPU y PID, pero no de memoria; por ello el runner no aplicó ese conjunto de límites. Cada recibo conserva las capacidades observadas en su entorno.
+La API corre como usuario no root, sin capabilities, con sistema de archivos de solo lectura y tmpfs. El runner aplica límites de CPU, memoria y procesos cuando el daemon declara las tres capacidades. El recibo registra `resource_limit_capabilities` y si se aplicaron esos límites.
 
-## Fallos reproducidos y corregidos durante la construcción
+## Si necesitas resolver un problema
 
-| Fallo | Corrección incorporada | Evidencia |
-| --- | --- | --- |
-| CloudShell no ofrece las tres capacidades cgroup requeridas | Detectar memoria, CPU y PID antes de pasar el conjunto de flags | `resource_limit_capabilities` y `resource_limits_available` en el JSON |
-| Red interna sin puerto de host utilizable | Red de entrada separada, publicación solo en loopback | Pruebas HTTP de ambas API |
-| Bloqueo entre pago y reserva | Namespaces distintos de advisory locks | Concurrencia y recuperación E2E |
-| El puerto cambia tras reiniciar | Redescubrir bindings después de restart | Escenarios de caída de proceso y DB |
-| Servidor temporal de init se confunde con DB lista | Comprobar TCP y permisos antes de arrancar API | Preparación y prueba de permisos |
+| Si ocurre | Qué hacer |
+| --- | --- |
+| Docker no responde | Inicia el daemon y comprueba `docker info`. En AWS, sigue la preparación de [CloudShell](CLOUDSHELL.md). |
+| Falta espacio al descargar imágenes o repetir la práctica | Revisa el almacenamiento disponible. Sigue la limpieza de CloudShell para retirar únicamente recursos de tu práctica que ya no necesites. |
+| El recibo indica `resource_limits_available: false` | Consulta `resource_limit_capabilities`. Para probar los tres límites, utiliza un host que los soporte. |
+| El agente queda `pending` después de una interrupción | Recupera el servicio y repite `execute` con el mismo archivo de estado, según [la guía del agente](AGENTE_EJECUTABLE.md). |
+| Una prueba falla | Consulta el caso indicado en el JSON y sus logs en el directorio privado. Corrige la causa y conserva el resultado antes de repetir. |
+| El cierre informa errores o estados desconocidos | Revisa los contenedores identificados en `cleanup.containers`; detén e inspecciona cada recurso de esa práctica. El cierre está completo cuando todos están detenidos. |
 
-## Aceptación
+## Resultado esperado
 
-El JSON debe contener `result: passed`, todos los casos aprobados, invariantes cero y `test_containers_running: 0`. Se conserva un dump sintético y se restaura realmente en otra base, comparando filas de seis tablas. [CCS_DATABASE_E2E.md](CCS_DATABASE_E2E.md) describe la evidencia inicial; [CCS_E2E.md](CCS_E2E.md) documenta el ciclo nuevo de análisis y correcciones.
+El proceso termina con código 0 y el JSON contiene `result: passed`, todos los casos aprobados, invariantes en cero y `cleanup.result: passed`. El cierre exige `cleanup.unknown_count: 0` y `test_containers_running: 0`.
 
-La arquitectura del ejercicio usa una sola instancia de PostgreSQL. Las garantías probadas cubren los fallos inyectados y la restauración documentada; un despliegue público requiere su identidad, TLS, observabilidad y política de recuperación operativa.
+La prueba drena las colas, detiene los escritores y restaura un backup en otra base para comparar seis tablas. Al terminar conserva contenedores detenidos, volumen, dump y archivos privados para revisión. La [referencia de verificación](AUDITORIA_E2E.md) explica los controles y enlaza la evidencia pública.
+
+El laboratorio usa una sola instancia PostgreSQL y pagos sintéticos. Para operar un servicio público, define identidad, TLS, observabilidad y recuperación en el entorno de destino.

@@ -14,7 +14,7 @@ Usa la [plantilla vacía](workshop/templates/value.md) y la [matriz de trazabili
 
 ### Supuestos para practicar la decisión
 
-Los valores de esta tabla son **ilustrativos, sin medición de usuarios ni ahorro comercial demostrado**. Sustitúyelos por datos de tu organización antes de tomar una decisión de inversión.
+Los valores son **supuestos ilustrativos**. Sustitúyelos por datos de tu organización.
 
 | Campo | Ejemplo editable | Estado |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ Los valores de esta tabla son **ilustrativos, sin medición de usuarios ni ahorr
 | Costos | Modelo, runtime, almacenamiento, observabilidad y errores | Por medir; usar unidades y factura/estimación fechada |
 | Responsable | Producto acepta valor; operaciones mide tiempos; ingeniería y seguridad verifican controles | Roles que cada equipo debe asignar |
 
-Los seis minutos por caso ya incluyen revisión y recuperación: no restes ese tiempo una segunda vez. Para estimar beneficio neto añade el esfuerzo de implementación y mantenimiento y los costos incrementales de operación, usando unidades compatibles. Convertir tiempo disponible en dinero requiere un valor por hora explícito y una justificación de cómo se aprovechará esa capacidad. La práctica no infiere ingresos, reducción de plantilla ni retorno de inversión a partir de los 400 minutos supuestos.
+Los seis minutos por caso ya incluyen revisión y recuperación: no restes ese tiempo una segunda vez. Para estimar beneficio neto añade el esfuerzo de implementación y mantenimiento y los costos incrementales de operación, usando unidades compatibles. Convertir tiempo disponible en dinero requiere un valor por hora explícito y una justificación de cómo se aprovechará esa capacidad.
 
 ### Comparar alternativas antes de elegir
 
@@ -39,7 +39,7 @@ Los seis minutos por caso ya incluyen revisión y recuperación: no restes ese t
 | Asistente de consulta | Explicación del estado sin modificar reservas | El valor está en localizar y entender información |
 | Agente con aprobación | Interpretar una intención, proponer, ejecutar y observar | La flexibilidad de entrada mejora el resultado medido frente a las alternativas |
 
-El workshop permite ejercitar la cuarta alternativa con el [agente ejecutable](AGENTE_EJECUTABLE.md). Elegirla para aprender no demuestra que sea la mejor inversión. Su modo determinista permite estudiar el contrato sin un modelo; el planificador Bedrock opcional permite experimentar con interpretación de lenguaje. Ambos usan las mismas restricciones y aprobación.
+El workshop permite ejercitar la cuarta alternativa con el [agente ejecutable](AGENTE_EJECUTABLE.md). Su modo determinista permite estudiar el contrato sin un modelo; el planificador Bedrock opcional permite experimentar con interpretación de lenguaje. Ambos usan las mismas restricciones y aprobación.
 
 ### Límites y parada
 
@@ -47,11 +47,11 @@ El workshop permite ejercitar la cuarta alternativa con el [agente ejecutable](A
 - Aprobación de cada escritura ligada a la propuesta concreta. Una modificación exige revisión nueva.
 - Una respuesta ambigua exige consultar o reintentar con la identidad y clave originales, conservando el estado de ejecución.
 - Detener el experimento ante escritura sin aprobación, cruce de identidad, cobro duplicado, exposición de un secreto o resultado imposible de reconciliar. Conservar evidencia y asignar el incidente.
-- Los límites globales de gasto, delegación e identidad productiva deben diseñarse para el entorno de destino; las restricciones del fixture no prueban esos controles.
+- Define límites de gasto, delegación e identidad para el entorno donde realizarás el piloto.
 
 ## Del riesgo al comportamiento comprobable
 
-La siguiente tabla enlaza requisitos con nombres exactos de escenarios del [runner de DB](booking_lab/run.py). Los resultados históricos de CCS están en [la evidencia pública](evidence/mit/README.md); una ejecución nueva debe guardar su propio JSON y commit.
+La siguiente tabla enlaza requisitos con nombres exactos de escenarios del [runner de DB](booking_lab/run.py). Guarda el resultado de tus pruebas junto con la versión del código.
 
 | ID | Consecuencia de negocio | Control y prueba técnica | Medición de negocio pendiente |
 | --- | --- | --- | --- |

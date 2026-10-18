@@ -1,50 +1,54 @@
-# Workshop público: empieza aquí
+# Empieza el workshop
 
-Todo el código, los casos, contextos y ejercicios necesarios están en este repositorio bajo MIT. Puedes ejecutarlo en tu máquina o en AWS CloudShell de tu cuenta.
+Puedes realizar la práctica en tu máquina o en AWS CloudShell. El repositorio incluye código, ejercicios, plantillas y diagramas bajo MIT.
 
 ## Elige un recorrido
 
-| Recorrido | Entrada | Salida |
+| Recorrido | Necesitas | Obtendrás |
 | --- | --- | --- |
-| Decisión de negocio | [Ficha de valor](FICHA_VALOR.md), sin cuenta cloud | Hipótesis, métrica, alternativas y responsable |
-| Demo ejecutable | Python 3.11+, Docker, Linux/macOS o WSL | Agente aprobado, reserva/consulta/cancelación y evidencia con DB |
-| Evaluación administrada | Cuenta autorizada y acceso a AWS Transform | Informes ARA/MODA del commit elegido |
+| Decisión de negocio | [Ficha de valor](FICHA_VALOR.md) | Hipótesis, métrica, alternativas y responsable |
+| Agente de reservas | Python 3.11+, Git y Docker | Crear, consultar y cancelar con aprobación y PostgreSQL |
+| Agente con lenguaje natural | Lo anterior, AWS CLI y acceso a Bedrock | El mismo flujo con un modelo de lenguaje |
+| Evaluación de aplicaciones | Cuenta AWS y acceso a AWS Transform | Informes ARA/MODA y plan de mejoras |
 
-Los tiempos de las pruebas se registran en sus recibos; la primera descarga de imágenes y los análisis AWS dependen del entorno. Comienza por el flujo local y continúa con [AI-DLC](AI_DLC.md) para organizar los entregables del equipo.
+## 1. Clona y ejecuta
 
-Puedes revisar [un ejemplo generado completo](examples/workshop/README.md) sin instalar herramientas. La [evidencia publicada](evidence/agent-workshop/README.md) muestra 28 escenarios de DB aprobados y un clon público verificado.
-
-## 1. Clona y comprueba el flujo con base de datos
-
-Requisitos: Git, Python 3.11+ y Docker con el daemon activo, en Linux/macOS o WSL. Docker descarga Python, PostgreSQL y Psycopg en versiones fijadas.
+Con Docker activo, en Linux, macOS o WSL:
 
 ```bash
 git clone https://github.com/sjaramillov/agentic-transformation-workshop-latam.git
 cd agentic-transformation-workshop-latam
-python3 -m unittest discover -s tests -v
 python3 booking_lab/run.py e2e --output .local/db-e2e.json
 ```
 
-El comando `run.py e2e` levanta PostgreSQL, dos API, pagos sintéticos, un worker y el ledger de auditoría; crea, consulta y cancela reservas, inyecta fallos y restaura un backup. El resultado debe decir `passed`, todos los casos deben pasar y las invariantes finales deben ser cero. Los contenedores se detienen al terminar; los datos de revisión quedan en `.local/`.
+La primera ejecución descarga las imágenes. El comando levanta PostgreSQL, dos API, pagos simulados, un worker y auditoría. Recorre creación, consulta, cancelación y recuperación.
 
-También ejecuta la CLI real del agente y comprueba aprobación, rechazo sin efectos, recuperación y aislamiento. Para participar en el flujo, inicia `python3 booking_lab/run.py demo --output .local/demo.json` y sigue la [demo del agente](AGENTE_EJECUTABLE.md).
+**Resultado esperado:** cada escenario imprime `PASS`, el JSON indica `result: passed` y los contenedores quedan detenidos. Los archivos de la práctica se guardan en `.local/`.
 
-## 2. Prepara el workshop A–C y las fuentes D–I
+## 2. Usa el agente
+
+```bash
+python3 booking_lab/run.py demo --output .local/demo.json
+```
+
+Espera `DEMO_READY` y sigue la [demo paso a paso](AGENTE_EJECUTABLE.md) en una segunda terminal: propón una reserva, apruébala, consulta y cancela con otra aprobación. Esa guía incluye la opción de usar Bedrock para interpretar lenguaje natural.
+
+## 3. Genera los ejercicios
 
 ```bash
 python3 scripts/workshop.py prepare --output .local/workshop-01
 ```
 
-Obtendrás la ficha de valor, la matriz de trazabilidad, los entregables de EventStorming, oportunidades y workflow, los handoffs de AI-DLC, los contextos ARA/MODA y dos repositorios Git aislados del servicio. El manifiesto registra commit y hashes de insumos y entregables. Todos los insumos proceden de esa revisión Git; los cambios sin commit no se incluyen. Los documentos generados requieren revisión humana. El comando prepara archivos sin ejecutar servicios AWS.
+Obtendrás la ficha de valor, EventStorming, oportunidades, workflow, entregables de AI-DLC, contextos ARA/MODA y dos clones para análisis. El preparador toma el commit actual; registra tus cambios en Git antes de generar otra práctica y elige un directorio nuevo.
 
-## 3. Completa A–J
+Puedes consultar [el ejemplo resuelto](examples/workshop/README.md) como punto de partida.
 
-Sigue [la guía completa](GUIA_REPLICACION.md). Para ejecutar ARA/MODA reales, prepara [CloudShell](CLOUDSHELL.md) y continúa en [Ejecución AWS](EJECUCION_AWS.md). Usa [los tableros](diagramas/README.md) para facilitar la discusión y [el contrato de la aplicación](LABORATORIO_MIT.md) para entender los controles.
+## 4. Completa el recorrido
 
-## Resultado esperado
+1. Define el problema y la métrica en la [ficha de valor](FICHA_VALOR.md).
+2. Sigue los módulos de la [guía A–J](GUIA_REPLICACION.md) con los [tableros](diagramas/README.md).
+3. Prepara [CloudShell](CLOUDSHELL.md) y ejecuta [ARA/MODA](EJECUCION_AWS.md).
+4. Prioriza, implementa una mejora y vuelve a evaluar.
+5. Organiza los entregables y la medición de resultados con [AI-DLC](AI_DLC.md).
 
-Un participante puede clonar, ejecutar, cambiar el servicio, demostrar una corrección con DB, medir con Transform y comparar los resultados usando recursos públicos. Los resultados generados en su cuenta se guardan en `.local/` para revisarlos antes de publicarlos. Eso no limita la disponibilidad del código fuente.
-
-## Probar también el modelo real
-
-El [recorrido Bedrock del agente](AGENTE_EJECUTABLE.md) pasó en CCS con Nova Micro y PostgreSQL. La [evidencia pública](evidence/bedrock/README.md) incluye siete casos, cuatro inferencias, el fallo inicial y su corrección. Este recorrido requiere credenciales AWS y acceso al modelo; el inicio rápido anterior funciona con el planificador determinista.
+Al terminar tendrás un agente ejecutable, una aplicación evaluada y un plan de trabajo conectado con una métrica de negocio.

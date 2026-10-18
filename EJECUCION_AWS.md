@@ -32,7 +32,7 @@ atx ct repository list --source "$SOURCE_ARA"
 atx ct repository list --source "$SOURCE_MODA"
 ```
 
-Cada fuente debe mostrar `booking-mit`. Los dos clones contienen el mismo commit. El alcance de esta comparación es el servicio. La CI y las guías de la raíz se verifican aparte; los informes pueden señalar su ausencia en el clon reducido. No interpretes esa ausencia como falta de CI en el repo público. No registres informes históricos como código de entrada: el preparador selecciona `booking_lab/` y `LICENSE` del commit indicado, registra hashes y excluye secretos y resultados anteriores.
+Cada fuente debe mostrar `booking-mit`. Ambos clones contienen `booking_lab/` y `LICENSE` del mismo commit. El análisis cubre el servicio; las guías y la CI de la raíz se comprueban aparte.
 
 ## 2. D: ARA con escritura habilitada
 
@@ -44,7 +44,7 @@ atx ct analysis run --type agentic-readiness \
 cat "$PRACTICE/results/ara-run.log"
 ```
 
-El contexto exige evaluar autorización por sujeto, pagos, saga, idempotencia y auditoría. No ordena excluir problemas de producción ni declarar madurez por ser un ejemplo. Conserva el `analysisId` devuelto.
+El contexto evalúa autorización por sujeto, pagos, saga, idempotencia y auditoría. Conserva el `analysisId` devuelto para consultar los resultados.
 
 ## 3. E: MODA sobre la misma base
 
@@ -56,7 +56,7 @@ atx ct analysis run --type modernization-readiness \
 cat "$PRACTICE/results/moda-run.log"
 ```
 
-La práctica no presupone un clúster EKS. El contexto pide el runtime compatible más sencillo. Puedes ejecutar D y E en dos terminales con el mismo PATH porque usan clones distintos.
+El contexto pide el runtime compatible más sencillo. Puedes ejecutar D y E en dos terminales con el mismo PATH porque usan clones distintos.
 
 ## 4. F–G: inspecciona y prioriza
 
@@ -74,7 +74,7 @@ python3 scripts/verify_reports.py RUTA_AL_INFORME_ARA.json --kind ara --expect-q
 python3 scripts/verify_reports.py RUTA_AL_INFORME_MODA.json --kind mod
 ```
 
-Las 43 preguntas corresponden a la rúbrica ARA observada. Si AWS cambia la rúbrica, revisa cobertura y versión; no cambies el número únicamente para conseguir una validación verde. El verificador contrasta estructura y conteos; la revisión de cada juicio y la prueba funcional son pasos adicionales.
+El ejemplo usa una rúbrica ARA de 43 preguntas. Si tu versión tiene otra cobertura, revisa la rúbrica y ajusta `--expect-questions`. Después de verificar la estructura, revisa los hallazgos y contrástalos con las pruebas de la aplicación.
 
 ## 5. H: aplica una corrección revisable
 
@@ -88,7 +88,7 @@ atx ct remediation create --repo "$SOURCE_ARA::booking-mit" --source "$SOURCE_AR
   --transformation-name mit-booking-hardening-01 --name mit-booking-hardening-01 --local
 ```
 
-Selecciona los hallazgos concretos en el contexto de la remediación según `atx ct remediation create --help`. Conserva el ID y consulta `atx ct remediation status --id ID --json`. Revisa la rama y diff exactos devueltos antes de integrar. Esta TD contiene instrucciones originales; una ejecución satisfactoria requiere pruebas, no solo una rama generada.
+Selecciona los hallazgos concretos en el contexto de la remediación según `atx ct remediation create --help`. Conserva el ID y consulta `atx ct remediation status --id ID --json`. Revisa la rama y diff exactos devueltos antes de integrar. Ejecuta las pruebas de la aplicación sobre esa rama antes de integrar.
 
 ## 6. I–J: vuelve a medir y publica evidencia
 
@@ -121,21 +121,8 @@ python3 scripts/compare_reports.py ANTES_MODA.json DESPUES_MODA.json \
 
 El comparador valida los cuatro artefactos, preserva las etiquetas del evaluador y marca preguntas ausentes. Una pregunta antes no evaluada que pasa después no equivale por sí sola a una corrección de código. Conserva los informes completos, sus hashes, los commits de fuente y prueba, los conteos y la justificación de cada cierre. Revisa información sensible antes de publicar resultados.
 
-Consulta [la comparación real de CCS](CCS_E2E.md) y [la prueba con DB](CCS_DATABASE_E2E.md). El análisis y el runtime tienen evidencias distintas; ambos forman parte de la aceptación.
+## Si el análisis termina sin informes
 
-## Diagnóstico: `complete` con cero hallazgos y sin informe
+Comprueba que la ejecución haya producido los artefactos JSON, Markdown, HTML y metadata. Un estado `complete` con cero hallazgos y sin esos archivos requiere revisar el log de la sesión y repetir el análisis sobre el mismo commit y contexto con un ID nuevo. Valida los artefactos de la nueva ejecución antes de comparar.
 
-En ATX 3.19.0 se observó una ejecución MODA cuyo agente terminó con `An internal server error occurred`, mientras CT devolvió `complete` y `findingCount: 0`. No era un resultado limpio: faltaban los cuatro artefactos. Conserva la metadata y logs de esa sesión en privado, registra el intento como fallido en tu evidencia y repite sobre el mismo commit/contexto con un ID nuevo. Acepta la repetición únicamente al validar los artefactos. La comparación de [CCS](CCS_E2E.md) identifica este incidente.
-
-## Repetir el antes y después publicado
-
-Los dos estados de la aplicación están disponibles en el historial público. Desde un clon normal, prepara ambos usando el mismo script y los mismos contextos:
-
-```bash
-python3 scripts/workshop.py prepare --revision e338a6b99cba389cbb5d96ca21a12d660071b28d \
-  --output .local/reproduce-before
-python3 scripts/workshop.py prepare --revision 401e5317567f3500843bc722893bf6d22b733390 \
-  --output .local/reproduce-after
-```
-
-Registra fuentes con nombres distintos y repite D/E para cada directorio. Los commits de los clones nuevos pueden diferir por su fecha de creación; compara `source_sha256` y `context_sha256` de sus manifiestos. La aplicación posterior debe coincidir con [los hashes publicados](evidence/mit/source-sha256.json). Las definiciones administradas y los juicios de AWS pueden cambiar, por lo que no se promete una puntuación idéntica.
+Como referencia opcional, consulta [un ejemplo de comparación ARA/MODA](CCS_E2E.md).

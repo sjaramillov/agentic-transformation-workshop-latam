@@ -12,11 +12,11 @@ cd agentic-transformation-workshop-latam
 python3 booking_lab/run.py e2e --output .local/db-e2e.json
 ```
 
-No necesitas la captura del evento, instalar paquetes Python en el host, crear IAM, configurar Bedrock ni aprovisionar RDS/EKS. Docker instala dentro de la imagen la dependencia fijada en [requirements.txt](booking_lab/requirements.txt). Las imágenes están fijadas por digest en `booking_lab/images.lock.json` y el Dockerfile. La primera ejecución las descarga e instala esa dependencia; reserva al menos 4 GiB de disco libre y 1.5 GiB de memoria para una corrida. En Docker con driver `vfs`, limpia los contenedores detenidos de la corrida anterior antes de repetir, siguiendo [CloudShell](CLOUDSHELL.md). La configuración exacta observada se conserva en la evidencia.
+Docker instala las dependencias y descarga las imágenes fijadas en `booking_lab/images.lock.json`. Reserva al menos **4 GiB de disco libre y 1.5 GiB de memoria** para una ejecución. Si usas CloudShell con driver `vfs`, sigue la [limpieza de contenedores detenidos](CLOUDSHELL.md) antes de repetir para recuperar espacio.
 
-**Éxito:** el proceso termina con código 0, cada caso imprime `PASS`, `result` es `passed` y todas las invariantes de `.local/db-e2e.json` valen cero. Un fallo termina con código distinto de cero y conserva los logs. No cambies las aserciones para aceptar un fallo.
+**Éxito:** el proceso termina con código 0, cada caso imprime `PASS`, `result` es `passed` y todas las invariantes de `.local/db-e2e.json` valen cero. Un fallo termina con código distinto de cero y conserva los logs.
 
-El runner crea nombres únicos, descubre puertos libres y publica la API en `127.0.0.1`. PostgreSQL y pagos están en una red Docker interna sin puertos publicados. Usa contraseñas aleatorias y credenciales distintas por servicio; los archivos `.env` privados tienen modo 0600. Al terminar detiene únicamente sus contenedores y conserva el volumen, el dump y los logs en `.local/db-lab-*/` para revisión. Repetir el comando crea un laboratorio nuevo. No publica tokens, contraseñas ni identificadores AWS en la evidencia.
+El runner crea nombres únicos, descubre puertos libres y publica la API en `127.0.0.1`. PostgreSQL y pagos están en una red Docker interna sin puertos publicados. Usa contraseñas aleatorias y credenciales distintas por servicio; los archivos `.env` privados tienen modo 0600. Al terminar detiene únicamente sus contenedores y conserva el volumen, el dump y los logs en `.local/db-lab-*/` para revisión. Repetir el comando crea un laboratorio nuevo.
 
 ## Explorar el servicio manualmente
 
@@ -43,12 +43,12 @@ Antes de cada escritura el cliente muestra la acción y pide `APROBAR <digest>`.
 
 ## Integridad y atribución
 
-| Brecha | Implementación original | Prueba |
+| Control | Implementación | Comportamiento esperado |
 | --- | --- | --- |
-| AUTH-Q6: atribución y durabilidad | Token firmado validado; principal y correlación persistidos; evento outbox en la misma transacción que el cambio; entrega idempotente a ledger independiente firmado y proyección PostgreSQL; runtime sin UPDATE/DELETE | Identidad cruzada rechazada, evento atribuible, permiso de entrega retirado, reinicio del worker, cola drenada y redelivery sin duplicados |
-| STATE-Q1: cobro seguido de fallo de reserva | Intención guardada antes del cobro, clave estable en el proveedor, estado COMPENSATING persistido, refund idempotente y reconciliador | Trigger PostgreSQL hace fallar realmente el INSERT después del cobro; no queda reserva ni cargo huérfano; reembolso caído se recupera; proceso muerto después del cobro no duplica cargos y proceso muerto después del reembolso no duplica devoluciones |
+| Atribución y durabilidad | Token firmado validado; principal y correlación persistidos; evento outbox en la misma transacción que el cambio; entrega idempotente a ledger independiente firmado y proyección PostgreSQL; runtime sin UPDATE/DELETE | Identidad cruzada rechazada, evento atribuible, permiso de entrega retirado, reinicio del worker, cola drenada y redelivery sin duplicados |
+| Recuperación de pagos | Intención guardada antes del cobro, clave estable en el proveedor, estado COMPENSATING persistido, refund idempotente y reconciliador | Trigger PostgreSQL hace fallar realmente el INSERT después del cobro; no queda reserva ni cargo huérfano; reembolso caído se recupera; proceso muerto después del cobro no duplica cargos y proceso muerto después del reembolso no duplica devoluciones |
 
-La reserva, su respuesta de idempotencia y su evento se confirman en una transacción PostgreSQL. El cobro es una transacción externa del simulador: no se supone una transacción distribuida ni se promete entrega exactamente una vez. La recuperación y las claves idempotentes resuelven reintentos. Un fallo ambiguo de COMMIT exige volver a leer el estado antes de reembolsar.
+La reserva, su respuesta de idempotencia y su evento se confirman en una transacción PostgreSQL. El cobro es una transacción externa del simulador. La recuperación y las claves idempotentes coordinan ambas operaciones y resuelven reintentos. Un fallo ambiguo de COMMIT exige volver a leer el estado antes de reembolsar.
 
 ```mermaid
 flowchart LR
@@ -82,7 +82,7 @@ flowchart LR
 
 El emisor del laboratorio firma tokens HS256 de cinco minutos con clave aleatoria. La API comprueba firma, algoritmo, issuer, audience, caducidad, activación y scope; no tiene un modo de autenticación desactivada. Este emisor es un fixture local. Una integración externa requiere un proveedor de identidad, gestión de claves, TLS e ingress apropiados. El servidor HTTP de Python es un runtime didáctico; la prueba en CloudShell no certifica exposición pública ni alta disponibilidad.
 
-Además, la API exige una aprobación firmada para cada escritura. [approval.py](booking_lab/approval.py) vincula sujeto, método, ruta, hash del payload y clave idempotente, con vigencia máxima de cinco minutos y clave distinta a JWT. Una autorización ausente, vencida, alterada o dirigida a otra operación devuelve 403 antes de crear intención/cobro. La sesión del operador es el emisor didáctico; la prueba acredita el vínculo de la capacidad y la decisión en la CLI, no identidad independiente de un aprobador. Las llamadas HTTP de cliente, pagos y auditoría rechazan redirecciones y no heredan proxies del sistema.
+Además, la API exige una aprobación firmada para cada escritura. [approval.py](booking_lab/approval.py) vincula sujeto, método, ruta, hash del payload y clave idempotente, con vigencia máxima de cinco minutos y clave distinta a JWT. Una autorización ausente, vencida, alterada o dirigida a otra operación devuelve 403 antes de crear intención/cobro. La sesión del operador emite estas aprobaciones para la práctica. Las llamadas HTTP de cliente, pagos y auditoría rechazan redirecciones y no heredan proxies del sistema.
 
 ## Revisar la evidencia y continuar
 
@@ -92,20 +92,14 @@ El archivo `review.json` privado identifica el prefijo del laboratorio y sus pue
 
 El registro de auditoría autoritativo vive en un servicio y volumen separados, con cadena de hashes y firmas HMAC; PostgreSQL conserva una proyección consultable. El administrador de la DB de reservas no recibe el volumen ni la clave del ledger. La retención, verificación y frontera de confianza están descritas en [AUDIT.md](booking_lab/AUDIT.md). El outbox conserva eventos durante una caída del destino; una caída permanente requiere intervención operativa. El reconciliador debe ejecutarse para resolver estados pendientes, y las garantías del proveedor real deben verificarse antes de sustituir el simulador.
 
-La evaluación ARA/MODA del **16 de octubre de 2026**, previa al nuevo agente y la aprobación verificada por la API, se conserva en [CCS_E2E.md](CCS_E2E.md). La [auditoría vigente](AUDITORIA_E2E.md) enlaza la aceptación técnica del recorrido ampliado. Para repetir los análisis sigue [Ejecución AWS](EJECUCION_AWS.md); el preparador crea las fuentes desde el código público y conserva commit y hashes.
+Para evaluar tus cambios con ARA/MODA, sigue [Ejecución AWS](EJECUCION_AWS.md). Para comprobar la aplicación, consulta [Pruebas del workshop](AUDITORIA_E2E.md).
 
-## Compatibilidad comprobada con CloudShell
+## Ejecutar en CloudShell y conservar datos
 
-CloudShell puede informar que su kernel no admite límites cgroup de CPU, memoria y PIDs. El runner registra `resource_limits_available: false` y mantiene las restricciones de usuario, capabilities, filesystem y red de los contenedores de aplicación. En hosts con las tres capacidades aplica esos límites. La API usa una red de entrada y otra red interna hacia DB/pagos: publicar puertos directamente sobre una red `--internal` no produjo bindings en el Docker de CloudShell.
+Sigue [CloudShell](CLOUDSHELL.md) para preparar el entorno y gestionar el disco. El runner adapta los límites de recursos a las capacidades del daemon y descubre los puertos después de cada reinicio; `review.json` registra los puertos vigentes.
 
-La detección actual usa los nombres `MemoryLimit`, `CpuCfsQuota` y `PidsLimit` del [contrato Docker](https://docs.docker.com/reference/api/engine/version/v1.56/) y conserva solo esos campos de capacidades. Corrige un falso negativo posible por el nombre de CPU utilizado anteriormente; no se publica el `docker info` completo, que puede contener configuración privada.
+Los volúmenes dependen del almacenamiento del daemon. Descarga el dump si necesitas conservar los datos al terminar la sesión. El E2E restaura seis tablas en una DB distinta; para una instalación nueva también debes ejecutar el bootstrap de roles y el esquema.
 
-Los volúmenes Docker residen en el almacenamiento del daemon; no presupongas que sobreviven al reciclado de CloudShell. El E2E demuestra persistencia tras reiniciar la DB y restaura un `pg_dump` en una DB distinta, comparando conteos y hashes de todas las filas de seis tablas. Descarga el dump si necesitas conservar datos más allá de la sesión. Esa restauración de datos no reconstruye permisos: para una instalación nueva ejecuta también el bootstrap de roles y el esquema.
+La prueba de restauración detiene las API, drena operaciones y auditoría y detiene los escritores antes de `pg_dump`. Así compara el backup con una base estable.
 
-Antes de comparar la restauración con la fuente, la prueba cierra las dos API de su propio entorno, drena operaciones y outbox con worker/pagos activos y detiene esos escritores. Verifica que siguen detenidos y las colas están vacías antes de `pg_dump`. `snapshot_barrier` registra el punto estable: comparar un dump con una base que sigue recibiendo eventos puede producir diferencias legítimas de tiempo. El E2E conserva ese incidente y su corrección en [la evidencia](evidence/agent-workshop/README.md).
-
-Referencias técnicas: [transacciones de Psycopg](https://www.psycopg.org/psycopg3/docs/basic/transactions.html), [bloqueos PostgreSQL](https://www.postgresql.org/docs/16/explicit-locking.html), [pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html) e [instalación del adaptador](https://www.psycopg.org/psycopg3/docs/basic/install.html).
-
-Los locks de la saga usan la variante PostgreSQL de una clave bigint; el proveedor usa la variante de dos enteros, que tiene un espacio independiente. Compartir el mismo lock entre quien llama y quien recibe la llamada produjo un bloqueo observado durante el desarrollo y se corrigió antes de aceptar la ejecución.
-
-Los puertos asignados por Docker pueden cambiar al reiniciar un contenedor. El runner descubre los puertos nuevamente después de los reinicios; `review.json` conserva los últimos observados.
+Referencias: [transacciones de Psycopg](https://www.psycopg.org/psycopg3/docs/basic/transactions.html), [bloqueos PostgreSQL](https://www.postgresql.org/docs/16/explicit-locking.html) y [pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html).

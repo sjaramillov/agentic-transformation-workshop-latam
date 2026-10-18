@@ -1,6 +1,6 @@
 # Workshop completo A–J con código original MIT
 
-Caso: un agente ayuda a crear, consultar y cancelar reservas. El servicio ejecuta pagos sintéticos, conserva el estado en PostgreSQL y recupera operaciones interrumpidas. La aplicación, escenario, contextos, plantillas, transformación y pruebas están incluidos en el repo. La cuenta del evento y sus paquetes no forman parte de los requisitos.
+Caso: un agente ayuda a crear, consultar y cancelar reservas. El servicio ejecuta pagos sintéticos, conserva el estado en PostgreSQL y recupera operaciones interrumpidas. La aplicación, escenario, contextos, plantillas, transformación y pruebas están incluidos en el repo.
 
 Comienza con [Inicio rápido](INICIO_RAPIDO.md). El comando `scripts/workshop.py prepare` genera una práctica nueva desde un commit público, sin sobrescribir otra práctica.
 
@@ -38,7 +38,7 @@ Ejecuta la demo del agente: rechaza primero una propuesta y comprueba que no hay
 
 ## D–F. Ejecuta análisis reales
 
-Sigue [Ejecución AWS](EJECUCION_AWS.md). ARA y MODA reciben clones separados del mismo código para evitar interferencias. En F el portafolio mínimo es este servicio; API, pagos, worker y ledger de auditoría son roles dentro del mismo repo. Para ampliarlo, incorpora tus propios servicios con licencia compatible y repite descubrimiento. No hace falta inventar tres repositorios de ejemplo.
+Sigue [Ejecución AWS](EJECUCION_AWS.md). ARA y MODA reciben clones separados del mismo código para evitar interferencias. En F el portafolio mínimo es este servicio; API, pagos, worker y ledger de auditoría son roles dentro del mismo repo. Para ampliarlo, incorpora tus propios servicios con licencia compatible y repite descubrimiento.
 
 ## G. Prioriza con evidencia
 
@@ -54,7 +54,7 @@ Trabaja en una rama de un clon nuevo. Puedes implementar la corrección directam
 
 Registra los cambios revisados en un commit antes de ejecutar `prepare --revision HEAD`; un cambio sin commit no aparecerá en las fuentes de análisis. Conserva la misma revisión para la prueba funcional y los análisis.
 
-Ejecuta de nuevo ARA y MODA con el mismo contexto y alcance `write-enabled`. Compara por `question_id`, conserva ID, fecha, versión de ATX, hashes y SHA. La [evidencia en CCS](CCS_E2E.md) muestra las mediciones de esta réplica. Distingue variaciones del evaluador de cambios demostrados en código.
+Ejecuta de nuevo ARA y MODA con el mismo contexto y alcance `write-enabled`. Compara por `question_id`, conserva ID, fecha, versión de ATX, hashes y SHA. Distingue variaciones del evaluador de cambios demostrados en código.
 
 ## J. Cierra el ciclo
 
@@ -64,4 +64,4 @@ Registra decisiones y evidencias en `ai-dlc/decisions.md`. Producto contrasta la
 
 ## Materiales y licencia
 
-La réplica original completa se publica bajo [MIT](LICENSE). [Recursos](RECURSOS.md) reúne todos los archivos necesarios y fuentes oficiales. La documentación anterior está en [Histórico](historico/README.md), fuera del recorrido vigente.
+La réplica original completa se publica bajo [MIT](LICENSE). [Recursos](RECURSOS.md) reúne todos los archivos necesarios y fuentes oficiales.

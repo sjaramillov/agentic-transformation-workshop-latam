@@ -1,46 +1,46 @@
-# Verificación del workshop público
+# Verificar el workshop
 
-**Versión actual comprobada:** [112 pruebas, 28/28 escenarios E2E deterministas en dos ejecuciones y 7/7 casos con Bedrock real en CCS](evidence/bedrock/README.md). Cada capa conserva su fuente, fecha y alcance; la [evidencia determinista anterior](evidence/agent-workshop/README.md) sigue disponible.
+Ejecuta estos comandos desde la raíz del repositorio. Los [resultados publicados](evidence/bedrock/README.md) permiten consultar la evidencia técnica.
 
-La aceptación del recorrido ampliado distingue estas capas:
+## 1. Código, materiales y flujo con PostgreSQL
 
-| Capa | Cómo reproducir | Evidencia |
-| --- | --- | --- |
-| Materiales y herramientas | `python3 -m unittest discover -s tests -v` | CI pública, enlaces y preparación desde Git |
-| Agente y contrato con PostgreSQL | `python3 booking_lab/run.py e2e --output .local/db-e2e.json` | JSON y artefactos `database-e2e-evidence-1` y `database-e2e-evidence-2` de cada ejecución de CI; referencia anterior en [CCS_DATABASE_E2E.md](CCS_DATABASE_E2E.md) |
-| Agente con Bedrock real y PostgreSQL | `python3 booking_lab/bedrock_e2e.py --live-bedrock --confirm-test-operator --model-id amazon.nova-micro-v1:0 --region us-east-1 --output .local/bedrock-live-01.json` | [Recibos en CCS](evidence/bedrock/README.md): cuatro inferencias, siete casos, fallo inicial y corrección |
-| Evaluación de AWS Transform | [Ejecución AWS](EJECUCION_AWS.md) | [CCS_E2E.md](CCS_E2E.md), informes históricos del 16 de octubre con sus commits |
-| Hipótesis de negocio | [Ficha de valor](FICHA_VALOR.md) y [AI-DLC](AI_DLC.md) | Línea base y resultado medidos por cada equipo; el caso incluido es ilustrativo |
+Con Python 3.11+ y Docker activo:
 
-La suite pública usa materiales presentes en Git y no requiere una captura de evento. La prueba opcional de una captura histórica se conserva separada en `historico/`.
+```bash
+python3 -m unittest discover -s tests -v
+python3 booking_lab/run.py e2e --output .local/db-e2e.json
+```
 
-## Aceptación del agente ejecutable
+La suite unitaria debe terminar en `OK`. El E2E usa el planificador determinista y comprueba aprobación, aislamiento por usuario, idempotencia, recuperación, auditoría y restauración con una base real y pagos sintéticos.
 
-La suite de base de datos incluye los 18 casos originales y diez casos adicionales: una prueba de aprobación en servidor y nueve recorridos de la CLI real. El conjunto comprueba:
+## 2. Agente con Bedrock real
 
-- Capacidad ausente, vencida, firmada con otra clave o vinculada a otro sujeto/cuerpo/operación: 403 sin intención ni cobro.
-- Planificar y rechazar antes de ejecutar: ninguna escritura.
-- Crear, observar y repetir el mismo estado: un solo cobro.
-- Dos procesos CLI sobre el mismo archivo: un intento persistido y un cobro.
-- Alterar una propuesta aprobada: rechazo antes de llamar a herramientas.
-- Consultar con sujetos distintos: aislamiento de reservas.
-- Recuperar caída del proveedor con el mismo plan y clave.
-- Retirar aprobación después del envío: conservar la posibilidad de reconciliar una operación remota que puede continuar.
-- Reiniciar la API después de un cobro confirmado por el proveedor: recuperar sin volver a cobrar.
-- Cancelar con aprobación nueva y repetir: un reembolso.
+Necesitas también AWS CLI y acceso al modelo en tu cuenta. Esta prueba invoca Bedrock y genera consumo AWS:
 
-El resultado aceptable tiene `result: passed`, todos los casos aprobados, cinco invariantes en cero y cierre comprobado (`cleanup.result: passed`, `cleanup.unknown_count: 0` y `test_containers_running: 0`). Un error al detener o inspeccionar recursos hace fallar el runner y conserva la evidencia. `source_sha256` vincula el recibo al código y `repository_commit` registra la revisión. La CI ejecuta la suite unitaria en Linux/macOS con Python 3.11/3.14 y dos repeticiones independientes del E2E de DB en Linux. La barrera `snapshot_barrier` debe estar aprobada, con los escritores detenidos y las colas vacías antes del backup.
+```bash
+python3 booking_lab/bedrock_e2e.py \
+  --live-bedrock --confirm-test-operator \
+  --model-id amazon.nova-micro-v1:0 --region us-east-1 \
+  --output .local/bedrock-e2e.json
+```
 
-La suite habitual comprueba `rules`: las llamadas HTTP, la persistencia y las fallas son reales en el entorno sintético. Las pruebas unitarias de Bedrock usan respuestas controladas. Además, el runner independiente `bedrock_e2e.py` pasó con **Amazon Nova Micro real en CCS**: tres planes exactos y un rechazo semántico esperado, sin fallback a reglas. Sus [recibos](evidence/bedrock/README.md) incluyen DB, restauración y recuperación sin otra inferencia. Esta prueba acotada no mide calidad general del modelo. Escribir requiere aprobación; el E2E usa un aprobador automatizado limitado a sus fixtures sintéticos.
+Usa un archivo de salida nuevo para cada ejecución. El recorrido exige tres propuestas exactas —crear, consultar y cancelar— y un rechazo por importe ausente, con cuatro respuestas de modelo. Una propuesta inesperada detiene la prueba; no activa el planificador determinista.
 
-La revisión adversarial añadió regresiones para proxies y redirecciones, respuestas con otra reserva, aprobación vencida en tránsito y retiro después del envío. El E2E registra confirmaciones explícitas de un operador de prueba; no acredita identidad humana independiente del emisor local.
+`--confirm-test-operator` aprueba automáticamente solo los casos sintéticos esperados. Para revisar y aprobar propuestas personalmente, usa la [demo del agente](AGENTE_EJECUTABLE.md).
 
-## Trazabilidad
+El emisor de aprobación está controlado por el operador del laboratorio. Un despliegue productivo requiere autenticar al aprobador y separar ese emisor del proceso del agente.
 
-El preparador [workshop.py](scripts/workshop.py) extrae archivos de un commit Git concreto y registra SHA256. ARA y MODA usan clones separados del mismo contenido. Las pruebas de DB registran las imágenes y hashes del código ejecutado. La comparación debe enlazar esos identificadores para distinguir fuente, evaluación y runtime.
+## 3. Comprueba el resultado
 
-## Revisar antes de publicar
+| Control | Resultado esperado |
+| --- | --- |
+| Ejecución | Código de salida 0, `result: passed` y todos los casos aprobados |
+| Aprobación e identidad | Ninguna escritura sin aprobación válida; cada usuario accede a sus reservas |
+| Recuperación | Reutilizar el mismo plan y clave; un solo cobro y un solo reembolso por operación |
+| Restauración | `snapshot_barrier.result: passed`, escritores detenidos y colas vacías antes del backup; comparación de seis tablas aprobada |
+| Estado final | Ninguna operación o evento pendiente, ni cobros o reembolsos duplicados; auditoría íntegra |
+| Cierre | `cleanup.result: passed`, `cleanup.unknown_count: 0` y `test_containers_running: 0` |
 
-Los resultados funcionales sanitizados se pueden publicar; los archivos `.env`, tokens, cuentas y logs crudos se revisan por separado. El código, contexto y ejercicios originales completos siguen disponibles bajo MIT.
+Consulta [el runtime](RUNTIME_LOCAL.md) para resolver problemas del entorno y [CloudShell](CLOUDSHELL.md) para la ejecución en AWS.
 
-La auditoría de la implementación anterior está en [Histórico](historico/AUDITORIA_E2E.md).
+ARA/MODA se ejecutan con la [guía de AWS Transform](EJECUCION_AWS.md). Para aceptar valor de negocio, mide con usuarios la línea base, el resultado y los costos definidos en la [ficha de valor](FICHA_VALOR.md), y registra la decisión en [AI-DLC](AI_DLC.md).

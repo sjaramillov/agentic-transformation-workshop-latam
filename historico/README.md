@@ -11,3 +11,5 @@ Estos documentos registran la evaluación anterior de un ejemplo diferente y las
 - [AUDITORIA_E2E.md](AUDITORIA_E2E.md)
 - [CCS_E2E.md](CCS_E2E.md)
 - [RECURSOS.md](RECURSOS.md)
+
+- [Referencias visuales del evento](ASSETS_EVENTO.md)

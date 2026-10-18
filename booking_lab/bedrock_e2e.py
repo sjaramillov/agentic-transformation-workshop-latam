@@ -221,12 +221,12 @@ def main(argv=None):
     lab = Lab(args.output)
     lab.evidence['evaluation_kind'] = 'live_bedrock_database_e2e'
     lab.evidence['live_bedrock_opt_in'] = True
+    exit_code = 0
     try:
         lab.setup()
         lab.start('worker', 'worker', 'booking_app', audit=True)
         scenario = LiveBedrockScenario(lab, args.model_id, args.region)
         scenario.run()
-        return 0
     except BaseException as error:
         lab.evidence['result'] = 'failed'
         lab.evidence['failure_type'] = type(error).__name__
@@ -234,9 +234,11 @@ def main(argv=None):
         if isinstance(error, (AssertionError, AgentError)):
             lab.evidence['failure_detail'] = str(error)
         print('LIVE BEDROCK E2E FAILED: '+type(error).__name__, file=sys.stderr, flush=True)
-        return 1
+        exit_code = 1
     finally:
-        lab.finish()
+        if not lab.finish():
+            exit_code = 1
+    return exit_code
 
 
 if __name__ == '__main__':

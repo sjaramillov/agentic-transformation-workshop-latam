@@ -697,18 +697,114 @@ class Lab:
                                   'test_confirmation_is_human_identity_proof': False}
 
     def finish(self):
+        """Stop every owned container and retain evidence; unknown is not stopped.
+
+        Return False on cleanup/retention failures so callers can fail the run
+        without replacing an earlier workload exception or its evidence.
+        """
+        cleanup = {'result': 'in_progress', 'containers': {}, 'errors': [],
+                   'retained_for_review': ['containers', 'volumes', 'networks', 'private_files']}
+        self.evidence['cleanup'] = cleanup
+
+        def failure(operation, container=None, *, returncode=None, error=None):
+            detail = {'operation': operation}
+            if container is not None:
+                detail['container'] = container
+            if returncode is not None:
+                detail['returncode'] = returncode
+            if error is not None:
+                # Exception messages and Docker stderr can contain private paths
+                # or environment details. Only their type enters public evidence.
+                detail['error_type'] = type(error).__name__
+            cleanup['errors'].append(detail)
+
+        def set_result():
+            cleanup['result'] = 'failed' if cleanup['errors'] else 'passed'
+            if cleanup['errors'] and self.evidence.get('result') != 'failed':
+                self.evidence['result_before_cleanup'] = self.evidence.get('result')
+                self.evidence['result'] = 'failed'
+                self.evidence['failure_type'] = 'CleanupError'
+                self.evidence['failure_detail'] = 'Cleanup or evidence retention could not be completed and verified'
+
         for container in self.containers:
-            log=docker('logs',container,check=False)
-            (self.work/(container+'.log')).write_text(log.stdout+log.stderr)
-            docker('stop',container,check=False)
+            observed = cleanup['containers'][container] = {'running': None}
+            try:
+                log = docker('logs', container, check=False)
+                observed['logs_returncode'] = log.returncode
+                (self.work/(container+'.log')).write_text(log.stdout+log.stderr)
+                if log.returncode:
+                    failure('logs', container, returncode=log.returncode)
+            except Exception as error:
+                failure('retain_logs', container, error=error)
+            try:
+                stopped = docker('stop', container, check=False)
+                observed['stop_returncode'] = stopped.returncode
+                if stopped.returncode:
+                    failure('stop', container, returncode=stopped.returncode)
+            except Exception as error:
+                failure('stop', container, error=error)
+
+        # Inspect only after all stop attempts. A failed or malformed inspection
+        # remains unknown, even if the corresponding stop command succeeded.
+        for container, observed in cleanup['containers'].items():
+            try:
+                inspected = docker('inspect', '-f', '{{.State.Running}}', container, check=False)
+                observed['inspect_returncode'] = inspected.returncode
+                state = inspected.stdout.strip()
+                if inspected.returncode:
+                    failure('inspect', container, returncode=inspected.returncode)
+                elif state not in ('true', 'false'):
+                    failure('inspect_malformed', container)
+                else:
+                    observed['running'] = state == 'true'
+                    if observed['running']:
+                        failure('still_running', container)
+            except Exception as error:
+                failure('inspect', container, error=error)
+
         # Retain volumes, containers, dump and envs for review. No global prune/removal.
-        self.evidence['finished_at_utc']=datetime.now(timezone.utc).isoformat()
-        self.evidence['test_containers_running']=sum(docker('inspect','-f','{{.State.Running}}',c,check=False).stdout.strip()=='true' for c in self.containers)
-        self.output.parent.mkdir(parents=True,exist_ok=True)
-        self.output.write_text(json.dumps(self.evidence,indent=2,ensure_ascii=False)+'\n')
-        (self.work/'review.json').write_text(json.dumps({'prefix':self.prefix,'ports':getattr(self,'ports',[]),'evidence':str(self.output)},indent=2)+'\n')
+        states = [item['running'] for item in cleanup['containers'].values()]
+        cleanup['all_stopped_verified'] = all(state is False for state in states)
+        cleanup['known_running_count'] = sum(state is True for state in states)
+        cleanup['unknown_count'] = sum(state is None for state in states)
+        self.evidence['test_containers_running'] = (None if cleanup['unknown_count']
+                                                    else cleanup['known_running_count'])
+        self.evidence['finished_at_utc'] = datetime.now(timezone.utc).isoformat()
+        set_result()
+
+        try:
+            (self.work/'review.json').write_text(json.dumps(
+                {'prefix': self.prefix, 'ports': getattr(self, 'ports', []),
+                 'evidence': str(self.output), 'private_evidence': str(self.work/'finish-evidence.json')},
+                indent=2)+'\n')
+        except Exception as error:
+            failure('retain_review', error=error)
+            set_result()
+
+        def write_evidence(path):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(self.evidence, indent=2, ensure_ascii=False)+'\n')
+
+        try:
+            write_evidence(self.output)
+        except Exception as error:
+            failure('write_public_evidence', error=error)
+            set_result()
+        try:
+            # Also retain a private receipt when the selected output is unwritable.
+            write_evidence(self.work/'finish-evidence.json')
+        except Exception as error:
+            failure('write_private_evidence', error=error)
+            set_result()
+            # An earlier public receipt must not remain marked passed after a
+            # retention failure. Best effort; the caller still exits nonzero.
+            try:
+                write_evidence(self.output)
+            except Exception:
+                pass
         print('Evidence: '+str(self.output),flush=True)
         print('Private review files retained in '+str(self.work),flush=True)
+        return cleanup['result'] == 'passed'
 
 
 def main():
@@ -744,7 +840,9 @@ def main():
         print('FAILED: '+str(e),file=sys.stderr,flush=True)
         raise
     finally:
-        lab.finish()
+        cleanup_ok = lab.finish()
+        if not cleanup_ok and sys.exc_info()[0] is None:
+            raise SystemExit(1)
 
 
 if __name__=='__main__':

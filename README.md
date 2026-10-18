@@ -1,5 +1,7 @@
 # Agentic Transformation Workshop
 
+[![Pruebas del workshop](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/workflows/checks.yml?query=branch%3Amain)
+
 Un workshop en español para pasar de **una oportunidad de negocio a un agente funcionando**, evaluar la aplicación con ARA y MODA e integrar el trabajo en AI-DLC.
 
 Construirás sobre un caso de reservas: el agente propone una acción, solicita aprobación, utiliza una API con PostgreSQL y recupera operaciones interrumpidas. Los pagos son simulados. El código, los ejercicios y los diagramas están incluidos bajo **MIT**.

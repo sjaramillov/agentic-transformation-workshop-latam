@@ -74,8 +74,8 @@
     <text x="685" y="730" class="number" text-anchor="middle" style="fill:#fffdf7">3</text>
     <text x="720" y="730" class="label">AUTONOMÍA</text>
     <text x="674" y="789" class="heading">¿Qué puede decidir?</text>
-    <text x="674" y="834" class="body">Proponer → aprobar → ejecutar.</text>
-    <text x="674" y="869" class="body">Recuperar sin duplicar cobros.</text>
+    <text x="674" y="834" class="body">Propuesta → aprobación humana.</text>
+    <text x="674" y="869" class="body">Ejecutar y recuperar sin duplicar.</text>
     <path d="M674 900H1103" stroke="#89a47a" stroke-opacity=".4"/>
     <text x="674" y="934" class="caption">INCEPTION · LÍMITES Y RESPONSABLE</text>
   </g>

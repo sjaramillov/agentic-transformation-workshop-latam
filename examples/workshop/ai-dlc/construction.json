@@ -1,0 +1,30 @@
+{
+  "public_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
+  "scenario": "Booking MIT — reservas recuperables",
+  "value_case_id": "V-BOOKING-01",
+  "phase": "construction",
+  "status": "requires_human_review",
+  "owners": [
+    "engineering",
+    "security"
+  ],
+  "inputs": [
+    "G-traceability.csv",
+    "contexts/ara.txt",
+    "contexts/moda.txt",
+    "ai-dlc/inception.json"
+  ],
+  "units": [
+    "crear una reserva aprobada sin duplicar efectos",
+    "cancelar con autorización y recuperación durable",
+    "reconstruir la operación con evidencia"
+  ],
+  "exit_evidence": [
+    "diff revisado",
+    "pruebas positivas y negativas del mismo commit",
+    "E2E con DB",
+    "hallazgos y riesgos pendientes",
+    "decisión humana fechada"
+  ],
+  "next_phase": "operations"
+}

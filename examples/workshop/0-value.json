@@ -1,0 +1,81 @@
+{
+  "id": "V-BOOKING-01",
+  "title": "Reducir trabajo manual en reservas recuperables",
+  "status": "illustrative_not_measured",
+  "problem": "Las respuestas ambiguas y los fallos después de un cobro exigen consultas, reintentos y conciliación manual.",
+  "users": [
+    "operador que asiste al viajero",
+    "viajero"
+  ],
+  "hypothesis": "Preparar una propuesta y observar su resultado podría reducir el tiempo humano por caso completado manteniendo aprobación explícita, identidad y recuperación durable.",
+  "measurement": {
+    "primary_metric": "human_minutes_per_completed_case",
+    "definition": "Minutos de trabajo humano, incluida revisión, rechazo y recuperación, divididos por casos completados; reportar también casos fallidos.",
+    "baseline": {
+      "value": 8,
+      "unit": "minutes_per_completed_case",
+      "status": "illustrative_not_measured"
+    },
+    "target": {
+      "value": 6,
+      "unit": "minutes_per_completed_case",
+      "status": "hypothesis"
+    },
+    "monthly_cases": {
+      "value": 200,
+      "status": "illustrative_not_measured"
+    },
+    "illustrative_gross_time_saved": {
+      "value": 400,
+      "unit": "minutes_per_month",
+      "formula": "200 * (8 - 6)",
+      "status": "illustrative_not_measured"
+    },
+    "guardrails": [
+      "cero cobros duplicados",
+      "cero escrituras sin aprobación",
+      "cero acceso cruzado entre sujetos"
+    ],
+    "pilot_method": "Medir línea base, elegir casos equivalentes, alternar orden manual/asistido e incluir revisión, rechazos y recuperación. Acordar umbral antes de observar resultados."
+  },
+  "alternatives": [
+    {
+      "id": "manual-improved",
+      "description": "Mejorar instrucciones y procedimiento manual"
+    },
+    {
+      "id": "deterministic-form",
+      "description": "Formulario con validación y automatización determinista"
+    },
+    {
+      "id": "read-only-assistant",
+      "description": "Asistente que consulta y explica el estado"
+    },
+    {
+      "id": "approval-agent",
+      "description": "Agente que propone y ejecuta después de aprobación"
+    }
+  ],
+  "workshop_choice": "approval-agent",
+  "choice_reason": "Practicar el ciclo de preparación técnica y validación; una elección de inversión exige comparar resultados medidos con las otras alternativas.",
+  "effort_and_cost": {
+    "implementation_hours": null,
+    "monthly_maintenance_hours": null,
+    "human_review_cost": null,
+    "model_and_runtime_cost": null,
+    "measurement_status": "to_measure",
+    "decision_owner": "product"
+  },
+  "autonomy": "propose-and-confirm",
+  "scope": "Identidades y pagos sintéticos; crear, consultar y cancelar reservas propias.",
+  "abort_conditions": [
+    "escritura sin aprobación",
+    "cruce de identidad",
+    "cobro duplicado",
+    "secreto expuesto",
+    "operación imposible de reconciliar"
+  ],
+  "decision": "requires_human_review",
+  "owner": "product",
+  "measurement_owner": "operations"
+}

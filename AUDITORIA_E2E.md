@@ -1,5 +1,7 @@
 # Verificación del workshop público
 
+**Versión ampliada comprobada:** [28/28 escenarios E2E con PostgreSQL y 76 pruebas públicas](evidence/agent-workshop/README.md), con código, artefacto de CI y clon público vinculados a una revisión. El índice distingue ejecución del agente, contrato Bedrock y evaluación histórica ARA/MODA.
+
 La aceptación del recorrido ampliado distingue estas capas:
 
 | Capa | Cómo reproducir | Evidencia |

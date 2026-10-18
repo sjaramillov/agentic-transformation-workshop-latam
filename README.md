@@ -26,6 +26,7 @@ Necesitas Python 3.11+ y Docker en Linux/macOS; en Windows, WSL con Docker acces
 - **[Laboratorio completo MIT](LABORATORIO_MIT.md)**: flujo con PostgreSQL y pruebas desde un clon público.
 - [Agente ejecutable](AGENTE_EJECUTABLE.md): demo interactiva, aprobación, reanudación y Bedrock opcional.
 - [Ficha de valor](FICHA_VALOR.md) y [AI-DLC](AI_DLC.md): ejemplo resuelto, plantillas y entregables por fase.
+- [Ejemplo generado visible](examples/workshop/README.md): ficha, matriz y entregas de AI-DLC para leer sin ejecutar comandos.
 - [Inicio rápido](INICIO_RAPIDO.md): clona y ejecuta el workshop público completo.
 - [Auditoría E2E](AUDITORIA_E2E.md): capas de verificación y evidencia.
 - [Ejecución AWS](EJECUCION_AWS.md): acceso, rutas, publicación de TD y aceptación.
@@ -40,7 +41,7 @@ Necesitas Python 3.11+ y Docker en Linux/macOS; en Windows, WSL con Docker acces
 
 ## Estado de reproducción
 
-La [auditoría E2E](AUDITORIA_E2E.md) describe la aceptación del recorrido actual, incluido el agente y la aprobación que valida la API. El [laboratorio completo](LABORATORIO_MIT.md) permite reproducirlo y conservar los resultados.
+La versión ampliada pasó **28/28 escenarios E2E con PostgreSQL**, **76 pruebas automatizadas** y los cinco trabajos de CI. Se comprobó también desde un clon público nuevo. La [evidencia vigente](evidence/agent-workshop/README.md) vincula el agente, la aprobación que valida la API, la recuperación, el código y los resultados. La [auditoría E2E](AUDITORIA_E2E.md) y el [laboratorio completo](LABORATORIO_MIT.md) explican cómo repetirlos.
 
 Como referencia fechada, la versión del **16 de octubre de 2026** pasó **18 escenarios E2E en CCS** y ARA pasó de **1 a 0 bloqueadores**, con clasificación **Pilot-Ready (Safety Concerns)**. La [comparación ARA/MODA](CCS_E2E.md) y la [evidencia de DB](CCS_DATABASE_E2E.md) conservan sus commits y riesgos. Los informes corresponden a esa versión; los nuevos controles del agente requieren una nueva evaluación para atribuirles cierres ARA/MODA.
 

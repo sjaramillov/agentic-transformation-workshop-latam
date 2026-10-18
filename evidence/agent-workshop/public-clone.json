@@ -1,0 +1,15 @@
+{
+  "source_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
+  "public_clone_no_event_archive": true,
+  "unit_tests": 76,
+  "result": "passed",
+  "public_prepare_matches_source_and_materials": true,
+  "prepared_artifacts_verified": 16,
+  "unit_log_sha256": "299642d5abbafda354caf3e2acd203b5768e703a24941405a2adc76fcc4795e0",
+  "environment": "macOS Python 3.14.0; PostgreSQL E2E executed separately in GitHub Actions",
+  "commands": [
+    "git clone --depth 1 https://github.com/sjaramillov/agentic-transformation-workshop-latam.git",
+    "python3 -m unittest discover -s tests -v",
+    "python3 scripts/workshop.py prepare --output .local/public-practice"
+  ]
+}

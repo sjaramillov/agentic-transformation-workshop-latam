@@ -1,0 +1,28 @@
+{
+  "actors": [
+    "viajero",
+    "agente de reservas",
+    "operador"
+  ],
+  "events": [
+    "reserva solicitada",
+    "pago capturado",
+    "reserva confirmada",
+    "cancelación solicitada",
+    "pago reembolsado",
+    "reserva cancelada"
+  ],
+  "exceptions": [
+    "cobro confirmado y proceso interrumpido",
+    "fallo al persistir reserva",
+    "proveedor de pagos no disponible",
+    "auditoría temporalmente no disponible"
+  ],
+  "invariants": [
+    "una reserva confirmada implica un cobro capturado",
+    "un fallo posterior al cobro exige compensación durable",
+    "la misma clave y sujeto no duplican efectos",
+    "cada sujeto solo accede a sus reservas",
+    "transiciones y auditoría comparten transacción local"
+  ]
+}

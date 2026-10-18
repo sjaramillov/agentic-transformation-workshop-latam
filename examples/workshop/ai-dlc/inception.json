@@ -1,0 +1,30 @@
+{
+  "public_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
+  "scenario": "Booking MIT — reservas recuperables",
+  "value_case_id": "V-BOOKING-01",
+  "phase": "inception",
+  "status": "requires_human_review",
+  "owners": [
+    "product",
+    "security",
+    "operations"
+  ],
+  "inputs": [
+    "0-value.json",
+    "0-value-worksheet.md",
+    "A-eventstorming.json",
+    "B-opportunities.json",
+    "C-workflow.json"
+  ],
+  "decisions": [
+    "aceptar problema y objetivo medible",
+    "elegir alternativa con evidencia",
+    "acordar autonomía y condiciones de parada"
+  ],
+  "exit_evidence": [
+    "ficha con fuentes y supuestos",
+    "requisitos e invariantes",
+    "decisión humana fechada"
+  ],
+  "next_phase": "construction"
+}

@@ -1,0 +1,69 @@
+{
+  "verified_at_utc": "2026-10-18T13:04:47.955025+00:00",
+  "source_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
+  "ci_run_id": 39129820064,
+  "ci_url": "https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/39129820064",
+  "ci_result": "success",
+  "ci_jobs": [
+    {
+      "name": "database-e2e",
+      "conclusion": "success"
+    },
+    {
+      "name": "public-checks (macos-latest, 3.11)",
+      "conclusion": "success"
+    },
+    {
+      "name": "public-checks (macos-latest, 3.14)",
+      "conclusion": "success"
+    },
+    {
+      "name": "public-checks (ubuntu-latest, 3.11)",
+      "conclusion": "success"
+    },
+    {
+      "name": "public-checks (ubuntu-latest, 3.14)",
+      "conclusion": "success"
+    }
+  ],
+  "postgres_cases": 28,
+  "expected_cases_extracted_from": "booking_lab/run.py at source_commit",
+  "case_names": [
+    "authentication_issuer_audience_expiry_signature_scope",
+    "server_approval_missing_expired_subject_payload_key_action_signature_denied",
+    "create_charge_persist_read_list_with_attribution",
+    "stable_replay_and_payload_conflict_across_replicas",
+    "identity_isolation_and_identity_scoped_idempotency",
+    "eight_concurrent_requests_two_api_replicas_one_charge",
+    "real_insert_failure_after_charge_refunds_without_orphan",
+    "refund_outage_durable_state_and_worker_recovery",
+    "process_crash_after_external_commit_reconciles_without_double_charge",
+    "payment_provider_outage_retains_intent_and_recovers",
+    "process_crash_after_refund_recovers_without_second_refund",
+    "declined_payment_does_not_create_booking",
+    "cancel_refund_repeat_and_preserve_create_response",
+    "audit_delivery_failure_restart_and_durable_outbox_drain",
+    "runtime_roles_cannot_rewrite_audit_or_cross_service_tables",
+    "audit_redelivery_deduplicates_event_ids",
+    "database_outage_fail_closed_and_volume_survives_restart",
+    "actual_pg_dump_restore_into_separate_database",
+    "independent_signed_audit_retention_tamper_restart_restore",
+    "agent_cli_plan_unapproved_execute_and_rejection_have_no_writes",
+    "agent_cli_approved_create_observe_replay_and_subject_binding",
+    "agent_cli_two_processes_same_state_one_attempt_one_charge",
+    "agent_cli_modified_approved_plan_is_rejected",
+    "agent_cli_read_only_tool_lists_only_authenticated_subject",
+    "agent_cli_provider_outage_and_resume_from_persisted_plan",
+    "agent_cli_withdraw_after_send_preserves_remote_reconciliation",
+    "agent_cli_api_crash_after_capture_resume_no_double_charge",
+    "agent_cli_cancel_requires_new_approval_and_refunds_once"
+  ],
+  "source_hashes_match_git": true,
+  "source_files_verified": 16,
+  "receipt_sha256": "07bcfe55ff59881a4fd9429d1d9c30ab5c84adbdada8db41f98c34a9acadae42",
+  "five_invariants_zero": true,
+  "test_containers_running": 0,
+  "new_ara_moda_executed": false,
+  "live_bedrock_invoked": false,
+  "business_outcome_measured": false
+}

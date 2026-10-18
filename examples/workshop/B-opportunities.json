@@ -1,0 +1,21 @@
+{
+  "opportunities": [
+    {
+      "id": "booking-assistant",
+      "value": 5,
+      "feasibility": 4,
+      "risk": 3,
+      "autonomy": "propose-and-confirm",
+      "reason": "Preparar la reserva; ejecutar creación o cancelación tras confirmación explícita del viajero."
+    },
+    {
+      "id": "audit-assistant",
+      "value": 3,
+      "feasibility": 5,
+      "risk": 1,
+      "autonomy": "read-only",
+      "reason": "Explicar el estado de una operación sin modificarlo."
+    }
+  ],
+  "selected": "booking-assistant"
+}

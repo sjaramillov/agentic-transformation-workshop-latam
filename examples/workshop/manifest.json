@@ -1,0 +1,70 @@
+{
+  "public_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
+  "analysis_commit": "2dffdada5869e4ac904241308d36e94cf176c6c6",
+  "source_sha256": {
+    "LICENSE": "498bd8d5de305a7c4cd061178b58c19062604de3dfbed9953e536cac74b14768",
+    "booking_lab/.dockerignore": "7ba9125ab3e191d2d51e111f6d7d6c26ee19c34e91e8e8036d806011cec61725",
+    "booking_lab/AUDIT.md": "3172e3e519a87ee23787547a509457d6d15a9cbaa9ad1d22ae18f1978117d313",
+    "booking_lab/Dockerfile": "7d5909956960b257e8f9ac5664e2771dedf160735e658be3f337096ba1c07517",
+    "booking_lab/README.md": "201b6aeea76aff5d4090b04fcf8b7c798948a6e2a59a60eea154013baedcf7fe",
+    "booking_lab/agent.py": "be3a44c385b472333bc6ee0918b54c9157ae8b19b243ed3a34eb3daaa4e786ae",
+    "booking_lab/approval.py": "390a61990347bb90cbe501e59c88cddde6026f5453d84d8a7e2959946d749dfd",
+    "booking_lab/audit.py": "c93fcf7ca9e2aaa237c7f12aa3ca24e00da20530dab0fa1830c0f0dd7dd7d4b7",
+    "booking_lab/audit_verify.py": "45ed7dd1597b80232b4851697e916a736bec37e11a43b2435f25bac198e99cbe",
+    "booking_lab/auth.py": "4271b8cd38408b07fd2487e61cee5ee42ed2b507bc0c6d1188dcf0834376202a",
+    "booking_lab/client.py": "957ffb9ee2bab9d9afb4e64e894ef511729333cd4c8740ef339f8203b8ff9369",
+    "booking_lab/http_safety.py": "9ba9315e397ecab5432d01e08495904a926928c4a5827080efea10a8a008b2df",
+    "booking_lab/images.lock.json": "1f61102e10a0e14d4b1cb78bf5c37c1fa47071d526f7cbdea028ef223b1e72a0",
+    "booking_lab/requirements.txt": "281f4fe5b5deb728449e2e3c762b88249931daebc04f65a098c757ac3f37d80f",
+    "booking_lab/run.py": "e97c7205183c09beefc8f6ebb977169953bd3eec33cd87729410329aa9c2236b",
+    "booking_lab/schema.sql": "609d859f6db317669ca56a81ad55bbf624e8ced5b133e963c554f920770ae598",
+    "booking_lab/service.py": "325784a8c639139e3eab0eca8d960ed48226200bfd54d9424b6bdfcdea8777e8"
+  },
+  "context_sha256": {
+    "ara.txt": "9a8bf72670eed230378fa2067341604179bba889ecea8c923668738dc2e3e7e6",
+    "moda.txt": "a0a56dce96b319b0c625921b56fb85143102ed336d1163192dbdf42f6cdcf778"
+  },
+  "input_sha256": {
+    "workshop/contexts/ara.txt": "9a8bf72670eed230378fa2067341604179bba889ecea8c923668738dc2e3e7e6",
+    "workshop/contexts/moda.txt": "a0a56dce96b319b0c625921b56fb85143102ed336d1163192dbdf42f6cdcf778",
+    "workshop/scenario.json": "741c2315370caccf66bd715bf11b322d84305dd8d7451d9f4c43f6521ebe2695",
+    "workshop/templates/comparison.csv": "35ecae572d947a6f42ca97ab5ae7bc31466e93dcd07fc7141aaaf11a4c0ff980",
+    "workshop/templates/decision.md": "4eb41ca8675bdb64c80cb4a8f835de5ed583d059517a9bed1f4e44fcbd7115cf",
+    "workshop/templates/traceability.csv": "e65aed85bceb04ee0dec451df5ff1b2f9da7f2c575aa14043f8f222aea9ea7f6",
+    "workshop/templates/value.md": "daff67605413a8e0e6ad308f9d9c51d05cb9ca730d47184675b358f4edb62053"
+  },
+  "artifact_sha256": {
+    "A-eventstorming.json": "1dc0c52e4e0cc6acacec89e20bdc320129fc9a9205dbea069f14a383b9f743e6",
+    "B-opportunities.json": "51b3a04a2218d6e6aa7c003efc6580e0a74631b6f90b0a711f38e6d4b754d6f7",
+    "C-workflow.json": "6b53b4a6c1a0144ec6f7841ce117efc2df2cb85c38396a2e2c6229fc14818214",
+    "contexts/ara.txt": "9a8bf72670eed230378fa2067341604179bba889ecea8c923668738dc2e3e7e6",
+    "contexts/moda.txt": "a0a56dce96b319b0c625921b56fb85143102ed336d1163192dbdf42f6cdcf778",
+    "templates/comparison.csv": "35ecae572d947a6f42ca97ab5ae7bc31466e93dcd07fc7141aaaf11a4c0ff980",
+    "templates/decision.md": "4eb41ca8675bdb64c80cb4a8f835de5ed583d059517a9bed1f4e44fcbd7115cf",
+    "templates/traceability.csv": "e65aed85bceb04ee0dec451df5ff1b2f9da7f2c575aa14043f8f222aea9ea7f6",
+    "templates/value.md": "daff67605413a8e0e6ad308f9d9c51d05cb9ca730d47184675b358f4edb62053",
+    "0-value.json": "0723aa4743c5c414a8f7415a669d8ff64fc37ac906d1c7645fa33def46040f73",
+    "0-value-worksheet.md": "daff67605413a8e0e6ad308f9d9c51d05cb9ca730d47184675b358f4edb62053",
+    "G-traceability.csv": "3bc6b4ea29ef8789c230d2f6876531d6f5a1c91b00d56d0dcca1743cd4913396",
+    "ai-dlc/inception.json": "d4288fd50e18986131ef6dd7d1793d65cf289abdfc21f2182a3f3a24302c2194",
+    "ai-dlc/construction.json": "349232e5ce749981085191ba3e2cebccd450c0fd0494bc3b97a049fc4287fbae",
+    "ai-dlc/operations.json": "403fd444708dd1e186c5a830962b00c398df9809cad2b14b1de3482f22b19cf7",
+    "ai-dlc/decisions.md": "9094be0b53936b44ebc5805879fb1d6b15190a5135fdb05f62be63d96023e90d"
+  },
+  "preparer_sha256": "3264c08a5fece928a73c1e6b24e126fda1e4f25489969f0f7ece3fc9052f9ad7",
+  "value_and_ai_dlc_available": true,
+  "human_decisions_approved": false,
+  "cloud_analysis_executed": false,
+  "scenario": "workshop/scenario.json",
+  "analysis_scope": [
+    "booking_lab/",
+    "LICENSE",
+    "generated .gitignore"
+  ],
+  "analysis_scope_excludes": [
+    "tests/",
+    ".github/",
+    "root guides",
+    "workshop/"
+  ]
+}

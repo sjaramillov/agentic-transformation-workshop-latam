@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "started_at_utc": "2026-10-18T13:02:40.106532+00:00",
+  "implementation": "original MIT booking_lab",
+  "environment": "GitHub Actions ubuntu-latest",
+  "payments": "synthetic HTTP provider backed by PostgreSQL; no money moved",
+  "evaluation_kind": "database_e2e",
+  "cases": [
+    {
+      "name": "authentication_issuer_audience_expiry_signature_scope",
+      "result": "passed",
+      "duration_seconds": 0.261
+    },
+    {
+      "name": "server_approval_missing_expired_subject_payload_key_action_signature_denied",
+      "result": "passed",
+      "duration_seconds": 0.245
+    },
+    {
+      "name": "create_charge_persist_read_list_with_attribution",
+      "result": "passed",
+      "duration_seconds": 0.204
+    },
+    {
+      "name": "stable_replay_and_payload_conflict_across_replicas",
+      "result": "passed",
+      "duration_seconds": 0.101
+    },
+    {
+      "name": "identity_isolation_and_identity_scoped_idempotency",
+      "result": "passed",
+      "duration_seconds": 0.103
+    },
+    {
+      "name": "eight_concurrent_requests_two_api_replicas_one_charge",
+      "result": "passed",
+      "duration_seconds": 0.279
+    },
+    {
+      "name": "real_insert_failure_after_charge_refunds_without_orphan",
+      "result": "passed",
+      "duration_seconds": 0.239
+    },
+    {
+      "name": "refund_outage_durable_state_and_worker_recovery",
+      "result": "passed",
+      "duration_seconds": 0.798
+    },
+    {
+      "name": "process_crash_after_external_commit_reconciles_without_double_charge",
+      "result": "passed",
+      "duration_seconds": 1.465
+    },
+    {
+      "name": "payment_provider_outage_retains_intent_and_recovers",
+      "result": "passed",
+      "duration_seconds": 0.864
+    },
+    {
+      "name": "process_crash_after_refund_recovers_without_second_refund",
+      "result": "passed",
+      "duration_seconds": 1.385
+    },
+    {
+      "name": "declined_payment_does_not_create_booking",
+      "result": "passed",
+      "duration_seconds": 0.158
+    },
+    {
+      "name": "cancel_refund_repeat_and_preserve_create_response",
+      "result": "passed",
+      "duration_seconds": 0.174
+    },
+    {
+      "name": "audit_delivery_failure_restart_and_durable_outbox_drain",
+      "result": "passed",
+      "duration_seconds": 1.184
+    },
+    {
+      "name": "runtime_roles_cannot_rewrite_audit_or_cross_service_tables",
+      "result": "passed",
+      "duration_seconds": 0.536
+    },
+    {
+      "name": "audit_redelivery_deduplicates_event_ids",
+      "result": "passed",
+      "duration_seconds": 0.711
+    },
+    {
+      "name": "database_outage_fail_closed_and_volume_survives_restart",
+      "result": "passed",
+      "duration_seconds": 1.658
+    },
+    {
+      "name": "agent_cli_plan_unapproved_execute_and_rejection_have_no_writes",
+      "result": "passed",
+      "duration_seconds": 0.36
+    },
+    {
+      "name": "agent_cli_approved_create_observe_replay_and_subject_binding",
+      "result": "passed",
+      "duration_seconds": 0.498
+    },
+    {
+      "name": "agent_cli_two_processes_same_state_one_attempt_one_charge",
+      "result": "passed",
+      "duration_seconds": 0.332
+    },
+    {
+      "name": "agent_cli_modified_approved_plan_is_rejected",
+      "result": "passed",
+      "duration_seconds": 0.308
+    },
+    {
+      "name": "agent_cli_read_only_tool_lists_only_authenticated_subject",
+      "result": "passed",
+      "duration_seconds": 0.2
+    },
+    {
+      "name": "agent_cli_provider_outage_and_resume_from_persisted_plan",
+      "result": "passed",
+      "duration_seconds": 1.136
+    },
+    {
+      "name": "agent_cli_withdraw_after_send_preserves_remote_reconciliation",
+      "result": "passed",
+      "duration_seconds": 1.364
+    },
+    {
+      "name": "agent_cli_api_crash_after_capture_resume_no_double_charge",
+      "result": "passed",
+      "duration_seconds": 1.418
+    },
+    {
+      "name": "agent_cli_cancel_requires_new_approval_and_refunds_once",
+      "result": "passed",
+      "duration_seconds": 0.536
+    },
+    {
+      "name": "actual_pg_dump_restore_into_separate_database",
+      "result": "passed",
+      "duration_seconds": 0.991
+    },
+    {
+      "name": "independent_signed_audit_retention_tamper_restart_restore",
+      "result": "passed",
+      "duration_seconds": 10.979
+    }
+  ],
+  "repository_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
+  "working_tree_dirty": false,
+  "resource_limits_available": false,
+  "base_images": {
+    "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea": [
+      "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea"
+    ],
+    "python@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f": [
+      "python@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f"
+    ]
+  },
+  "app_image_id": "sha256:de8550a6125521105347923f827b8d972ce5db7b3684d5d76b0e4228cba08e4f",
+  "source_sha256": {
+    ".dockerignore": "7ba9125ab3e191d2d51e111f6d7d6c26ee19c34e91e8e8036d806011cec61725",
+    "AUDIT.md": "3172e3e519a87ee23787547a509457d6d15a9cbaa9ad1d22ae18f1978117d313",
+    "Dockerfile": "7d5909956960b257e8f9ac5664e2771dedf160735e658be3f337096ba1c07517",
+    "README.md": "201b6aeea76aff5d4090b04fcf8b7c798948a6e2a59a60eea154013baedcf7fe",
+    "agent.py": "be3a44c385b472333bc6ee0918b54c9157ae8b19b243ed3a34eb3daaa4e786ae",
+    "approval.py": "390a61990347bb90cbe501e59c88cddde6026f5453d84d8a7e2959946d749dfd",
+    "audit.py": "c93fcf7ca9e2aaa237c7f12aa3ca24e00da20530dab0fa1830c0f0dd7dd7d4b7",
+    "audit_verify.py": "45ed7dd1597b80232b4851697e916a736bec37e11a43b2435f25bac198e99cbe",
+    "auth.py": "4271b8cd38408b07fd2487e61cee5ee42ed2b507bc0c6d1188dcf0834376202a",
+    "client.py": "957ffb9ee2bab9d9afb4e64e894ef511729333cd4c8740ef339f8203b8ff9369",
+    "http_safety.py": "9ba9315e397ecab5432d01e08495904a926928c4a5827080efea10a8a008b2df",
+    "images.lock.json": "1f61102e10a0e14d4b1cb78bf5c37c1fa47071d526f7cbdea028ef223b1e72a0",
+    "requirements.txt": "281f4fe5b5deb728449e2e3c762b88249931daebc04f65a098c757ac3f37d80f",
+    "run.py": "e97c7205183c09beefc8f6ebb977169953bd3eec33cd87729410329aa9c2236b",
+    "schema.sql": "609d859f6db317669ca56a81ad55bbf624e8ced5b133e963c554f920770ae598",
+    "service.py": "325784a8c639139e3eab0eca8d960ed48226200bfd54d9424b6bdfcdea8777e8"
+  },
+  "postgres_version": "16.15",
+  "synchronous_commit": "on",
+  "agent": {
+    "planner": "rules",
+    "live_bedrock_invoked": false,
+    "transport": "real CLI subprocesses and HTTP against PostgreSQL",
+    "approval": "explicit test-operator confirmation bound to request; enforced by API",
+    "state": "atomic private files, no keys or bearer tokens",
+    "test_confirmation_is_human_identity_proof": false
+  },
+  "restored_table_row_hashes": {
+    "operations": "99d8ed7d0c79460dc8f564005a150d5a",
+    "bookings": "64dd94b236d26f196e5b58d35b24b89e",
+    "charges": "c3e6793b249566391b8795e17f27a220",
+    "outbox": "24b6b898084c281c8c1e880c41938018",
+    "audit_events": "c920b3893e5b7c57bfc3874c80fc4732",
+    "faults": "6d3384cbcbfbd7a3d9e62f0d80769237"
+  },
+  "restore_counts_bookings_charges_audit": "12|15|52",
+  "synthetic_dump_sha256": "0fef28b441b13c4a95f9cbcb19e3c87fb625bbafaae949a0d73c37c47e80a6dc",
+  "invariants": {
+    "captured_without_confirmed_booking": 0,
+    "confirmed_without_captured_payment": 0,
+    "pending_operations": 0,
+    "undelivered_audit_events": 0,
+    "audit_missing_attribution": 0
+  },
+  "independent_audit": {
+    "records": 52,
+    "checkpoint": {
+      "digest": "87082029ab83176b78ba16be947c9c31efc7f62553a8b39c4309f98f86b44e50",
+      "sequence": 52
+    },
+    "retention_days": 90,
+    "tamper_and_truncation_detected": true,
+    "app_db_admin_cannot_change_ledger": true,
+    "runtime_update_delete_denied": true,
+    "restart_persisted": true,
+    "backup_restored_and_verified": true
+  },
+  "audit_event_count": 52,
+  "result": "passed",
+  "finished_at_utc": "2026-10-18T13:03:41.094547+00:00",
+  "test_containers_running": 0
+}

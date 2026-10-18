@@ -12,6 +12,8 @@ Todo el código, los casos, contextos y ejercicios necesarios están en este rep
 
 Los tiempos de las pruebas se registran en sus recibos; la primera descarga de imágenes y los análisis AWS dependen del entorno. Comienza por el flujo local y continúa con [AI-DLC](AI_DLC.md) para organizar los entregables del equipo.
 
+Puedes revisar [un ejemplo generado completo](examples/workshop/README.md) sin instalar herramientas. La [evidencia publicada](evidence/agent-workshop/README.md) muestra 28 escenarios de DB aprobados y un clon público verificado.
+
 ## 1. Clona y comprueba el flujo con base de datos
 
 Requisitos: Git, Python 3.11+ y Docker con el daemon activo, en Linux/macOS o WSL. Docker descarga Python, PostgreSQL y Psycopg en versiones fijadas.

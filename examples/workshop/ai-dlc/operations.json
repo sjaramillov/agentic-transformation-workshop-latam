@@ -1,0 +1,30 @@
+{
+  "public_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
+  "scenario": "Booking MIT — reservas recuperables",
+  "value_case_id": "V-BOOKING-01",
+  "phase": "operations",
+  "status": "requires_human_review",
+  "owners": [
+    "operations",
+    "product"
+  ],
+  "inputs": [
+    "G-traceability.csv",
+    "ai-dlc/construction.json",
+    "manifest.json"
+  ],
+  "runtime_scope": "Contenedores de laboratorio, datos sintéticos y evidencia de recuperación; despliegue productivo y métricas de usuarios requieren evaluación propia.",
+  "checks": [
+    "guardar recibos e incidentes",
+    "comprobar recuperación y restauración",
+    "cerrar recursos de la práctica",
+    "medir resultado frente a línea base"
+  ],
+  "exit_evidence": [
+    "recibo de runtime y commit",
+    "métricas con fuente y periodo",
+    "responsable y fecha de revisión",
+    "decisión continuar, ajustar o detener"
+  ],
+  "next_phase": "inception"
+}

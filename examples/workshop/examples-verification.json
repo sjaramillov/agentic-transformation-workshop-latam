@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "public_commit": "926265a55a301c8d54e64876fd28a34c50208e94",
+  "purpose": "Read-only published educational outputs; no human decisions or cloud analyses executed by preparation.",
+  "copied_artifacts": {
+    "0-value.json": {
+      "sha256": "0723aa4743c5c414a8f7415a669d8ff64fc37ac906d1c7645fa33def46040f73",
+      "matches_generated_manifest": true
+    },
+    "0-value-worksheet.md": {
+      "sha256": "daff67605413a8e0e6ad308f9d9c51d05cb9ca730d47184675b358f4edb62053",
+      "matches_generated_manifest": true
+    },
+    "A-eventstorming.json": {
+      "sha256": "1dc0c52e4e0cc6acacec89e20bdc320129fc9a9205dbea069f14a383b9f743e6",
+      "matches_generated_manifest": true
+    },
+    "B-opportunities.json": {
+      "sha256": "51b3a04a2218d6e6aa7c003efc6580e0a74631b6f90b0a711f38e6d4b754d6f7",
+      "matches_generated_manifest": true
+    },
+    "C-workflow.json": {
+      "sha256": "6b53b4a6c1a0144ec6f7841ce117efc2df2cb85c38396a2e2c6229fc14818214",
+      "matches_generated_manifest": true
+    },
+    "G-traceability.csv": {
+      "sha256": "3bc6b4ea29ef8789c230d2f6876531d6f5a1c91b00d56d0dcca1743cd4913396",
+      "matches_generated_manifest": true
+    },
+    "ai-dlc/inception.json": {
+      "sha256": "d4288fd50e18986131ef6dd7d1793d65cf289abdfc21f2182a3f3a24302c2194",
+      "matches_generated_manifest": true
+    },
+    "ai-dlc/construction.json": {
+      "sha256": "349232e5ce749981085191ba3e2cebccd450c0fd0494bc3b97a049fc4287fbae",
+      "matches_generated_manifest": true
+    },
+    "ai-dlc/operations.json": {
+      "sha256": "403fd444708dd1e186c5a830962b00c398df9809cad2b14b1de3482f22b19cf7",
+      "matches_generated_manifest": true
+    },
+    "ai-dlc/decisions.md": {
+      "sha256": "9094be0b53936b44ebc5805879fb1d6b15190a5135fdb05f62be63d96023e90d",
+      "matches_generated_manifest": true
+    }
+  },
+  "copied_artifact_count": 10,
+  "manifest_sha256": "c742b436b6133eeb0fdd74971753cc24e383e92b2bda962965fd16bbdeba8545",
+  "manifest_preserved_without_edits": true,
+  "publication_scope": "Selected generated worksheets and handoffs only; manifest also records artifacts outside this example directory.",
+  "manifest_artifacts_not_copied": [
+    "contexts/ara.txt",
+    "contexts/moda.txt",
+    "templates/comparison.csv",
+    "templates/decision.md",
+    "templates/traceability.csv",
+    "templates/value.md"
+  ],
+  "sources_copied": false,
+  "human_decisions_approved": false,
+  "cloud_analysis_executed": false,
+  "input_hashes_match_public_commit": true,
+  "verified_input_count": 7,
+  "source_hashes_match_public_commit": true,
+  "verified_source_file_count": 17,
+  "preparer_hash_matches_public_commit": true
+}

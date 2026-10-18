@@ -1,0 +1,17 @@
+{
+  "selected": "booking-assistant",
+  "workflow": [
+    "recoger itinerario e importe sintéticos",
+    "mostrar propuesta y obtener confirmación",
+    "crear reserva con identidad y clave de idempotencia",
+    "consultar estado y reintentar con la misma clave ante respuesta ambigua",
+    "si se solicita cancelar, confirmar y reembolsar idempotentemente",
+    "reconciliar y revisar auditoría"
+  ],
+  "roles": {
+    "product": "acepta la intención, hipótesis de valor y límites de autonomía",
+    "engineering": "implementa contrato y recuperación",
+    "security": "revisa identidad, scopes, aprobación y auditoría",
+    "operations": "observa, restaura, reconcilia y mide tiempo humano"
+  }
+}

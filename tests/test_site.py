@@ -1,4 +1,5 @@
 from html.parser import HTMLParser
+import json
 from pathlib import Path
 import sys
 import tempfile
@@ -63,6 +64,23 @@ class SiteTests(unittest.TestCase):
             self.assertEqual(len(home.slides),8)
             self.assertEqual(len(home.images),7)
             self.assertTrue({'previous','next','slide-select','print'}<=home.ids)
+            self.assertIn('practica/', home.links)
+            practice=pages[output/'practica/index.html']
+            self.assertTrue({'exercise','session-tools','session-file','notes'}<=practice.ids)
+            for name in ['engine.js','web.js','app.js','boards.js','style.css','web.css','course.js']:
+                self.assertIn(name, practice.links)
+
+    def test_browser_course_preserves_canonical_materials(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output=build_site.build(Path(temporary)/'site')
+            raw=(output/'practica/course.js').read_text()
+            course=json.loads(raw.removeprefix('window.WorkshopCourse = ').removesuffix(';\n'))
+            lesson=build_site.Lesson.local()
+            self.assertEqual(course['lesson'], lesson.data)
+            self.assertEqual(course['hashes'], lesson.hashes)
+            self.assertEqual(course['contexts'], {key: value.decode() for key,value in lesson.contexts.items()})
+            self.assertEqual(course['assets']['renderer'], (ROOT/'workshop/coach/boards.js').read_text())
+            self.assertNotIn('</script', raw)
 
     def test_build_excludes_private_and_runtime_material(self):
         with tempfile.TemporaryDirectory() as temporary:

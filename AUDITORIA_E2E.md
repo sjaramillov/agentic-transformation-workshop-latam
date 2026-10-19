@@ -4,6 +4,10 @@ Ejecuta estos comandos desde la raíz del repositorio. Los [resultados publicado
 
 ## 0. Cliente, coach y tableros
 
+Abre la [práctica web](https://sjaramillov.github.io/agentic-transformation-workshop-latam/practica/). Para repetir las pruebas automáticas de navegador consulta [la validación de la web](workshop/web/README.md#validar-un-cambio).
+
+También puedes abrir la misma práctica localmente:
+
 ```bash
 python3 scripts/facilitate.py --output .local/discovery-check
 ```
@@ -14,9 +18,10 @@ Recorre las 21 situaciones, prueba preguntas recomendadas y alternativas, y lee 
 - B coloca las oportunidades en cuadrantes y después añade autonomía e intervención humana.
 - C alinea consultas, aprobación, ejecución y recuperación por carriles.
 - Recargar o detener y volver a abrir conserva la situación y el feedback pendiente.
+- Descargar el avance y cargarlo en otro navegador conserva las elecciones; reemplazarlo requiere confirmación.
 - Al completar el recorrido, puedes descargar la conversación, los tres tableros y los contextos. `tablero.html` se abre sin conexión.
 
-Prepara las fuentes de análisis con esa sesión:
+Si empezaste en la web, guarda el `session.json` descargado en `.local/discovery-check/`. Prepara las fuentes de análisis con esa sesión:
 
 ```bash
 python3 scripts/workshop.py prepare \

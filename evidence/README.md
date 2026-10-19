@@ -2,8 +2,9 @@
 
 | Recorrido | Resultado | Consulta |
 | --- | --- | --- |
+| Práctica web sin instalación | 21 situaciones, persistencia y descargas; recorrido completo en Chromium, WebKit y móvil | [Pruebas reproducibles](../workshop/web/README.md#validar-un-cambio) · artefacto `browser-e2e-evidence` en [CI](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/workflows/checks.yml) |
 | Discovery con cliente, coach y tableros | 21 situaciones; tres tableros; preparación ARA/MODA desde un clon limpio | [Validación del recorrido](discovery/README.md) |
-| Suite con discovery | 123 pruebas aprobadas | [Evidencia](discovery/verification.json) y [CI actual](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/workflows/checks.yml) |
+| Suite del discovery local original | 123 pruebas aprobadas en esa revisión | [Evidencia](discovery/verification.json) y [CI actual](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/workflows/checks.yml) |
 | Agente con Bedrock y PostgreSQL | 7/7 escenarios con Nova Micro | [Resumen y ejecución](bedrock/README.md) |
 | Aplicación y agente determinista | 28/28 escenarios en dos ejecuciones | [Primera](bedrock/database-e2e-1.json) y [segunda](bedrock/database-e2e-2.json) |
 | Suite anterior al discovery | 112 pruebas; Linux/macOS | [CI de esa revisión](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/39133062523) |

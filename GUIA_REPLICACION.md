@@ -8,15 +8,7 @@ Para presentar el recorrido a tu equipo, abre la [presentación visual](https://
 
 ## 1. Abre el workshop
 
-Necesitas Git, Python 3.11+ y un navegador, en Linux, macOS o WSL:
-
-```bash
-git clone https://github.com/sjaramillov/agentic-transformation-workshop-latam.git
-cd agentic-transformation-workshop-latam
-python3 scripts/facilitate.py
-```
-
-Abre la URL `http://127.0.0.1:…` de la terminal si el navegador no se abre. Mantén la terminal abierta. No necesitas instalar paquetes Python, Docker ni configurar AWS para A–C.
+**[Entrar a la práctica web](https://sjaramillov.github.io/agentic-transformation-workshop-latam/practica/)**. Solo necesitas un navegador. Las preguntas, el cliente, el coach y los tableros funcionan directamente allí, sin clonar el repo ni instalar Python.
 
 En cada situación:
 
@@ -29,16 +21,35 @@ El coach valora la pregunta elegida. Cuando hace falta información, aporta una 
 
 ### Pausar, retomar o guardar
 
-`Ctrl+C` pausa el servidor. El mismo comando retoma la sesión, incluso si estabas leyendo el feedback. Los archivos quedan en `.local/discovery-01/`:
+Puedes cerrar la pestaña y volver: el avance se guarda automáticamente en el mismo navegador, incluso mientras lees el feedback. En **Tu avance** encontrarás:
 
-| Archivo | Contenido |
-| --- | --- |
-| `session.json` | Tus elecciones y el punto del recorrido |
-| `tablero.html` | Los tres tableros; se abre sin servidor ni conexión |
-| `resumen.md` | Preguntas elegidas, respuestas del cliente y coach |
-| `contexts/ara.txt`, `contexts/moda.txt` | Contextos generados al completar C |
+- **Descargar avance:** guarda `session.json` con tus elecciones y el punto del recorrido.
+- **Cargar avance:** elige ese archivo para retomar en otro navegador; confirma antes de reemplazar la sesión actual.
+- **Nueva práctica:** empieza desde la primera pregunta.
 
-Para otra persona o un nuevo intento: `python3 scripts/facilitate.py --output .local/discovery-02`. Cada sesión conserva la versión de sus materiales; si actualizaste el caso, inicia otra sesión o retoma con la versión anterior.
+Al completar C también puedes descargar `resumen.md`, los tres tableros en `tablero.html` (se abren sin conexión) y los contextos `ara.txt` y `moda.txt`. Si tu navegador impide guardar datos, la página lo indica y puedes continuar descargando el avance antes de salir. Borrar los datos del sitio también elimina el progreso guardado en él.
+
+<details>
+<summary>Opcional: preparar el laboratorio local para ejecutar el agente</summary>
+
+Cuando quieras ejecutar el código del laboratorio, necesitas Git y Python 3.11+ en Linux, macOS o WSL:
+
+```bash
+git clone https://github.com/sjaramillov/agentic-transformation-workshop-latam.git
+cd agentic-transformation-workshop-latam
+```
+
+Para llevar tu avance web al laboratorio, crea la carpeta `.local/discovery-01/` y copia allí el archivo descargado `session.json`. También puedes comenzar o retomar la práctica local con:
+
+```bash
+python3 scripts/facilitate.py
+```
+
+Abre la URL de la terminal y mantenla abierta. `Ctrl+C` pausa el servidor; el mismo comando retoma. La sesión, conversación y tableros quedan en `.local/discovery-01/`; los contextos se generan en su subcarpeta `contexts/` al completar C.
+
+Para otra persona: `python3 scripts/facilitate.py --output .local/discovery-02`. Ambas modalidades comprueban la versión de los materiales al cargar un avance; conserva tu archivo si necesitas retomarlo con una versión anterior.
+
+</details>
 
 ## 2. Entiende el dolor y el proceso (A)
 

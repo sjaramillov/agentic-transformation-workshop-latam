@@ -1,0 +1,9 @@
+{
+  "name": "workshop-browser-checks",
+  "version": "1.0.0",
+  "private": true,
+  "description": "End-to-end checks for the static workshop; participants need no installation",
+  "license": "MIT",
+  "scripts": {"test": "playwright test"},
+  "devDependencies": {"@playwright/test": "1.63.0"}
+}

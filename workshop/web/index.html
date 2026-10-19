@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Practica las 21 situaciones del workshop con cliente, coach y tableros progresivos. Tu avance se guarda en este navegador.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <title>Practica con cliente y coach · Booking MIT</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="web.css">
+  <script src="course.js" defer></script><script src="engine.js" defer></script>
+  <script src="boards.js" defer></script><script src="web.js" defer></script><script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#exercise">Ir al ejercicio</a>
+  <header class="topbar"><a href="../" class="brand">Booking MIT <span>WORKSHOP</span></a><a href="../">Ver presentación</a><span id="save-status" role="status">Cargando tu práctica…</span></header>
+  <main>
+    <noscript>Activa JavaScript para practicar con el cliente y el coach. También puedes leer la <a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/examples/discovery/conversacion.md">conversación resuelta</a>.</noscript>
+    <div class="heading"><div><p class="eyebrow">UNA REUNIÓN CON EL CLIENTE</p><h1>Del dolor del proceso<br>al agente.</h1><p id="intro">Elige la pregunta que harías al cliente. Después escucha su respuesta y al coach.</p></div><div class="progress-box"><label for="progress" id="progress-label">Tu recorrido</label><progress id="progress" max="21" value="0"></progress><p>Sin cuenta ni instalaciones.</p></div></div>
+    <details class="session-tools" id="session-tools">
+      <summary>Tu avance: guardar, retomar o empezar de nuevo</summary>
+      <p>Se guarda automáticamente en este navegador. Descarga una copia si vas a cambiar de equipo o borrar los datos del navegador.</p>
+      <div class="tool-buttons"><button id="export-session" type="button" class="secondary">Descargar avance</button><button id="import-session" type="button" class="secondary">Cargar avance</button><button id="new-session" type="button" class="secondary">Nueva práctica</button></div>
+      <input type="file" id="session-file" accept=".json,application/json" aria-label="Archivo de avance" hidden>
+      <div id="replace-confirm" class="replace-confirm" hidden><p id="replace-message"></p><button id="confirm-replace" type="button" class="primary">Continuar</button><button id="cancel-replace" type="button" class="secondary">Conservar mi avance</button></div>
+      <p id="file-status" role="status"></p>
+    </details>
+    <p id="storage-notice" class="storage-notice" role="status" hidden></p>
+    <ol id="phases" class="phases" aria-label="Fases del workshop"></ol>
+    <p id="error" class="error" role="alert" hidden></p>
+    <button id="reload" class="secondary" hidden>Recuperar sesión</button>
+    <div class="workspace">
+      <section id="exercise" tabindex="-1" aria-label="Situación y coach"><div id="question"></div><div id="feedback" aria-live="polite"></div><div id="completion" hidden></div></section>
+      <aside class="board" aria-labelledby="board-title"><div class="board-heading"><div><p class="eyebrow">LO QUE VAMOS DESCUBRIENDO</p><h2 id="board-title">Tablero de la reunión</h2></div><div class="board-actions"><span id="note-count"></span><button id="expand-board" class="secondary" aria-expanded="false" aria-controls="notes">Ampliar tablero</button></div></div><p id="board-empty">Las primeras notas aparecerán cuando escuches al cliente. Empieza por lo que le duele.</p><div class="board-filters" role="group" aria-label="Ver tablero por fase"></div><div id="notes" class="board-content"></div></aside>
+    </div>
+    <footer>Cliente y coach con respuestas preparadas · Tu avance se guarda en tu navegador · <a href="../">Presentación</a> · <a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/GUIA_REPLICACION.md" target="_blank" rel="noopener">Guía paso a paso</a> · Material original MIT</footer>
+  </main>
+</body>
+</html>

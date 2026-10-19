@@ -1,0 +1,18 @@
+.topbar>a:nth-child(2) { margin-left:auto; font-size:13px; }
+.session-tools { margin:0 0 20px; padding:13px 0; border-block:1px solid var(--line); font-size:13px; }
+.session-tools summary { cursor:pointer; color:var(--accent); font-weight:650; }
+.session-tools summary:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+.session-tools p { max-width:85ch; }
+.tool-buttons,.downloads { display:flex; flex-wrap:wrap; gap:10px; margin:15px 0; }
+.tool-buttons button,.downloads button { font-size:13px; }
+.replace-confirm { padding:15px; margin-top:15px; border:1px solid var(--line); border-radius:5px; background:var(--surface); }
+.replace-confirm button { margin:6px 8px 0 0; }
+.storage-notice { padding:12px 16px; background:oklch(94% .06 90); border-radius:5px; font-size:13px; max-width:none; }
+.completion-actions { padding-top:15px; margin-top:20px; border-top:1px solid var(--line); }
+.completion-actions a { display:inline-block; margin:8px 18px 8px 0; font-weight:650; }
+@media(max-width:600px) {
+  .topbar { flex-wrap:wrap; gap:10px; }
+  #save-status { max-width:none; flex-basis:100%; text-align:left; }
+  .session-tools summary { line-height:1.5; }
+  .tool-buttons button { flex:1 1 130px; }
+}

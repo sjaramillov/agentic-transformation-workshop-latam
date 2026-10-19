@@ -8,13 +8,20 @@ Después conectarás esas decisiones con ARA/MODA, ejecutarás un agente de rese
 
 [![Un equipo descubre dolores del proceso y organiza oportunidades en tableros de post-it](assets/presentacion/workshop.png)](https://sjaramillov.github.io/agentic-transformation-workshop-latam/)
 
-**[Abrir la presentación web](https://sjaramillov.github.io/agentic-transformation-workshop-latam/)** · [Explorar los tableros completos](https://sjaramillov.github.io/agentic-transformation-workshop-latam/diagramas/) · [Guía paso a paso](GUIA_REPLICACION.md)
-
-La presentación reúne ocho láminas con ilustraciones del recorrido. Puedes recorrerlas con las flechas, elegir una lámina o imprimirlas como PDF. Los tableros y el caso resuelto se consultan directamente en la web; los siguientes comandos abren la práctica con cliente y coach.
+**[Empezar la práctica web](https://sjaramillov.github.io/agentic-transformation-workshop-latam/practica/)** · [Presentación visual](https://sjaramillov.github.io/agentic-transformation-workshop-latam/) · [Tableros completos](https://sjaramillov.github.io/agentic-transformation-workshop-latam/diagramas/) · [Guía paso a paso](GUIA_REPLICACION.md)
 
 ## Empieza con una reunión
 
-Necesitas **Git, Python 3.11+ y un navegador** en Linux, macOS o WSL.
+Abre la **práctica web**, elige la pregunta que harías al cliente y escucha su respuesta y al coach. Los post-it aparecen mientras avanzas por las **21 situaciones**. Solo necesitas un navegador: no hay que clonar el repo, instalar Python ni configurar AWS.
+
+El avance se guarda automáticamente en ese navegador. En **Tu avance** puedes descargarlo, cargarlo en otro equipo o iniciar otra práctica. Al terminar tendrás tu conversación, los tres tableros y los contextos para ARA/MODA.
+
+**Continúa con la [guía paso a paso](GUIA_REPLICACION.md).** La [presentación visual](https://sjaramillov.github.io/agentic-transformation-workshop-latam/) ofrece ocho láminas ilustradas para presentar el recorrido, con impresión a PDF.
+
+<details>
+<summary>También puedes practicar localmente</summary>
+
+Con Git, Python 3.11+ y un navegador, en Linux, macOS o WSL:
 
 ```bash
 git clone https://github.com/sjaramillov/agentic-transformation-workshop-latam.git
@@ -22,9 +29,9 @@ cd agentic-transformation-workshop-latam
 python3 scripts/facilitate.py
 ```
 
-Se abrirá el workshop. Si el navegador no se abre, copia la URL que imprime la terminal. Elige la pregunta que harías al cliente, escucha su respuesta y lee al coach. El avance se guarda automáticamente; el mismo comando retoma la sesión. Esta primera parte funciona sin Docker, credenciales ni llamadas a AWS.
+Abre la URL que imprime la terminal. El mismo comando retoma la sesión. Esta alternativa usa las mismas preguntas y los mismos tableros.
 
-**Continúa con la [guía paso a paso](GUIA_REPLICACION.md).** Es el recorrido principal, desde la primera pregunta hasta la comparación de resultados.
+</details>
 
 ## Así se construye el workshop
 

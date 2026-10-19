@@ -2,6 +2,7 @@
 let session;
 let filter = null;
 let busy = false;
+let pendingReload = false;
 const $ = (id) => document.getElementById(id);
 function node(tag, text, className) {
   const element = document.createElement(tag);
@@ -38,7 +39,7 @@ function renderBoard() {
 function render(focus = false) {
   $('error').hidden = true;
   $('reload').hidden = true;
-  $('save-status').textContent = 'Avance guardado en este equipo';
+  $('save-status').textContent = window.WorkshopWeb ? WorkshopWeb.saveMessage() : 'Avance guardado en este equipo';
   $('intro').textContent = session.intro;
   $('progress').max = session.total;
   $('progress').value = session.count;
@@ -87,6 +88,7 @@ function render(focus = false) {
 }
 function renderCompletion() {
   const target = $('completion');
+  if (window.WorkshopWeb) return WorkshopWeb.renderCompletion(target, session, {node, button, link});
   target.replaceChildren(node('p', 'DISCOVERY COMPLETADO', 'eyebrow'), node('h2', 'Del proceso a una evaluación con contexto.'), node('p', 'Ya tienes los dolores, la oportunidad, los límites y el flujo del agente de reservas. Revisa el tablero y usa esta síntesis para ARA/MODA.'));
   const scores = node('ul', undefined, 'score-list');
   for (const phase of session.phases) scores.append(node('li', `${phase.id}. ${phase.title}: ${phase.recommended}/${phase.total} preguntas recomendadas elegidas.`));
@@ -106,22 +108,23 @@ function renderCompletion() {
   target.append(steps, node('p', 'Puedes cerrar esta página y pausar la terminal con Ctrl+C. El mismo comando vuelve a abrir tu sesión.', 'hint'));
 }
 async function request(path, options) {
+  if (window.WorkshopWeb) return WorkshopWeb.request(path, options);
   const response = await fetch(path, options);
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'No se pudo completar la acción');
   return data;
 }
 function showError(error) {
-  $('error').textContent = `${error.message}. Si cerraste la terminal, vuelve a ejecutar el comando del workshop.`;
+  $('error').textContent = window.WorkshopWeb ? error.message : `${error.message}. Si cerraste la terminal, vuelve a ejecutar el comando del workshop.`;
   $('error').hidden = false;
   $('reload').hidden = false;
-  $('save-status').textContent = 'Comprueba la conexión con la sesión';
+  $('save-status').textContent = window.WorkshopWeb ? 'Recupera tu avance para continuar' : 'Comprueba la conexión con la sesión';
 }
-async function load() {
+async function load(focus = false) {
   try {
     session = await request('/api/session');
     filter = session.step?.phase || 'C';
-    render();
+    render(focus === true);
   } catch (error) { showError(error); }
 }
 async function mutate(path, body) {
@@ -135,7 +138,10 @@ async function mutate(path, body) {
     if (session.step?.phase !== previousPhase) filter = session.step?.phase || 'C';
     render(true);
   } catch (error) { showError(error); }
-  finally { busy = false; }
+  finally {
+    busy = false;
+    if (pendingReload) { pendingReload = false; load(); }
+  }
 }
 $('expand-board').addEventListener('click', () => {
   const expanded = document.querySelector('.workspace').classList.toggle('board-expanded');
@@ -144,4 +150,5 @@ $('expand-board').addEventListener('click', () => {
   document.querySelector('.board').scrollIntoView({block: 'start'});
 });
 $('reload').addEventListener('click', load);
+if (window.WorkshopWeb) WorkshopWeb.subscribe(focus => { if (busy) pendingReload = true; else load(focus); });
 load();

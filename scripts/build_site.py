@@ -6,10 +6,20 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+from discovery import KINDS, Lesson
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = 'https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/'
 MARKER = '.workshop-site'
+
+
+def browser_course():
+    lesson = Lesson.local()
+    return {'lesson': lesson.data, 'hashes': lesson.hashes,
+            'contexts': {key: raw.decode('utf-8') for key, raw in lesson.contexts.items()},
+            'kinds': KINDS,
+            'assets': {'css': (ROOT/'workshop/coach/style.css').read_text(),
+                       'renderer': (ROOT/'workshop/coach/boards.js').read_text()}}
 
 
 def build(destination):
@@ -35,6 +45,14 @@ def build(destination):
             shutil.copyfile(ROOT/relative, target)
         gallery=stage/'diagramas/index.html'
         gallery.write_text(re.sub(r'href="\.\./([^"#]+\.md)(#[^"]*)?"', lambda m: f'href="{REPO}{m[1]}{m[2] or ""}"', gallery.read_text()), encoding='utf-8')
+        practice = stage/'practica'
+        practice.mkdir()
+        for folder, names in [('web', ['index.html', 'engine.js', 'web.js', 'web.css']),
+                              ('coach', ['app.js', 'boards.js', 'style.css'])]:
+            for name in names:
+                shutil.copyfile(ROOT/'workshop'/folder/name, practice/name)
+        course = json.dumps(browser_course(), ensure_ascii=True).replace('<', '\\u003c')
+        (practice/'course.js').write_text('window.WorkshopCourse = '+course+';\n', encoding='utf-8')
         home=(stage/'presentacion/index.html').read_text()
         home=home.replace('href="../', 'href="').replace('src="../', 'src="')
         home=home.replace('href="style.css"', 'href="presentacion/style.css"').replace('src="deck.js"','src="presentacion/deck.js"')

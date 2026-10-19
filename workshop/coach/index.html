@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Discovery con coach · Booking MIT</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/boards.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#exercise">Ir al ejercicio</a>
+  <header class="topbar"><a href="/" class="brand">Booking MIT <span>WORKSHOP</span></a><span id="save-status" role="status">Cargando sesión…</span></header>
+  <main>
+    <noscript>Activa JavaScript para recorrer las preguntas y construir el tablero.</noscript>
+    <div class="heading"><div><p class="eyebrow">UNA REUNIÓN CON EL CLIENTE</p><h1>Del dolor del proceso<br>al agente.</h1><p id="intro">Preparando tu próxima situación…</p></div><div class="progress-box"><label for="progress" id="progress-label">Tu recorrido</label><progress id="progress" max="21" value="0"></progress><p>Elige una pregunta. Escucha. Aprende.</p></div></div>
+    <ol id="phases" class="phases" aria-label="Fases del workshop"></ol>
+    <p id="error" class="error" role="alert" hidden></p>
+    <button id="reload" class="secondary" hidden>Recuperar sesión</button>
+    <div class="workspace">
+      <section id="exercise" tabindex="-1" aria-label="Situación y coach"><div id="question"></div><div id="feedback" aria-live="polite"></div><div id="completion" hidden></div></section>
+      <aside class="board" aria-labelledby="board-title"><div class="board-heading"><div><p class="eyebrow">LO QUE VAMOS DESCUBRIENDO</p><h2 id="board-title">Tablero de la reunión</h2></div><div class="board-actions"><span id="note-count"></span><button id="expand-board" class="secondary" aria-expanded="false" aria-controls="notes">Ampliar tablero</button></div></div><p id="board-empty">Las primeras notas aparecerán cuando escuches al cliente. Empieza por lo que le duele.</p><div class="board-filters" role="group" aria-label="Ver tablero por fase"></div><div id="notes" class="board-content"></div></aside>
+    </div>
+    <footer>Cliente y coach con respuestas preparadas · Código y materiales originales MIT · <a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/GUIA_REPLICACION.md" target="_blank" rel="noopener">Guía paso a paso</a></footer>
+  </main>
+</body>
+</html>

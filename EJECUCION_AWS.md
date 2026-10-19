@@ -4,14 +4,22 @@ Prerrequisitos: [CloudShell preparado](CLOUDSHELL.md), ATX disponible y acceso a
 
 ## 1. Selecciona un conjunto trazable
 
-Desde la raíz del clon público, reutiliza `.local/workshop-01`, preparado en Inicio rápido o CloudShell. El bloque lo crea solo si todavía no existe. La revisión analizada es la que registra su `manifest.json`; preparar no incorpora cambios sin commit. Si ese directorio ya contiene resultados de análisis, elige otro nombre para `PRACTICE` y sufijos nuevos para las fuentes antes de ejecutar el bloque. `mkdir results` evita sobrescribir una corrida anterior.
+Primero completa la [reunión con el cliente](GUIA_REPLICACION.md). Desde la raíz del clon, prepara una carpeta nueva que incluya esa sesión:
+
+```bash
+python3 scripts/workshop.py prepare \
+  --discovery .local/discovery-01 --output .local/workshop-01
+```
+
+Si ya la preparaste al terminar C, reutilízala. Comprueba que `manifest.json` tiene `discovery_session_sha256`: enlaza el contexto con las decisiones de tu reunión. La revisión analizada es `public_commit`; el preparador toma archivos registrados en Git.
+
+Si ejecutas en CloudShell, sube `session.json` a `.local/discovery-01/` y usa la misma revisión del repo que en tu equipo. El preparador reconstruye los contextos desde esos materiales. También puedes usar los contextos base con `prepare --output .local/workshop-01` para una evaluación independiente del ejercicio guiado.
+
+El bloque siguiente registra el conjunto ya preparado. Si contiene resultados anteriores, prepara otro directorio y elige sufijos nuevos para las fuentes. `mkdir results` conserva cualquier corrida anterior.
 
 ```bash
 set -euo pipefail
 export PRACTICE="$(pwd)/.local/workshop-01"
-if [ ! -e "$PRACTICE" ]; then
-  python3 scripts/workshop.py prepare --output "$PRACTICE"
-fi
 test -f "$PRACTICE/manifest.json"
 test -f "$PRACTICE/contexts/ara.txt"
 test -f "$PRACTICE/contexts/moda.txt"
@@ -31,6 +39,8 @@ atx ct discovery scan --source "$SOURCE_MODA"
 atx ct repository list --source "$SOURCE_ARA"
 atx ct repository list --source "$SOURCE_MODA"
 ```
+
+`atx ct discovery scan` descubre repositorios en la fuente; la entrevista de negocio se completa previamente con el coach.
 
 Cada fuente debe mostrar `booking-mit`. Ambos clones contienen `booking_lab/` y `LICENSE` del mismo commit. El análisis cubre el servicio; las guías y la CI de la raíz se comprueban aparte.
 
@@ -98,7 +108,7 @@ Registra los cambios revisados en un commit de tu repositorio antes de preparar 
 python3 -m unittest discover -s tests -v
 python3 booking_lab/run.py e2e --output .local/db-after.json
 export PRACTICE="$(pwd)/.local/workshop-02"
-python3 scripts/workshop.py prepare --output "$PRACTICE" --revision HEAD
+python3 scripts/workshop.py prepare --discovery .local/discovery-01 --output "$PRACTICE" --revision HEAD
 export SOURCE_ARA=mit-ara-02
 export SOURCE_MODA=mit-moda-02
 mkdir "$PRACTICE/results"
@@ -109,6 +119,8 @@ atx ct discovery scan --source "$SOURCE_MODA"
 atx ct repository list --source "$SOURCE_ARA"
 atx ct repository list --source "$SOURCE_MODA"
 ```
+
+Conserva la misma sesión de discovery para esta comparación. Si elegiste contextos base al inicio, omite `--discovery` también en esta segunda preparación. Si cambiaste preguntas, escenario o contextos, inicia otra sesión y trátala como un alcance nuevo.
 
 Con esas variables actualizadas, repite los comandos D/E de las secciones 2 y 3. Usa nombres nuevos si `.local/workshop-02` o esas fuentes ya existen. Comprueba los hashes de contexto de ambos `manifest.json`: si cambió el contexto, registra esa diferencia antes de interpretar el resultado. Compara por pregunta con [la plantilla CSV](workshop/templates/comparison.csv) o genera JSON y CSV automáticamente:
 

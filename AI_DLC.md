@@ -16,10 +16,10 @@ Repite ARA/MODA cuando cambien código, contexto o alcance. Usa sus hallazgos pa
 
 ## Preparar los artefactos de una práctica
 
-Desde un clon público:
+Después de completar A–C en la [reunión guiada](GUIA_REPLICACION.md), desde el mismo clon:
 
 ```bash
-python3 scripts/workshop.py prepare --output .local/workshop-01
+python3 scripts/workshop.py prepare --discovery .local/discovery-01 --output .local/workshop-01
 ```
 
 El preparador toma la aplicación, escenario, contextos y plantillas registrados en Git, y guarda su procedencia en `manifest.json`. Registra tus cambios en Git antes de preparar una práctica; los cambios pendientes quedan fuera. Elige un directorio de salida nuevo para cada práctica.
@@ -28,6 +28,7 @@ Las siguientes rutas son relativas al directorio elegido con `--output`, por eje
 
 | Archivo generado | Para qué sirve |
 | --- | --- |
+| `discovery/session.json` y `discovery/resumen.md` | Elecciones de la reunión, cliente, coach y requisitos que se incorporan al contexto |
 | `0-value.json` | Ejemplo de oportunidad, métricas, alternativas y condiciones de parada |
 | `0-value-worksheet.md` | Ficha vacía para la decisión de tu equipo |
 | `A-eventstorming.json` | Eventos, actores, excepciones e invariantes |

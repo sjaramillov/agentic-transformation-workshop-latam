@@ -2,57 +2,45 @@
 
 [![Pruebas del workshop](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/workflows/checks.yml?query=branch%3Amain)
 
-Un workshop en español para pasar de **una oportunidad de negocio a un agente funcionando**, evaluar la aplicación con ARA y MODA e integrar el trabajo en AI-DLC.
+**Escucha al cliente, descubre el dolor del proceso y construye una oportunidad de agente con sentido.** Un workshop en español con preguntas predefinidas, cliente simulado, coach y tres tableros de post-it que se forman mientras avanzas.
 
-Construirás sobre un caso de reservas: el agente propone una acción, solicita aprobación, utiliza una API con PostgreSQL y recupera operaciones interrumpidas. Los pagos son simulados. El código, los ejercicios y los diagramas están incluidos bajo **MIT**.
+Después conectarás esas decisiones con ARA/MODA, ejecutarás un agente de reservas y llevarás el trabajo a AI-DLC. Todo el código y los materiales originales están incluidos bajo **MIT**.
 
-## Empieza aquí
+## Empieza con una reunión
 
-Necesitas **Git, Python 3.11+ y Docker** en Linux, macOS o WSL.
+Necesitas **Git, Python 3.11+ y un navegador** en Linux, macOS o WSL.
 
 ```bash
 git clone https://github.com/sjaramillov/agentic-transformation-workshop-latam.git
 cd agentic-transformation-workshop-latam
-python3 booking_lab/run.py e2e --output .local/db-e2e.json
+python3 scripts/facilitate.py
 ```
 
-Verás `PASS` en los escenarios y `result: passed` en el archivo de salida. El comando prepara PostgreSQL y los servicios, recorre las operaciones y detiene sus contenedores al terminar.
+Se abrirá el workshop. Si el navegador no se abre, copia la URL que imprime la terminal. Elige la pregunta que harías al cliente, escucha su respuesta y lee al coach. El avance se guarda automáticamente; el mismo comando retoma la sesión. Esta primera parte funciona sin Docker, credenciales ni llamadas a AWS.
 
-**Siguiente paso:** sigue el [inicio rápido](INICIO_RAPIDO.md) y participa en la [demo del agente](AGENTE_EJECUTABLE.md).
+**Continúa con la [guía paso a paso](GUIA_REPLICACION.md).** Es el recorrido principal, desde la primera pregunta hasta la comparación de resultados.
 
-## Qué aprenderás
+## Así se construye el workshop
 
-| Paso | Trabaja en | Resultado |
+| Etapa | Lo que harás | Lo que aparece en el tablero |
 | --- | --- | --- |
-| 1. Elegir qué construir | [Ficha de valor](FICHA_VALOR.md) | Problema, métrica de éxito, alternativas y responsable |
-| 2. Diseñar el proceso | [Guía A–J](GUIA_REPLICACION.md) | Eventos, oportunidad y autonomía del agente |
-| 3. Ejecutar el agente | [Demo de reservas](AGENTE_EJECUTABLE.md) | Crear, consultar, cancelar y recuperar; reglas o lenguaje natural con Bedrock |
-| 4. Evaluar y mejorar | [ARA y MODA con AWS Transform](EJECUCION_AWS.md) | Hallazgos priorizados, cambios y comparación |
-| 5. Integrar al equipo | [AI-DLC](AI_DLC.md) | Entregables y decisiones de Inception, Construction y Operations |
+| A · Entender el proceso | 9 situaciones, empezando por un caso que le duele al cliente | Eventos en orden; personas, comandos, información, reglas y dolores bajo cada paso |
+| B · Elegir la oportunidad | 6 situaciones para comparar alternativas y acordar autonomía | Cuadrantes de criterio y disponibilidad de datos; post-it que se ubican al investigar |
+| C · Diseñar el flujo | 6 situaciones sobre intención, herramientas, aprobación y recuperación | Carriles de persona, agente, datos y sistemas; acciones y consultas de la API |
+| D–I · Evaluar y mejorar | Leer informes de referencia o ejecutar ARA/MODA en tu cuenta | Hallazgo → cambio → prueba → comparación |
+| J · Llevarlo al equipo | Conectar el caso con [AI-DLC](AI_DLC.md) | Requisitos, responsables y medición de valor |
 
-La práctica local funciona sin credenciales AWS. Para Bedrock o AWS Transform necesitas acceso a esos servicios en tu cuenta; puedes seguir la [preparación de CloudShell](CLOUDSHELL.md).
+El cliente y el coach tienen respuestas preparadas. Cada elección recibe feedback; la síntesis común permite completar el caso aunque una pregunta no haya sido la recomendada. Puedes consultar y adaptar las [21 situaciones](workshop/discovery.json), ver la [conversación resuelta](examples/discovery/conversacion.md) o descargar los [tableros completos](examples/discovery/tableros.html).
 
-## Prepara tus materiales
+## Del tablero a un agente funcionando
 
-```bash
-python3 scripts/workshop.py prepare --output .local/workshop-01
-```
+La [guía](GUIA_REPLICACION.md#6-ejecuta-el-agente-y-comprueba-el-flujo-h) te lleva a una API con PostgreSQL, aprobación humana, pagos sintéticos y recuperación de operaciones. Para esta etapa necesitas Docker. Bedrock y AWS Transform son extensiones con tu cuenta AWS.
 
-El comando genera la ficha de valor, los ejercicios, los contextos ARA/MODA y las fuentes de análisis desde el commit actual. También puedes explorar [un ejemplo completo](examples/workshop/README.md) sin instalar herramientas.
-
-## Tablero del recorrido
-
-![Del problema de negocio a una decisión con evidencia](diagramas/06-valor-ai-dlc.svg)
-
-Abre la [galería de seis tableros](diagramas/README.md) para facilitar las sesiones de proceso, autonomía, recuperación y operación.
-
-## Para profundizar
-
-- [Aplicación y contrato de API](LABORATORIO_MIT.md).
-- [Prompts y ejercicios](PROMPTS.md).
-- [Resultados técnicos y pruebas](evidence/README.md).
-- [Fuentes y recursos de AWS](RECURSOS.md).
+- [Demo interactiva del agente](AGENTE_EJECUTABLE.md).
+- [Ejecutar ARA/MODA](EJECUCION_AWS.md) y [preparar CloudShell](CLOUDSHELL.md).
+- [Ficha de valor](FICHA_VALOR.md) e [integración con AI-DLC](AI_DLC.md).
+- [Recursos y fuentes](RECURSOS.md), [diagramas de apoyo](diagramas/README.md) y [validación](evidence/README.md).
 
 ## Licencia
 
-Proyecto independiente inspirado en el Agentic Transformation Workshop de AWS. Las contribuciones originales se distribuyen bajo [MIT](LICENSE); consulta [autoría y referencias](NOTICE.md).
+Proyecto independiente inspirado en el Agentic Transformation Workshop de AWS. Código, preguntas, coach, tableros y guías originales bajo [MIT](LICENSE). [Autoría y referencias](NOTICE.md).

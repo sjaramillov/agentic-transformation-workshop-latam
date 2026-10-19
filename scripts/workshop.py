@@ -8,6 +8,11 @@ import json
 from pathlib import Path
 import subprocess
 
+try:
+    from scripts import discovery
+except ModuleNotFoundError:
+    import discovery
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -34,12 +39,12 @@ def sha256(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
-def prepare(output, revision='HEAD'):
+def prepare(output, revision='HEAD', discovery_dir=None):
     output = Path(output).resolve()
     if output.exists():
         raise ValueError('El destino ya existe; elige otro para conservar la evidencia')
     sha = run('git', '-C', str(ROOT), 'rev-parse', '--verify', '--end-of-options', revision+'^{commit}')
-    inputs = snapshot(sha, 'workshop/scenario.json', 'workshop/contexts', 'workshop/templates')
+    inputs = snapshot(sha, 'workshop/scenario.json', 'workshop/contexts', 'workshop/templates', 'workshop/discovery.json')
     sources = snapshot(sha, 'booking_lab', 'LICENSE')
     required = ('workshop/scenario.json', 'workshop/contexts/ara.txt', 'workshop/contexts/moda.txt')
     if any(name not in inputs for name in required) or 'booking_lab/run.py' not in sources or 'LICENSE' not in sources:
@@ -55,6 +60,15 @@ def prepare(output, revision='HEAD'):
     for name, raw in inputs.items():
         if name.startswith('workshop/contexts/') or name.startswith('workshop/templates/'):
             artifacts[name.removeprefix('workshop/')] = raw
+    discovery_hash = None
+    if discovery_dir is not None:
+        if 'workshop/discovery.json' not in inputs:
+            raise ValueError('La revisión no contiene el recorrido de discovery')
+        session_raw = (Path(discovery_dir)/'session.json').read_bytes()
+        lesson = discovery.Lesson(inputs['workshop/discovery.json'], inputs['workshop/scenario.json'],
+                                  {k: inputs[f'workshop/contexts/{k}.txt'] for k in ('ara', 'moda')})
+        artifacts.update(lesson.handoff(json.loads(session_raw)))
+        discovery_hash = sha256(artifacts['discovery/session.json'])
     # Historical revisions keep their historical deliverables. New files are never
     # silently borrowed from HEAD when preparing an older source version.
     value_available = 'value_case' in scenario
@@ -117,6 +131,7 @@ def prepare(output, revision='HEAD'):
                 'value_and_ai_dlc_available':value_available,
                 'human_decisions_approved':False,
                 'cloud_analysis_executed':False, 'scenario':'workshop/scenario.json',
+                'discovery_session_sha256':discovery_hash,
                 'analysis_scope':['booking_lab/', 'LICENSE', 'generated .gitignore'],
                 'analysis_scope_excludes':['tests/', '.github/', 'root guides', 'workshop/']}
     (output/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
@@ -128,8 +143,13 @@ def main():
     p.add_argument('command',choices=['prepare'])
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--revision',default='HEAD')
+    p.add_argument('--discovery', type=Path, help='Carpeta de una sesión de discovery completada')
     args=p.parse_args()
-    print(json.dumps(prepare(args.output,args.revision),indent=2))
+    try:
+        result = prepare(args.output, args.revision, args.discovery)
+    except (ValueError, OSError) as error:
+        p.error(str(error))
+    print(json.dumps(result, indent=2))
 
 
 if __name__=='__main__':

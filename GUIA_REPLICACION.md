@@ -1,67 +1,210 @@
-# Workshop completo A–J con código original MIT
+# Del dolor del proceso a un agente: guía paso a paso
 
-Caso: un agente ayuda a crear, consultar y cancelar reservas. El servicio ejecuta pagos sintéticos, conserva el estado en PostgreSQL y recupera operaciones interrumpidas. La aplicación, escenario, contextos, plantillas, transformación y pruebas están incluidos en el repo.
+Tú facilitas una reunión de **Booking MIT**, un servicio de reservas. Elena representa producto; Mateo, operaciones; Lucía, ingeniería; Nora, seguridad. Empieza escuchando qué les cuesta trabajo. El cliente y el coach responden a preguntas preparadas y los tableros se construyen con cada situación.
 
-Comienza con [Inicio rápido](INICIO_RAPIDO.md). El comando `scripts/workshop.py prepare` genera una práctica nueva desde un commit público, sin sobrescribir otra práctica.
+**El recorrido:** dolores → proceso → oportunidad → autonomía → flujo → ARA/MODA → cambio probado → medición de valor.
 
-Antes de A, completa la [ficha de valor](FICHA_VALOR.md) y elige una hipótesis medible. La [integración con AI-DLC](AI_DLC.md) asigna entradas, entregables, responsables y decisiones a Inception, Construction y Operations. El [agente ejecutable](AGENTE_EJECUTABLE.md) convierte C en una práctica con herramientas reales y aprobación validada por la API.
+## 1. Abre el workshop
 
-| Módulo | Actividad | Recurso público | Entregable / aceptación |
-| --- | --- | --- | --- |
-| 0 | Justificar la oportunidad | [Ficha](FICHA_VALOR.md), [tablero 6](diagramas/06-valor-ai-dlc.svg) | `0-value.json` y ficha revisada: métrica, alternativas, costo y decisión |
-| A | Modelar eventos y excepciones | [Escenario](workshop/scenario.json), [tablero 1](diagramas/01-eventstorming.svg) | `A-eventstorming.json`: eventos, actores e invariantes |
-| B | Elegir una oportunidad y autonomía | Escenario, [tablero 2](diagramas/02-oportunidad-agente.svg) | `B-opportunities.json`: decisión y riesgos |
-| C | Diseñar y ejecutar el workflow | Escenario, [agente](AGENTE_EJECUTABLE.md), [tablero 3](diagramas/03-workflow-rebooking.svg) | `C-workflow.json`, propuesta aprobada/rechazada y recibo de ejecución |
-| D | Evaluar seguridad para agentes | [Contexto ARA](workshop/contexts/ara.txt) | Informe real, ID, commit y hallazgos |
-| E | Evaluar modernización | [Contexto MODA](workshop/contexts/moda.txt) | Informe real con propuestas separadas del runtime |
-| F | Leer el portafolio | Las dos fuentes aisladas de análisis | Inventario; un servicio con cuatro roles de aplicación |
-| G | Priorizar | [Plantilla](workshop/templates/decision.md), [prompts](PROMPTS.md) | Hallazgo → cambio → prueba → responsable |
-| H | Corregir | [Transformación original](workshop/transformations/hardening/transformation_definition.md) | Diff revisado y pruebas de regresión |
-| I | Volver a medir | Mismos contextos y alcance de D/E | [Comparación CSV](workshop/templates/comparison.csv), informes antes/después |
-| J | Operar y repetir | [Tablero 5](diagramas/05-modelo-operativo.svg), CI público | Evidencia de DB, restore, propietario y cierre |
+Necesitas Git, Python 3.11+ y un navegador, en Linux, macOS o WSL:
 
-## A. Facilita EventStorming
+```bash
+git clone https://github.com/sjaramillov/agentic-transformation-workshop-latam.git
+cd agentic-transformation-workshop-latam
+python3 scripts/facilitate.py
+```
 
-Lee `workshop/scenario.json` y dibuja el recorrido solicitado → cobrado → confirmado. Añade cancelación → reembolso y el caso cobrado → fallo de DB → compensación. Discute qué ocurre si se pierde la respuesta HTTP después de un commit. Asocia cada transición con `operations`, `bookings`, `charges`, `outbox` y `audit_events` del [esquema](booking_lab/schema.sql).
+Abre la URL `http://127.0.0.1:…` de la terminal si el navegador no se abre. Mantén la terminal abierta. No necesitas instalar paquetes Python, Docker ni configurar AWS para A–C.
 
-Ejercicio: añade una excepción al escenario y explica qué estado durable permite retomarla. El entregable inicial es un ejemplo resuelto; el participante debe justificar sus cambios.
+En cada situación:
 
-## B. Decide el alcance del agente
+1. Lee lo que ocurre y elige la pregunta que harías.
+2. Escucha al cliente y revisa el feedback del coach.
+3. Mira las notas nuevas y su ubicación. **Ampliar tablero** permite ver todo el mapa; también puedes desplazarlo horizontalmente.
+4. Pulsa **Siguiente situación**. Puedes volver a ver los tableros A, B y C usando sus botones.
 
-El ejemplo compara automatización sencilla, un asistente de reservas y uno de auditoría. Los valores numéricos son supuestos pedagógicos editables; justifica tu elección con la ficha de valor. El agente incluido prepara una propuesta y espera confirmación antes de escribir. El servidor valida identidad, scopes y una aprobación firmada de cinco minutos, vinculada al sujeto, operación, payload y clave. Las reservas se aíslan por sujeto. El emisor de aprobación pertenece al operador del laboratorio; su frontera se describe en [la guía del agente](AGENTE_EJECUTABLE.md).
+El coach valora la pregunta elegida. Cuando hace falta información, aporta una síntesis para que puedas continuar; las distintas elecciones llegan al mismo caso de aprendizaje.
 
-## C. Diseña el workflow
+### Pausar, retomar o guardar
 
-Define intención, confirmación, llamada, consulta de estado y recuperación. Una respuesta ambigua se reintenta con la misma identidad, payload y `Idempotency-Key`. Cambiar la clave puede crear otra operación. El [tablero de rebooking](diagramas/03-workflow-rebooking.svg) ilustra el patrón proponer → aprobar → ejecutar; el backend incluido implementa creación y cancelación, que son las operaciones de esta práctica.
+`Ctrl+C` pausa el servidor. El mismo comando retoma la sesión, incluso si estabas leyendo el feedback. Los archivos quedan en `.local/discovery-01/`:
 
-Ejecuta la demo del agente: rechaza primero una propuesta y comprueba que no hay reserva; aprueba otra, consulta y cancela con aprobación independiente. El E2E prueba además reanudar desde el estado persistido después de una caída del proveedor o del proceso API. El modo determinista evita depender de un modelo para reproducir esos controles; Bedrock es un planificador opcional.
+| Archivo | Contenido |
+| --- | --- |
+| `session.json` | Tus elecciones y el punto del recorrido |
+| `tablero.html` | Los tres tableros; se abre sin servidor ni conexión |
+| `resumen.md` | Preguntas elegidas, respuestas del cliente y coach |
+| `contexts/ara.txt`, `contexts/moda.txt` | Contextos generados al completar C |
 
-## D–F. Ejecuta análisis reales
+Para otra persona o un nuevo intento: `python3 scripts/facilitate.py --output .local/discovery-02`. Cada sesión conserva la versión de sus materiales; si actualizaste el caso, inicia otra sesión o retoma con la versión anterior.
 
-Sigue [Ejecución AWS](EJECUCION_AWS.md). ARA y MODA reciben clones separados del mismo código para evitar interferencias. En F el portafolio mínimo es este servicio; API, pagos, worker y ledger de auditoría son roles dentro del mismo repo. Para ampliarlo, incorpora tus propios servicios con licencia compatible y repite descubrimiento.
+## 2. Entiende el dolor y el proceso (A)
 
-## G. Prioriza con evidencia
+**Abre con un incidente concreto:** una persona intenta reservar, se pierde la respuesta y no sabe si ya se cobró. Antes de proponer tecnología, averigua qué pasó y quién tuvo que resolverlo.
 
-Para cada hallazgo comprueba el archivo y comportamiento citado. Clasifica como confirmado, corregido, falso positivo con prueba o pendiente con causa. Atiende primero autorización, integridad de pagos y recuperación. Usa la [plantilla de decisión](workshop/templates/decision.md). Una puntuación no sustituye una prueba del contrato.
+| Situación | Qué buscas entender | Cómo cambia el tablero |
+| --- | --- | --- |
+| A1 · Un caso real | Qué se atascó y qué incertidumbre dejó | El primer dolor entra en la bandeja por ubicar |
+| A2 · Límites | Dónde empieza y cuándo se considera resuelto | Aparecen inicio y condición de cierre |
+| A3 · Caso habitual | Qué sucedió, en qué orden | Solicitud → aprobación → pago → reserva |
+| A4 · Excepción | Respuesta perdida frente a fallo tras el cobro | El dolor se ubica bajo recuperación; se añade conciliación o compensación |
+| A5 · Personas | Quién solicita, confirma y recupera | Personas y comandos alineados con los eventos |
+| A6 · Reglas y criterio | Qué es una regla y qué necesita interpretación | Políticas bajo los pasos: si ocurre X, ejecutar Y |
+| A7 · Información | Qué datos usa cada decisión y cuáles faltan | Post-it de información junto a su paso |
+| A8 · Prioridad | Qué cuesta tiempo y qué obliga a detenerse | Dolores y condiciones de parada en su lugar |
+| A9 · Dependencias | Qué sistemas sostienen el proceso | API, DB, pagos y worker al pie del mapa |
 
-Completa también `G-traceability.csv`: métrica de negocio → requisito → hallazgo → cambio → prueba → medición pendiente. Usa las alternativas y el costo de la ficha para priorizar; registra qué datos siguen siendo supuestos.
+**Cómo leer A:** cada columna representa un momento. Sus filas conectan persona → comando → información → evento → regla → dolor. El tramo de recuperación está separado por una línea discontinua. Los eventos describen algo que ya ocurrió; los comandos describen lo que alguien pide hacer.
 
-## H. Remedia
+**Antes de seguir, debes poder explicar:** por qué una respuesta perdida no autoriza un segundo cobro y cuándo corresponde compensar el primero.
 
-Trabaja en una rama de un clon nuevo. Puedes implementar la corrección directamente o usar la TD pública incluida. Conserva la revisión antes de integrar. Ejecuta las pruebas del contrato y el E2E con DB. Revisa que los roles no hayan recibido privilegios administrativos, que los reintentos conserven claves y que no se haya reemplazado persistencia por memoria.
+## 3. Elige la oportunidad y diseña el flujo (B–C)
 
-## I. Compara
+### B · Ubica las oportunidades
 
-Registra los cambios revisados en un commit antes de ejecutar `prepare --revision HEAD`; un cambio sin commit no aparecerá en las fuentes de análisis. Conserva la misma revisión para la prueba funcional y los análisis.
+En seis situaciones identificarás tareas, comprobarás datos, compararás alternativas, acordarás una métrica, delimitarás la aprobación y cerrarás el alcance.
 
-Ejecuta de nuevo ARA y MODA con el mismo contexto y alcance `write-enabled`. Compara por `question_id`, conserva ID, fecha, versión de ATX, hashes y SHA. Distingue variaciones del evaluador de cambios demostrados en código.
+El cuadrante tiene dos ejes:
 
-## J. Cierra el ciclo
+| | Reglas conocidas | Interpretación y criterio |
+| --- | --- | --- |
+| **Datos disponibles** | Considerar automatización convencional | Considerar asistencia con agente |
+| **Datos por habilitar** | Integrar datos antes de automatizar | Preparar fuentes y permisos antes del piloto |
 
-Producto acepta intención y autonomía; ingeniería revisa código; seguridad revisa identidad y auditoría; operaciones comprueba recuperación y restauración. La CI ejecuta las pruebas públicas y el E2E de DB. Al terminar el runner detiene sus contenedores y conserva el volumen y logs para revisión. No borres datos o recursos ajenos al prefijo de la práctica.
+Las candidatas aparecen en una bandeja. Después de revisar datos y alternativas, pasan a sus cuadrantes. El formulario queda en reglas/datos disponibles; explicar o preparar una reserva, en criterio/datos disponibles; las excepciones comerciales, en criterio/datos pendientes.
 
-Registra decisiones y evidencias en `ai-dlc/decisions.md`. Producto contrasta la métrica con la línea base y decide continuar, ajustar o detener; el resultado técnico del laboratorio no representa una medición de beneficio comercial.
+La autonomía se acuerda después de ubicar la oportunidad:
 
-## Materiales y licencia
+- **A:** autonomía completa.
+- **P:** el agente prepara una decisión y espera aprobación.
+- **E:** exploración asistida por el agente.
+- **G:** el agente actúa como control o guardrail.
+- **H:** intervención humana obligatoria.
 
-La réplica original completa se publica bajo [MIT](LICENSE). [Recursos](RECURSOS.md) reúne todos los archivos necesarios y fuentes oficiales.
+Para las escrituras del caso elegimos **P + H**. Crear y cancelar requieren aprobaciones independientes. Estas letras describen patrones de actuación; no son una escala que debas completar.
+
+Completa la [ficha de valor](FICHA_VALOR.md) cuando el coach llegue a B4. El caso utiliza **200 casos/mes, 8 minutos humanos por caso y una meta de 6**, como supuestos para practicar. Compara formulario, asistente de consulta y agente con aprobación; incluye revisión, recuperación, errores y costo.
+
+### C · Construye el recorrido por carriles
+
+Las seis situaciones delimitan: unidad de trabajo → intención y entradas → consultas y acciones → aprobación → recuperación → entrega a ARA/MODA.
+
+El tablero coloca las notas bajo **Externo/API, Datos, Agente y Persona**, en columnas numeradas. Sigue los cambios de carril:
+
+1. El usuario expresa su intención.
+2. El agente reúne datos y consulta reservas propias. Si falta información, aclara o se detiene.
+3. Prepara una propuesta con datos explícitos.
+4. La persona aprueba o rechaza. Rechazo significa fin sin escritura.
+5. La API valida identidad, permisos y aprobación antes de crear o cancelar.
+6. Se consulta el resultado, se retoma la misma operación si hace falta y se conserva auditoría.
+
+Bajo el flujo aparece el mapa de aplicaciones y sus puntos de contacto: `GET /bookings` y `GET /bookings/{id}` son lecturas; `POST /bookings` y `DELETE /bookings/{id}` producen efectos. El backend implementa creación y cancelación con pagos sintéticos.
+
+**Cierre de C:** deberías poder señalar el dolor, la alternativa elegida, quién aprueba, qué API toca el agente y cómo se recupera una respuesta incierta. El coach genera los contextos para que esos requisitos lleguen a los análisis.
+
+## 4. Lee ARA con el caso en mente (D)
+
+ARA evalúa las aplicaciones con las que interactúa el agente. Puede estudiarlas individualmente, como dependencias de un workflow o como portafolio. La metodología aborda cinco áreas: interfaces, identidad y acceso, datos, resiliencia y observabilidad. [Método de AWS](https://aws.amazon.com/blogs/migration-and-modernization/agentic-readiness/).
+
+En la rúbrica de referencia, esos pilares se desarrollan en ocho secciones: API, identidad, estado, supervisión humana, datos, descubrimiento de contratos, observabilidad e ingeniería. El discovery prepara el caso; la evaluación técnica busca evidencia de sus controles.
+
+En este caso el flujo C delimita la superficie: una aplicación con estado y operaciones de lectura y escritura. ARA utiliza el arquetipo y el alcance para seleccionar preguntas y valorar los hallazgos. La configuración del ejercicio es `agent_scope: write-enabled`. [Implementación de ARA en AWS Transform](https://aws.amazon.com/blogs/migration-and-modernization/new-in-aws-transform-analyze-your-code-for-modernization-and-agentic-readiness/).
+
+### Haz una primera lectura con los informes incluidos
+
+1. Abre el [ARA inicial](evidence/mit/before/ara/booking-mit-ara-report.md).
+2. Localiza **AUTH-Q6**. Lee el hallazgo sobre integridad de auditoría y el archivo que lo sustenta.
+3. Vuelve a C: si el agente escribe, necesitamos reconstruir quién aprobó y qué ocurrió. Explica esa relación.
+4. Revisa **AUTH-Q3**: crear una reserva no debería autorizar su cancelación. Conéctalo con B5.
+5. Consulta **STATE-Q1** y **API-Q4**: relaciona compensación e idempotencia con el dolor de A1/A4.
+
+| Pregunta que deja el tablero | Dónde buscar evidencia |
+| --- | --- |
+| ¿Qué puede invocar el agente y cómo entiende el resultado? | Contrato y errores de la API |
+| ¿Actúa sobre reservas propias y con el permiso de esa acción? | Identidad, scopes y aislamiento por sujeto |
+| ¿La aprobación tiene efecto sobre la ejecución? | Validación del servidor y pruebas de rechazo |
+| ¿Un reintento duplica el cobro? | Clave, estado durable, compensación y pruebas de recuperación |
+| ¿Podemos reconstruir lo ocurrido? | Registro de operaciones y auditoría verificable |
+
+El informe del ejemplo tiene 43 preguntas distribuidas en su propia rúbrica. Las versiones del evaluador pueden cambiar; revisa su metadata y cobertura. Conserva las etiquetas nativas: `BLOCKER`, `RISK-SAFETY` y `RISK-QUALITY` tienen significados distintos.
+
+**Resultado de este paso:** un requisito del proceso conectado con un hallazgo, su evidencia y una prueba de aceptación. La puntuación del coach mide la facilitación; ARA aporta una evaluación técnica de la aplicación.
+
+### Genera tu propio análisis cuando estés listo
+
+Después de completar el coach, desde la raíz del repo:
+
+```bash
+python3 scripts/workshop.py prepare \
+  --discovery .local/discovery-01 --output .local/workshop-01
+```
+
+Se generan la ficha, entregables de AI-DLC, contextos con la síntesis de tu sesión y dos clones del mismo commit para analizar. Elige otro nombre si ese destino existe. El preparador lee archivos registrados en Git: guarda los cambios en un commit antes de preparar otra versión.
+
+Continúa en [Ejecución AWS](EJECUCION_AWS.md) para obtener ARA/MODA nuevos en tu cuenta. Los pasos siguientes también se pueden practicar con los informes públicos.
+
+## 5. Relaciona MODA con el trabajo que necesita el agente (E–G)
+
+Abre el [MODA de referencia](evidence/mit/after/moda/booking-mit-mod-report.md). MODA estudia la modernización y operación de la aplicación; el contexto del workflow ayuda a priorizar sus recomendaciones.
+
+1. Localiza **DATA-Q1**: el ledger necesita conservación durable fuera del host. Relaciónalo con la auditoría que pide C.
+2. Localiza **INF-Q2**: estudia qué exige operar la persistencia y recuperarla. Relaciónalo con A4.
+3. Describe una mejora concreta, su dependencia y cómo probarías su efecto.
+4. Usa la [plantilla de decisión](workshop/templates/decision.md): requisito → hallazgo → cambio → prueba → responsable.
+
+### Cómo leer sus puntuaciones
+
+MODA puntúa cada pregunta aplicable de 1 a 4 y agrupa resultados en infraestructura/plataforma, arquitectura, datos, seguridad y operación. El promedio global da igual peso a cada categoría evaluada. Revisa qué preguntas quedaron fuera antes de comparar dos promedios.
+
+Una ruta de modernización conecta brechas con alternativas. Comprueba sus condiciones y dependencias: una recomendación de contenedores, microservicios o una base administrada requiere justificar su aporte al caso. Las preferencias tecnológicas orientan la recomendación; no cambian la puntuación de la evidencia.
+
+Para este workshop, F es un inventario mínimo de un servicio con API, pagos, worker y auditoría. Puedes ampliar el portafolio después de completar el primer caso.
+
+## 6. Ejecuta el agente y comprueba el flujo (H)
+
+Ahora sí necesitas **Docker operativo**. Desde la raíz del repo:
+
+```bash
+python3 booking_lab/run.py demo --output .local/demo.json
+```
+
+Espera `DEMO_READY`. Abre una segunda terminal y sigue [la demo del agente](AGENTE_EJECUTABLE.md): prepara una reserva, rechaza una propuesta, aprueba otra, consulta el resultado y cancela con una aprobación nueva.
+
+**Relaciona la ejecución con C:** identifica la propuesta, el paso humano, la llamada de escritura y la recuperación. Puedes repetir con lenguaje natural usando la opción Bedrock de esa misma guía.
+
+Para comprobar automáticamente el flujo con PostgreSQL:
+
+```bash
+python3 -m unittest discover -s tests -v
+python3 booking_lab/run.py e2e --output .local/db-e2e.json
+```
+
+Espera `result: passed` y `test_containers_running: 0` en el JSON. El runner comprueba aprobación, creación, consulta, cancelación, reintentos, recuperación, auditoría y restauración. Usa un archivo de salida nuevo para cada ejecución. Las instrucciones de cierre de la demo están en su guía.
+
+## 7. Compara y lleva el aprendizaje a AI-DLC (I–J)
+
+Abre el [ARA posterior](evidence/mit/after/ara/booking-mit-ara-report.md) y la [comparación por pregunta](evidence/mit/comparison/ara/comparison.csv).
+
+- **AUTH-Q6:** bloqueador → `pass`; revisa la implementación del ledger y sus pruebas.
+- **AUTH-Q3:** riesgo de seguridad → `pass`; revisa los permisos separados para cancelar.
+- **STATE-Q1:** ya pasaba antes; no lo cuentes como una corrección de esta comparación.
+
+Estos informes identifican sus commits de referencia. El agente y sus controles posteriores tienen sus propias [pruebas](AUDITORIA_E2E.md). Para comparar cambios tuyos, repite ARA/MODA sobre el nuevo commit conservando la misma sesión de discovery, los contextos y el alcance; sigue los comandos de [reevaluación](EJECUCION_AWS.md#6-ij-vuelve-a-medir-y-publica-evidencia).
+
+Cierra con tres entregas a [AI-DLC](AI_DLC.md):
+
+| Fase | Qué entregas desde el workshop |
+| --- | --- |
+| Inception | Dolor, alternativa, hipótesis de valor, autonomía y requisitos del flujo |
+| Construction | Una unidad de trabajo, cambios revisados y pruebas de aceptación |
+| Operations | Runbook, recuperación, responsable y medición con usuarios |
+
+**Pregunta final al equipo:** ¿el resultado redujo el trabajo humano y mantuvo los controles acordados? Producto compara con la línea base y decide continuar, ajustar o detener.
+
+## Facilitarlo con tu propio equipo
+
+Puedes recorrerlo individualmente o compartir pantalla: una persona facilita, otra interpreta al cliente y otra conversa como coach. Lee cada situación antes de elegir y justifica la ubicación del post-it. El contenido está en [discovery.json](workshop/discovery.json); el motor y los tableros son código original MIT. Para un caso nuevo adapta preguntas, respuestas, posiciones, escenario y contextos de análisis juntos.
+
+Puedes consultar la [conversación resuelta](examples/discovery/conversacion.md) y descargar los [tres tableros completos](examples/discovery/tableros.html) como apoyo de facilitación.
+
+Consulta [Recursos](RECURSOS.md) para los materiales y las fuentes de la metodología.

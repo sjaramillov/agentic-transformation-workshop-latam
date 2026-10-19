@@ -4,7 +4,10 @@ Todos los materiales de la réplica están versionados:
 
 | Recurso | Ubicación | Uso |
 | --- | --- | --- |
+| Reunión guiada | [facilitate.py](scripts/facilitate.py), [21 situaciones](workshop/discovery.json) | Preguntas, cliente, coach y sesión guardada |
+| Tableros progresivos | [renderer](workshop/coach/boards.js) | Timeline, cuadrantes y carriles; exportación HTML autónoma |
 | Aplicación, DB y E2E | [booking_lab](booking_lab/README.md) | Crear, consultar, cancelar, compensar y auditar |
+| Ejemplo del discovery | [Conversación](examples/discovery/conversacion.md), [tableros completos](examples/discovery/tableros.html) | Referencia resuelta para facilitar la reunión |
 | Caso y ejercicios A–C | [scenario.json](workshop/scenario.json) | Facilitar y modificar el ejemplo resuelto |
 | Preparador | [workshop.py](scripts/workshop.py) | Generar práctica y repositorios de análisis |
 | Contexto ARA | [ara.txt](workshop/contexts/ara.txt) | Alcance de agentes con escritura |
@@ -16,6 +19,9 @@ Todos los materiales de la réplica están versionados:
 
 ## Fuentes oficiales
 
+- [Agentic Readiness: método de evaluación](https://aws.amazon.com/blogs/migration-and-modernization/agentic-readiness/)
+- [ARA y MODA como análisis administrados](https://aws.amazon.com/blogs/migration-and-modernization/new-in-aws-transform-analyze-your-code-for-modernization-and-agentic-readiness/)
+
 - [AWS Transform: preparación](https://docs.aws.amazon.com/transform/latest/userguide/ct-getting-started.html)
 - [Fuentes, análisis y remediación](https://docs.aws.amazon.com/transform/latest/userguide/ct-working-with.html)
 - [Transformaciones personalizadas](https://docs.aws.amazon.com/transform/latest/userguide/custom-workflows.html)
@@ -23,6 +29,8 @@ Todos los materiales de la réplica están versionados:
 - [PostgreSQL: locks](https://www.postgresql.org/docs/16/explicit-locking.html)
 - [PostgreSQL: pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html)
 - [Psycopg: instalación](https://www.psycopg.org/psycopg3/docs/basic/install.html)
+- [Rúbrica ARA: preguntas y puntuación](https://github.com/aws-samples/sample-agentic-readiness-analysis-orchestrator/tree/b48fd5ee1c94e56a7da76513ec388b6e00e886e5/definitions/managed/agentic-readiness-analysis/references)
+- [Rúbrica MODA: preguntas, rutas y contrato](https://github.com/aws-samples/sample-agentic-readiness-analysis-orchestrator/tree/b48fd5ee1c94e56a7da76513ec388b6e00e886e5/definitions/managed/modernization-readiness-analysis/references)
 - [AWS Samples: Portfolio Analysis Orchestrator](https://github.com/aws-samples/sample-agentic-readiness-analysis-orchestrator)
 
 ## Páginas del evento

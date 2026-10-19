@@ -1,0 +1,1315 @@
+{
+  "schema_version": 1,
+  "id": "booking-discovery-v1",
+  "title": "Del dolor del proceso al agente",
+  "intro": "Facilita una reunión de Booking MIT. Elige qué preguntar, escucha al cliente y aprende con el coach. Las respuestas están preparadas para practicar sin AWS.",
+  "phases": [
+    {
+      "id": "A",
+      "title": "Entender el proceso",
+      "description": "Dolores, eventos, personas y datos."
+    },
+    {
+      "id": "B",
+      "title": "Elegir la oportunidad",
+      "description": "Alternativas, valor y autonomía."
+    },
+    {
+      "id": "C",
+      "title": "Diseñar y evaluar",
+      "description": "Flujo, aprobación y contexto ARA/MODA."
+    }
+  ],
+  "steps": [
+    {
+      "id": "a1",
+      "phase": "A",
+      "title": "Escucha un caso real",
+      "scene": "Elena, de producto, abre la reunión: «Queremos agilizar las reservas. Cuando una operación queda sin respuesta, el equipo pierde tiempo averiguando qué pasó». ¿Qué preguntarías primero?",
+      "speaker": "Mateo · operaciones",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "¿Qué modelo de IA quieren usar?",
+          "recommended": false,
+          "response": "Todavía no lo sabemos. Lo que necesitamos resolver es el tiempo que pasamos averiguando si una reserva quedó hecha.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Un episodio concreto permite descubrir trabajo, incertidumbre y consecuencias. Primero sigue el dolor del cliente; después podrás valorar una solución."
+        },
+        {
+          "id": "explore",
+          "text": "Cuéntame la última vez que ocurrió: ¿qué intentaban hacer y dónde se atascaron?",
+          "recommended": true,
+          "response": "Ayer intentamos confirmar una reserva. La pantalla no respondió y no sabíamos si el cobro había ocurrido. Tuvimos que consultar y conciliar antes de intentar otra vez.",
+          "feedback": "Un episodio concreto permite descubrir trabajo, incertidumbre y consecuencias. Primero sigue el dolor del cliente; después podrás valorar una solución."
+        }
+      ],
+      "takeaway": "Ayer intentamos confirmar una reserva. La pantalla no respondió y no sabíamos si el cobro había ocurrido. Tuvimos que consultar y conciliar antes de intentar otra vez.",
+      "notes": [
+        {
+          "kind": "pain",
+          "title": "Resultado incierto",
+          "text": "Una respuesta perdida obliga a consultar y conciliar antes de reintentar."
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "phase": "A",
+      "title": "Delimita el proceso",
+      "scene": "Ya conoces un incidente. Necesitas ubicarlo en el recorrido completo.",
+      "speaker": "Mateo · operaciones",
+      "choices": [
+        {
+          "id": "explore",
+          "text": "¿Con qué solicitud comienza el caso y qué debe haber ocurrido para darlo por terminado?",
+          "recommended": true,
+          "response": "Empezamos con una solicitud de reserva. Cerramos cuando sabemos que está confirmada o que el fallo quedó resuelto, incluido el reembolso si hubo un cobro. Una respuesta HTTP no basta.",
+          "feedback": "Acordar inicio y final evita optimizar un paso dejando la conciliación fuera del proceso."
+        },
+        {
+          "id": "shortcut",
+          "text": "¿Podemos dar el caso por cerrado cuando la API responde?",
+          "recommended": false,
+          "response": "A veces recibimos una respuesta y todavía hay una operación pendiente. Necesitamos saber qué ocurrió con la reserva y el pago.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Acordar inicio y final evita optimizar un paso dejando la conciliación fuera del proceso."
+        }
+      ],
+      "takeaway": "Empezamos con una solicitud de reserva. Cerramos cuando sabemos que está confirmada o que el fallo quedó resuelto, incluido el reembolso si hubo un cobro. Una respuesta HTTP no basta.",
+      "notes": [
+        {
+          "kind": "event",
+          "title": "Solicitud recibida",
+          "text": "Inicio: el viajero solicita una reserva."
+        },
+        {
+          "kind": "event",
+          "title": "Caso resuelto",
+          "text": "Final: reserva confirmada o fallo reconciliado, sin cobro huérfano."
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "phase": "A",
+      "title": "Recorre el caso habitual",
+      "scene": "Antes de detallar las excepciones, construye una secuencia compartida del caso que sale bien.",
+      "speaker": "Lucía · ingeniería",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "¿Cuántos microservicios deberíamos tener?",
+          "recommended": false,
+          "response": "No hemos decidido eso. Primero necesitamos estar de acuerdo en lo que debe pasar con una reserva.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Ordenar los eventos te permite colocar cada dolor en un punto del proceso. La descomposición técnica vendrá después."
+        },
+        {
+          "id": "explore",
+          "text": "Cuando todo sale bien, ¿qué sucede entre la solicitud y la confirmación?",
+          "recommended": true,
+          "response": "Recogemos itinerario e importe, mostramos la propuesta, la persona confirma, se captura el pago y se registra la reserva. Después podemos consultar su estado.",
+          "feedback": "Ordenar los eventos te permite colocar cada dolor en un punto del proceso. La descomposición técnica vendrá después."
+        }
+      ],
+      "takeaway": "Recogemos itinerario e importe, mostramos la propuesta, la persona confirma, se captura el pago y se registra la reserva. Después podemos consultar su estado.",
+      "notes": [
+        {
+          "kind": "event",
+          "title": "Propuesta aprobada",
+          "text": "La persona revisa itinerario e importe antes de crear."
+        },
+        {
+          "kind": "event",
+          "title": "Pago y reserva",
+          "text": "Pago capturado → reserva confirmada."
+        }
+      ]
+    },
+    {
+      "id": "a4",
+      "phase": "A",
+      "title": "Sigue la excepción",
+      "scene": "Mateo distingue una respuesta perdida de un fallo al guardar la reserva después del cobro.",
+      "speaker": "Mateo · operaciones",
+      "choices": [
+        {
+          "id": "explore",
+          "text": "¿Cómo distinguen esos dos casos y qué debe ocurrir con el dinero en cada uno?",
+          "recommended": true,
+          "response": "Si no sabemos el resultado, consultamos la operación y repetimos la misma solicitud sin duplicarla. Si sabemos que la reserva falló tras cobrar, necesitamos un reembolso que pueda retomarse aunque pagos esté caído.",
+          "feedback": "Separar incertidumbre de fallo confirmado revela dos requisitos: reintento sin efectos duplicados y compensación recuperable."
+        },
+        {
+          "id": "shortcut",
+          "text": "¿Repetimos la compra con una solicitud nueva para salir del paso?",
+          "recommended": false,
+          "response": "Una compra nueva podría cobrar otra vez. Antes necesitamos comprobar el estado de la operación original.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Separar incertidumbre de fallo confirmado revela dos requisitos: reintento sin efectos duplicados y compensación recuperable."
+        }
+      ],
+      "takeaway": "Si no sabemos el resultado, consultamos la operación y repetimos la misma solicitud sin duplicarla. Si sabemos que la reserva falló tras cobrar, necesitamos un reembolso que pueda retomarse aunque pagos esté caído.",
+      "notes": [
+        {
+          "kind": "pain",
+          "title": "Respuesta perdida",
+          "text": "Consultar y reintentar la misma operación sin otro cobro."
+        },
+        {
+          "kind": "pain",
+          "title": "Fallo después del cobro",
+          "text": "Reembolsar y poder continuar la recuperación tras una caída."
+        }
+      ]
+    },
+    {
+      "id": "a5",
+      "phase": "A",
+      "title": "Identifica a las personas",
+      "scene": "El tablero tiene eventos. Falta saber quién decide y quién se hace cargo cuando algo queda pendiente.",
+      "speaker": "Nora · seguridad",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "¿Puede el agente asumir todos los roles?",
+          "recommended": false,
+          "response": "Necesitamos responsabilidades explícitas. Que haya un agente no elimina la aprobación del viajero ni al responsable operativo.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Los actores y sus responsabilidades permiten definir límites de acceso y evitar que una excepción quede sin dueño."
+        },
+        {
+          "id": "explore",
+          "text": "¿Quién solicita, quién aprueba y quién se encarga de resolver una operación pendiente?",
+          "recommended": true,
+          "response": "El viajero solicita y confirma su operación. El operador ayuda a revisar el estado y conciliar excepciones. Producto acepta el alcance; ingeniería implementa y operaciones se encarga de recuperar el servicio.",
+          "feedback": "Los actores y sus responsabilidades permiten definir límites de acceso y evitar que una excepción quede sin dueño."
+        }
+      ],
+      "takeaway": "El viajero solicita y confirma su operación. El operador ayuda a revisar el estado y conciliar excepciones. Producto acepta el alcance; ingeniería implementa y operaciones se encarga de recuperar el servicio.",
+      "notes": [
+        {
+          "kind": "actor",
+          "title": "Viajero y operador",
+          "text": "El viajero confirma; el operador ayuda y concilia."
+        },
+        {
+          "kind": "actor",
+          "title": "Equipo responsable",
+          "text": "Producto acepta; ingeniería implementa; seguridad revisa; operaciones recupera."
+        }
+      ]
+    },
+    {
+      "id": "a6",
+      "phase": "A",
+      "title": "Distingue reglas y criterio",
+      "scene": "Elena propone «automatizar las reservas». La frase agrupa trabajos muy distintos.",
+      "speaker": "Elena · producto",
+      "choices": [
+        {
+          "id": "explore",
+          "text": "¿Qué decisiones siguen una regla y cuáles necesitan interpretar la intención o aclarar una excepción?",
+          "recommended": true,
+          "response": "Validar un importe o repetir la misma operación puede seguir reglas. Entender lo que pide una persona y explicar un estado ambiguo puede necesitar interpretación. Los casos comerciales excepcionales requieren más contexto y revisión.",
+          "feedback": "Busca el punto donde hace falta criterio. Un proceso puede combinar reglas, asistencia y decisiones humanas."
+        },
+        {
+          "id": "shortcut",
+          "text": "¿Todo el flujo necesita un modelo de lenguaje?",
+          "recommended": false,
+          "response": "Validar campos o recuperar un pago no requiere necesariamente un modelo. Queremos saber qué parte se beneficiaría de uno.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Busca el punto donde hace falta criterio. Un proceso puede combinar reglas, asistencia y decisiones humanas."
+        }
+      ],
+      "takeaway": "Validar un importe o repetir la misma operación puede seguir reglas. Entender lo que pide una persona y explicar un estado ambiguo puede necesitar interpretación. Los casos comerciales excepcionales requieren más contexto y revisión.",
+      "notes": [
+        {
+          "kind": "decision",
+          "title": "Reglas y criterio",
+          "text": "Validación y recuperación por reglas; comprensión y explicación como candidatas a asistencia."
+        }
+      ]
+    },
+    {
+      "id": "a7",
+      "phase": "A",
+      "title": "Pregunta por la información",
+      "scene": "Para interpretar un caso, el agente necesitará datos. Que existan en algún lugar no garantiza que pueda consultarlos.",
+      "speaker": "Lucía · ingeniería",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "Si hay documentos y correos, ¿damos por resuelto el acceso a datos?",
+          "recommended": false,
+          "response": "No. Los documentos o el conocimiento de una persona no se convierten solos en una fuente consultable por el agente.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Relaciona cada decisión con sus datos. Registra como pendiente aquello que todavía no es accesible."
+        },
+        {
+          "id": "explore",
+          "text": "¿Qué información usan para decidir y cuál pueden consultar mediante una API hoy?",
+          "recommended": true,
+          "response": "El laboratorio permite consultar reservas por API y retomar la operación desde el estado guardado del agente. La propuesta recibe itinerario e importe. Las excepciones comerciales que estamos imaginando necesitarían información adicional del cliente, hoy fuera del alcance del laboratorio.",
+          "feedback": "Relaciona cada decisión con sus datos. Registra como pendiente aquello que todavía no es accesible."
+        }
+      ],
+      "takeaway": "El laboratorio permite consultar reservas por API y retomar la operación desde el estado guardado del agente. La propuesta recibe itinerario e importe. Las excepciones comerciales que estamos imaginando necesitarían información adicional del cliente, hoy fuera del alcance del laboratorio.",
+      "notes": [
+        {
+          "kind": "data",
+          "title": "Datos disponibles",
+          "text": "Reservas por API; intención y clave en el estado del agente; itinerario e importe en la solicitud."
+        },
+        {
+          "kind": "data",
+          "title": "Información pendiente",
+          "text": "Excepciones comerciales: fuentes y acceso por investigar."
+        }
+      ]
+    },
+    {
+      "id": "a8",
+      "phase": "A",
+      "title": "Prioriza los dolores",
+      "scene": "Hay varias oportunidades. Necesitas comprender el efecto sobre las personas antes de elegir una.",
+      "speaker": "Mateo · operaciones",
+      "choices": [
+        {
+          "id": "explore",
+          "text": "¿Qué les consume más trabajo y qué error tendría una consecuencia inaceptable?",
+          "recommended": true,
+          "response": "Queremos reducir consultas y conciliaciones repetidas. Un cobro duplicado, una escritura sin aprobación o acceder a la reserva de otra persona detendrían el piloto. El tiempo ahorrado debe incluir la revisión y recuperación.",
+          "feedback": "Combina beneficio esperado con condiciones de parada. La demostración debe responder al trabajo que el cliente quiere mejorar."
+        },
+        {
+          "id": "shortcut",
+          "text": "¿Elegimos el caso que permita mostrar más tecnología?",
+          "recommended": false,
+          "response": "Una demostración puede verse bien y dejarnos el mismo trabajo manual. Necesitamos medir el resultado del caso.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Combina beneficio esperado con condiciones de parada. La demostración debe responder al trabajo que el cliente quiere mejorar."
+        }
+      ],
+      "takeaway": "Queremos reducir consultas y conciliaciones repetidas. Un cobro duplicado, una escritura sin aprobación o acceder a la reserva de otra persona detendrían el piloto. El tiempo ahorrado debe incluir la revisión y recuperación.",
+      "notes": [
+        {
+          "kind": "pain",
+          "title": "Trabajo manual",
+          "text": "Consultas, reintentos y conciliación consumen tiempo humano."
+        },
+        {
+          "kind": "decision",
+          "title": "Condiciones de parada",
+          "text": "Duplicados, escritura sin aprobación o acceso a reservas ajenas."
+        }
+      ]
+    },
+    {
+      "id": "a9",
+      "phase": "A",
+      "title": "Marca las dependencias",
+      "scene": "Cierra el mapa del proceso identificando qué capacidades están bajo control del equipo.",
+      "speaker": "Lucía · ingeniería",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "¿Podemos asumir que todos los servicios siempre responderán?",
+          "recommended": false,
+          "response": "No. El caso nace justamente de respuestas perdidas y fallos parciales. Tenemos que diseñar cómo reconocerlos y continuar.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Las dependencias y sus fallos conectan el proceso con requisitos técnicos concretos. El tablero A ya expresa qué debe poder recuperarse."
+        },
+        {
+          "id": "explore",
+          "text": "¿Qué servicios o equipos necesitamos y qué ocurre si no están disponibles?",
+          "recommended": true,
+          "response": "La API y PostgreSQL conservan las operaciones. El proveedor de pagos del laboratorio es simulado, pero puede fallar. El worker retoma trabajo pendiente. Para operar con usuarios reales tendremos que acordar despliegue, secretos, copias y monitorización.",
+          "feedback": "Las dependencias y sus fallos conectan el proceso con requisitos técnicos concretos. El tablero A ya expresa qué debe poder recuperarse."
+        }
+      ],
+      "takeaway": "La API y PostgreSQL conservan las operaciones. El proveedor de pagos del laboratorio es simulado, pero puede fallar. El worker retoma trabajo pendiente. Para operar con usuarios reales tendremos que acordar despliegue, secretos, copias y monitorización.",
+      "notes": [
+        {
+          "kind": "data",
+          "title": "Aplicaciones del caso",
+          "text": "API Python, PostgreSQL, pagos simulados y worker de recuperación."
+        },
+        {
+          "kind": "decision",
+          "title": "Límite del taller",
+          "text": "Identidades y pagos sintéticos; entorno con usuarios reales por diseñar."
+        }
+      ]
+    },
+    {
+      "id": "b1",
+      "phase": "B",
+      "title": "Elige dónde hace falta ayuda",
+      "scene": "Usa los dolores del tablero A para decidir qué trabajo delegarías.",
+      "speaker": "Elena · producto",
+      "choices": [
+        {
+          "id": "explore",
+          "text": "¿Qué parte resolveríamos con reglas y dónde ayudaría interpretar y explicar una intención?",
+          "recommended": true,
+          "response": "Conservaríamos reglas para cobros, permisos y recuperación. Exploraríamos un asistente que prepare la operación, explique su estado y pida confirmación antes de escribir.",
+          "feedback": "La oportunidad está en una tarea delimitada. Los controles deterministas siguen siendo parte de la solución."
+        },
+        {
+          "id": "shortcut",
+          "text": "¿Reemplazamos todo el proceso por un agente autónomo?",
+          "recommended": false,
+          "response": "No tenemos evidencia para delegar todo. Empecemos por una tarea que podamos observar y comparar.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. La oportunidad está en una tarea delimitada. Los controles deterministas siguen siendo parte de la solución."
+        }
+      ],
+      "takeaway": "Conservaríamos reglas para cobros, permisos y recuperación. Exploraríamos un asistente que prepare la operación, explique su estado y pida confirmación antes de escribir.",
+      "notes": [
+        {
+          "kind": "decision",
+          "title": "Trabajo del agente",
+          "text": "Preparar una operación y explicar su estado; ejecución bajo controles explícitos."
+        }
+      ]
+    },
+    {
+      "id": "b2",
+      "phase": "B",
+      "title": "Comprueba si los datos alcanzan",
+      "scene": "Considera un asistente de reservas y otro para negociar excepciones comerciales.",
+      "speaker": "Lucía · ingeniería",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "¿Los dos están listos porque ambos usan lenguaje natural?",
+          "recommended": false,
+          "response": "El lenguaje natural no resuelve la falta de información ni de autorización para consultarla.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Cruzar necesidad de criterio con disponibilidad de datos diferencia una oportunidad practicable de otra que requiere preparación."
+        },
+        {
+          "id": "explore",
+          "text": "¿Cuál puede trabajar con los datos accesibles y cuál necesita integrar nuevas fuentes?",
+          "recommended": true,
+          "response": "Podemos practicar reservas y consulta de estado con las API actuales. Las excepciones comerciales necesitan fuentes y permisos adicionales. Esa oportunidad empieza con trabajo de datos.",
+          "feedback": "Cruzar necesidad de criterio con disponibilidad de datos diferencia una oportunidad practicable de otra que requiere preparación."
+        }
+      ],
+      "takeaway": "Podemos practicar reservas y consulta de estado con las API actuales. Las excepciones comerciales necesitan fuentes y permisos adicionales. Esa oportunidad empieza con trabajo de datos.",
+      "notes": [
+        {
+          "kind": "opportunity",
+          "title": "Reservas: datos disponibles",
+          "text": "Practicar propuesta y consulta sobre el servicio incluido."
+        },
+        {
+          "kind": "opportunity",
+          "title": "Excepciones: datos pendientes",
+          "text": "Definir fuentes, permisos y acceso antes de diseñar el agente."
+        }
+      ]
+    },
+    {
+      "id": "b3",
+      "phase": "B",
+      "title": "Compara alternativas",
+      "scene": "Producto quiere saber por qué introducir un agente y qué otras opciones existen.",
+      "speaker": "Elena · producto",
+      "choices": [
+        {
+          "id": "explore",
+          "text": "¿Cómo compararíamos un formulario, un asistente de consulta y un agente con aprobación?",
+          "recommended": true,
+          "response": "El formulario podría bastar para capturar una reserva. Un asistente de consulta ayuda a interpretar su estado. Un agente con aprobación también prepara y ejecuta la operación. Compararemos tiempo total, errores, revisión y costo.",
+          "feedback": "Una oportunidad se justifica frente a alternativas. La ficha de valor debe permitir preferir la opción más sencilla si resuelve el problema. En el tablero las candidatas salen de la bandeja y ocupan su cuadrante."
+        },
+        {
+          "id": "shortcut",
+          "text": "¿Descartamos el formulario porque tiene menos IA?",
+          "recommended": false,
+          "response": "Si un formulario logra el resultado con menos esfuerzo, necesitamos considerarlo.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Una oportunidad se justifica frente a alternativas. La ficha de valor debe permitir preferir la opción más sencilla si resuelve el problema. En el tablero las candidatas salen de la bandeja y ocupan su cuadrante."
+        }
+      ],
+      "takeaway": "El formulario podría bastar para capturar una reserva. Un asistente de consulta ayuda a interpretar su estado. Un agente con aprobación también prepara y ejecuta la operación. Compararemos tiempo total, errores, revisión y costo. Ubicamos las alternativas en el cuadrante usando criterio requerido y acceso a datos.",
+      "notes": [
+        {
+          "kind": "opportunity",
+          "title": "Alternativas",
+          "text": "Formulario · consulta asistida · propuesta y ejecución con aprobación."
+        }
+      ]
+    },
+    {
+      "id": "b4",
+      "phase": "B",
+      "title": "Acordar cómo medir",
+      "scene": "Elena necesita una hipótesis que se pueda contrastar después del taller.",
+      "speaker": "Elena · producto",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "¿Una mejor puntuación ARA demostraría ahorro para el negocio?",
+          "recommended": false,
+          "response": "ARA ayuda a evaluar preparación técnica. Para demostrar ahorro necesitamos medir el trabajo de las personas.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Explicita la unidad y la procedencia. Una hipótesis medible enlaza la construcción con el valor que producto quiere comprobar."
+        },
+        {
+          "id": "explore",
+          "text": "¿Cuál es la línea base, qué objetivo probaríamos y qué cifras siguen siendo supuestos?",
+          "recommended": true,
+          "response": "Para practicar usamos 200 casos al mes, 8 minutos humanos por caso y una meta de 6. Son supuestos. Mediremos revisión, errores y recuperación; el resultado técnico no mide por sí mismo ese ahorro.",
+          "feedback": "Explicita la unidad y la procedencia. Una hipótesis medible enlaza la construcción con el valor que producto quiere comprobar."
+        }
+      ],
+      "takeaway": "Para practicar usamos 200 casos al mes, 8 minutos humanos por caso y una meta de 6. Son supuestos. Mediremos revisión, errores y recuperación; el resultado técnico no mide por sí mismo ese ahorro.",
+      "notes": [
+        {
+          "kind": "value",
+          "title": "Hipótesis de valor",
+          "text": "200 casos/mes; 8 → 6 min humanos/caso. Supuestos por contrastar, incluida revisión y recuperación."
+        }
+      ]
+    },
+    {
+      "id": "b5",
+      "phase": "B",
+      "title": "Conserva la aprobación",
+      "scene": "La oportunidad elegida puede crear y cancelar reservas. Hay que delimitar su autonomía.",
+      "speaker": "Nora · seguridad",
+      "choices": [
+        {
+          "id": "explore",
+          "text": "¿Qué debe aprobar una persona y qué permisos necesita cada acción?",
+          "recommended": true,
+          "response": "Consultar reservas propias no necesita una aprobación de escritura. Crear requiere revisar itinerario e importe. Cancelar exige una aprobación nueva para esa reserva. La identidad y el permiso deben corresponder a cada acción.",
+          "feedback": "La aprobación tiene alcance concreto. ARA deberá revisar identidad, permisos por acción y controles de supervisión humana."
+        },
+        {
+          "id": "shortcut",
+          "text": "¿Una aprobación inicial sirve para todas las acciones posteriores?",
+          "recommended": false,
+          "response": "Aprobar una reserva no autoriza cancelarla después ni actuar sobre reservas de otra identidad.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. La aprobación tiene alcance concreto. ARA deberá revisar identidad, permisos por acción y controles de supervisión humana."
+        }
+      ],
+      "takeaway": "Consultar reservas propias no necesita una aprobación de escritura. Crear requiere revisar itinerario e importe. Cancelar exige una aprobación nueva para esa reserva. La identidad y el permiso deben corresponder a cada acción.",
+      "notes": [
+        {
+          "kind": "decision",
+          "title": "Supervisión humana",
+          "text": "Crear y cancelar requieren aprobaciones independientes; consultar solo reservas propias."
+        }
+      ]
+    },
+    {
+      "id": "b6",
+      "phase": "B",
+      "title": "Fija un alcance inicial",
+      "scene": "Cierra la selección de oportunidad con un acuerdo que el equipo pueda implementar y comprobar.",
+      "speaker": "Nora · seguridad",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "¿Subimos de inmediato a ejecución autónoma para mostrar más impacto?",
+          "recommended": false,
+          "response": "Todavía debemos comprobar los controles y el beneficio. La autonomía no es una medida de éxito por sí sola.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. El nivel de autonomía deriva del riesgo y del acuerdo con el cliente. Esta práctica fija una base común para diseñar y evaluar."
+        },
+        {
+          "id": "explore",
+          "text": "¿Empezamos proponiendo y esperando confirmación, con qué límites y condiciones de parada?",
+          "recommended": true,
+          "response": "El alcance inicial es preparar y confirmar: crear, consultar y cancelar reservas propias con pagos sintéticos. Una escritura sin aprobación, un duplicado o un acceso cruzado detienen el ejercicio.",
+          "feedback": "El nivel de autonomía deriva del riesgo y del acuerdo con el cliente. Esta práctica fija una base común para diseñar y evaluar."
+        }
+      ],
+      "takeaway": "El alcance inicial es preparar y confirmar: crear, consultar y cancelar reservas propias con pagos sintéticos. Una escritura sin aprobación, un duplicado o un acceso cruzado detienen el ejercicio.",
+      "notes": [
+        {
+          "kind": "decision",
+          "title": "Alcance acordado",
+          "text": "Agente de reservas: propone, espera confirmación y actúa dentro de permisos por sujeto."
+        }
+      ]
+    },
+    {
+      "id": "c1",
+      "phase": "C",
+      "title": "Confirma qué vas a construir",
+      "scene": "Comienza el diseño usando la oportunidad y los límites del tablero B.",
+      "speaker": "Elena · producto",
+      "choices": [
+        {
+          "id": "explore",
+          "text": "¿Qué tarea inicial conecta mejor el dolor descubierto con un resultado observable?",
+          "recommended": true,
+          "response": "Primero una reserva aprobada que podamos consultar y recuperar sin duplicados. Después su cancelación con otra aprobación. Así podemos observar el tiempo total y los errores del caso.",
+          "feedback": "Una primera unidad de trabajo acotada permite validar el recorrido completo y llevarlo a Construction en AI-DLC."
+        },
+        {
+          "id": "shortcut",
+          "text": "¿Diseñamos a la vez reservas, excepciones comerciales y todas las integraciones?",
+          "recommended": false,
+          "response": "Eso ampliaría el alcance antes de comprobar la primera oportunidad.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Una primera unidad de trabajo acotada permite validar el recorrido completo y llevarlo a Construction en AI-DLC."
+        }
+      ],
+      "takeaway": "Primero una reserva aprobada que podamos consultar y recuperar sin duplicados. Después su cancelación con otra aprobación. Así podemos observar el tiempo total y los errores del caso.",
+      "notes": [
+        {
+          "kind": "workflow",
+          "title": "Unidad de trabajo",
+          "text": "Crear una reserva aprobada, consultar su resultado y cancelarla con otra aprobación."
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "phase": "C",
+      "title": "Define el inicio del agente",
+      "scene": "El flujo necesita una intención concreta y suficiente información para preparar la propuesta.",
+      "speaker": "Mateo · operaciones",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "¿Puede el agente inventar un importe para completar una solicitud incompleta?",
+          "recommended": false,
+          "response": "No podemos cobrar un importe inventado. Primero se aclara la solicitud.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Define entradas y condiciones de detención antes de llamar herramientas. El flujo empieza con intención explícita."
+        },
+        {
+          "id": "explore",
+          "text": "¿Qué inicia el flujo y qué datos deben estar claros antes de proponer una escritura?",
+          "recommended": true,
+          "response": "El usuario pide una reserva con itinerario e importe. Si falta un dato, el agente debe pedirlo o rechazar la planificación. La falta de información no autoriza una escritura.",
+          "feedback": "Define entradas y condiciones de detención antes de llamar herramientas. El flujo empieza con intención explícita."
+        }
+      ],
+      "takeaway": "El usuario pide una reserva con itinerario e importe. Si falta un dato, el agente debe pedirlo o rechazar la planificación. La falta de información no autoriza una escritura.",
+      "notes": [
+        {
+          "kind": "workflow",
+          "title": "Intención y datos",
+          "text": "Recoger itinerario e importe; detenerse o aclarar si falta información."
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "phase": "C",
+      "title": "Distingue consultas y acciones",
+      "scene": "Conecta los pasos del agente con la API que analizarán ARA y MODA.",
+      "speaker": "Lucía · ingeniería",
+      "choices": [
+        {
+          "id": "explore",
+          "text": "¿Qué llamadas consultan información y cuáles producen efectos sobre reservas y pagos?",
+          "recommended": true,
+          "response": "GET /bookings y GET /bookings/{id} consultan reservas. POST /bookings crea y DELETE /bookings/{id} cancela con reembolso. El contrato exacto se revisa en booking_lab/service.py.",
+          "feedback": "Clasificar lectura y escritura concreta la superficie de evaluación. ARA se ejecutará con alcance write-enabled para este caso."
+        },
+        {
+          "id": "shortcut",
+          "text": "¿Tratamos todas las herramientas como si solo leyeran datos?",
+          "recommended": false,
+          "response": "Crear y cancelar producen efectos. Necesitan controles distintos a una consulta.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. Clasificar lectura y escritura concreta la superficie de evaluación. ARA se ejecutará con alcance write-enabled para este caso."
+        }
+      ],
+      "takeaway": "GET /bookings y GET /bookings/{id} consultan reservas. POST /bookings crea y DELETE /bookings/{id} cancela con reembolso. El contrato exacto se revisa en booking_lab/service.py.",
+      "notes": [
+        {
+          "kind": "workflow",
+          "title": "Consultas",
+          "text": "GET /bookings; GET /bookings/{id}."
+        },
+        {
+          "kind": "workflow",
+          "title": "Acciones",
+          "text": "POST /bookings; DELETE /bookings/{id}. Requieren aprobación."
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "phase": "C",
+      "title": "Diseña la puerta humana",
+      "scene": "La propuesta está lista. Necesitas representar qué ve la persona y qué sucede si rechaza.",
+      "speaker": "Nora · seguridad",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "¿Basta con que el prompt diga que siempre debemos pedir permiso?",
+          "recommended": false,
+          "response": "Una instrucción de texto no demuestra que el servicio impida ejecutar una acción no aprobada.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. La aprobación debe tener efecto en la ejecución. Incluye este requisito en ARA y prueba tanto aceptación como rechazo."
+        },
+        {
+          "id": "explore",
+          "text": "¿Qué revisa la persona y cómo se vincula su aprobación a esta operación concreta?",
+          "recommended": true,
+          "response": "La persona revisa acción, identidad, itinerario o reserva e importe. El rechazo no produce escritura. La aprobación debe estar vinculada a esa propuesta y ser validada por la API.",
+          "feedback": "La aprobación debe tener efecto en la ejecución. Incluye este requisito en ARA y prueba tanto aceptación como rechazo."
+        }
+      ],
+      "takeaway": "La persona revisa acción, identidad, itinerario o reserva e importe. El rechazo no produce escritura. La aprobación debe estar vinculada a esa propuesta y ser validada por la API.",
+      "notes": [
+        {
+          "kind": "workflow",
+          "title": "Puerta de aprobación",
+          "text": "Mostrar propuesta → aprobar o rechazar → validar la aprobación en la API."
+        }
+      ]
+    },
+    {
+      "id": "c5",
+      "phase": "C",
+      "title": "Cierra la recuperación",
+      "scene": "La persona aprobó y se perdió la respuesta. El flujo necesita una continuación segura.",
+      "speaker": "Mateo · operaciones",
+      "choices": [
+        {
+          "id": "explore",
+          "text": "¿Cómo retomamos la misma operación y cómo reconstruimos lo que se aprobó y ejecutó?",
+          "recommended": true,
+          "response": "Guardamos la intención y su clave, consultamos el estado y retomamos esa operación. Si hubo un fallo después del cobro, conciliamos o compensamos. Debe existir auditoría atribuible y verificable.",
+          "feedback": "El diseño debe cubrir resultado incierto, compensación y evidencia. Esos requisitos llegan a ARA como idempotencia, estado y auditoría."
+        },
+        {
+          "id": "shortcut",
+          "text": "¿Creamos otra operación y luego revisamos si hubo dos cobros?",
+          "recommended": false,
+          "response": "Eso trasladaría el problema al cliente. Necesitamos recuperar el intento original sin duplicar efectos.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. El diseño debe cubrir resultado incierto, compensación y evidencia. Esos requisitos llegan a ARA como idempotencia, estado y auditoría."
+        }
+      ],
+      "takeaway": "Guardamos la intención y su clave, consultamos el estado y retomamos esa operación. Si hubo un fallo después del cobro, conciliamos o compensamos. Debe existir auditoría atribuible y verificable.",
+      "notes": [
+        {
+          "kind": "workflow",
+          "title": "Recuperación y evidencia",
+          "text": "Misma identidad y clave; consultar, retomar o compensar; conservar auditoría verificable."
+        }
+      ]
+    },
+    {
+      "id": "c6",
+      "phase": "C",
+      "title": "Entrega el contexto a ARA y MODA",
+      "scene": "Tienes dolor, oportunidad, datos, autonomía y flujo. Falta convertirlos en una evaluación útil.",
+      "speaker": "Lucía · ingeniería",
+      "choices": [
+        {
+          "id": "shortcut",
+          "text": "¿Podemos recomendar una plataforma sin relacionarla con el proceso descubierto?",
+          "recommended": false,
+          "response": "Primero debemos relacionar cada mejora con el alcance y las dependencias. La plataforma destino todavía debe justificarse.",
+          "feedback": "Esta pregunta adelanta una decisión o deja información sin explorar. La evaluación recibe requisitos y una superficie concreta. Los informes servirán para priorizar trabajo; el coach evalúa cómo facilitaste, no certifica el código ni el beneficio."
+        },
+        {
+          "id": "explore",
+          "text": "¿Qué debe comprobar ARA y qué necesidades de operación debe estudiar MODA para este alcance?",
+          "recommended": true,
+          "response": "ARA debe comprobar API, identidad, aprobación, reintentos, compensación y auditoría para crear, consultar y cancelar reservas propias. MODA debe estudiar despliegue, secretos, persistencia, recuperación y observación para una operación mantenible.",
+          "feedback": "La evaluación recibe requisitos y una superficie concreta. Los informes servirán para priorizar trabajo; el coach evalúa cómo facilitaste, no certifica el código ni el beneficio."
+        }
+      ],
+      "takeaway": "ARA debe comprobar API, identidad, aprobación, reintentos, compensación y auditoría para crear, consultar y cancelar reservas propias. MODA debe estudiar despliegue, secretos, persistencia, recuperación y observación para una operación mantenible.",
+      "notes": [
+        {
+          "kind": "handoff",
+          "title": "ARA",
+          "text": "Comprobar controles del agente con escritura y evidencias en el código."
+        },
+        {
+          "kind": "handoff",
+          "title": "MODA",
+          "text": "Evaluar el camino hacia una operación mantenible y sus dependencias."
+        }
+      ]
+    }
+  ],
+  "boards": {
+    "A": {
+      "type": "timeline",
+      "title": "A · El proceso y sus puntos de dolor",
+      "description": "Lee de izquierda a derecha. Cada columna conecta quién actúa, qué solicita, qué información usa y qué sucede. La excepción tiene su propio tramo.",
+      "columns": [
+        {
+          "id": "start",
+          "label": "1 · Inicio"
+        },
+        {
+          "id": "approve",
+          "label": "2 · Decisión"
+        },
+        {
+          "id": "pay",
+          "label": "3 · Efecto"
+        },
+        {
+          "id": "result",
+          "label": "4 · Resultado"
+        },
+        {
+          "id": "recover",
+          "label": "5 · Excepción / recuperación"
+        }
+      ],
+      "rows": [
+        {
+          "id": "actor",
+          "label": "Personas"
+        },
+        {
+          "id": "command",
+          "label": "Comandos"
+        },
+        {
+          "id": "data",
+          "label": "Información"
+        },
+        {
+          "id": "event",
+          "label": "Eventos"
+        },
+        {
+          "id": "policy",
+          "label": "Reglas"
+        },
+        {
+          "id": "pain",
+          "label": "Dolores"
+        }
+      ],
+      "items": [
+        {
+          "id": "uncertain",
+          "after": "a1",
+          "kind": "pain",
+          "title": "Resultado incierto",
+          "text": "Se pierde la respuesta: ¿se reservó y se cobró?",
+          "row": "pain",
+          "column": "recover",
+          "place_after": "a4"
+        },
+        {
+          "id": "request",
+          "after": "a2",
+          "kind": "event",
+          "title": "Solicitud recibida",
+          "text": "Comienza el caso de reserva.",
+          "row": "event",
+          "column": "start"
+        },
+        {
+          "id": "approved",
+          "after": "a3",
+          "kind": "event",
+          "title": "Propuesta aprobada",
+          "text": "La persona confirmó itinerario e importe.",
+          "row": "event",
+          "column": "approve"
+        },
+        {
+          "id": "paid",
+          "after": "a3",
+          "kind": "event",
+          "title": "Pago capturado",
+          "text": "Se registró el cobro sintético.",
+          "row": "event",
+          "column": "pay"
+        },
+        {
+          "id": "booked",
+          "after": "a3",
+          "kind": "event",
+          "title": "Reserva confirmada",
+          "text": "La reserva quedó persistida.",
+          "row": "event",
+          "column": "result"
+        },
+        {
+          "id": "recovered",
+          "after": "a4",
+          "kind": "event",
+          "title": "Caso reconciliado",
+          "text": "Reserva confirmada o cobro compensado.",
+          "row": "event",
+          "column": "recover"
+        },
+        {
+          "id": "resume",
+          "after": "a4",
+          "kind": "command",
+          "title": "Retomar o compensar",
+          "text": "Respuesta perdida: misma operación. Fallo tras cobro: reembolso.",
+          "row": "command",
+          "column": "recover"
+        },
+        {
+          "id": "traveler",
+          "after": "a5",
+          "kind": "actor",
+          "title": "Viajero",
+          "text": "Solicita la reserva.",
+          "row": "actor",
+          "column": "start"
+        },
+        {
+          "id": "reviewer",
+          "after": "a5",
+          "kind": "actor",
+          "title": "Persona que aprueba",
+          "text": "Revisa la propuesta concreta.",
+          "row": "actor",
+          "column": "approve"
+        },
+        {
+          "id": "operator",
+          "after": "a5",
+          "kind": "actor",
+          "title": "Operaciones",
+          "text": "Consulta y concilia el caso.",
+          "row": "actor",
+          "column": "recover"
+        },
+        {
+          "id": "ask",
+          "after": "a5",
+          "kind": "command",
+          "title": "Solicitar reserva",
+          "text": "Recoger la intención del viajero.",
+          "row": "command",
+          "column": "start"
+        },
+        {
+          "id": "confirm",
+          "after": "a5",
+          "kind": "command",
+          "title": "Aprobar propuesta",
+          "text": "Confirmar acción, itinerario e importe.",
+          "row": "command",
+          "column": "approve"
+        },
+        {
+          "id": "capture",
+          "after": "a6",
+          "kind": "command",
+          "title": "Crear y cobrar",
+          "text": "El servicio valida y ejecuta la operación.",
+          "row": "command",
+          "column": "pay"
+        },
+        {
+          "id": "consent",
+          "after": "a6",
+          "kind": "policy",
+          "title": "Si se aprueba → ejecutar",
+          "text": "El rechazo termina sin escritura.",
+          "row": "policy",
+          "column": "approve"
+        },
+        {
+          "id": "retry",
+          "after": "a6",
+          "kind": "policy",
+          "title": "Si hay incertidumbre → retomar",
+          "text": "Conservar identidad, payload y clave; no abrir otro intento.",
+          "row": "policy",
+          "column": "recover"
+        },
+        {
+          "id": "input",
+          "after": "a7",
+          "kind": "data",
+          "title": "Solicitud",
+          "text": "Itinerario e importe explícitos.",
+          "row": "data",
+          "column": "start"
+        },
+        {
+          "id": "bookingdata",
+          "after": "a7",
+          "kind": "data",
+          "title": "Reservas propias",
+          "text": "Consultar por API con la identidad autorizada.",
+          "row": "data",
+          "column": "result"
+        },
+        {
+          "id": "intent",
+          "after": "a7",
+          "kind": "data",
+          "title": "Intención persistida",
+          "text": "Clave y estado del agente para recuperar el mismo intento.",
+          "row": "data",
+          "column": "recover"
+        },
+        {
+          "id": "manual",
+          "after": "a8",
+          "kind": "pain",
+          "title": "Tiempo de conciliación",
+          "text": "Consultas y recuperación manual consumen tiempo humano.",
+          "row": "pain",
+          "column": "recover"
+        },
+        {
+          "id": "stop",
+          "after": "a8",
+          "kind": "pain",
+          "title": "Detener ante una violación",
+          "text": "Duplicado, escritura no aprobada o acceso cruzado.",
+          "row": "pain",
+          "column": "pay"
+        }
+      ],
+      "support": [
+        {
+          "id": "boundary",
+          "after": "a2",
+          "kind": "decision",
+          "title": "Límite del proceso",
+          "text": "Desde solicitud hasta reserva confirmada o fallo reconciliado, sin cobro huérfano."
+        },
+        {
+          "id": "systems",
+          "after": "a9",
+          "kind": "data",
+          "title": "Dependencias",
+          "text": "API Python → PostgreSQL · pagos sintéticos · worker de recuperación."
+        },
+        {
+          "id": "cancel",
+          "after": "a9",
+          "kind": "decision",
+          "title": "Extensión: cancelar",
+          "text": "Se inicia otro recorrido con otra aprobación: cancelación → reembolso. Lo diseñaremos en C."
+        }
+      ]
+    },
+    "B": {
+      "type": "quadrant",
+      "title": "B · Dónde conviene intervenir",
+      "description": "Ubica cada oportunidad por el criterio que necesita y por sus datos accesibles. Primero reúne candidatas; luego colócalas y acuerda su autonomía.",
+      "columns": [
+        {
+          "id": "rules",
+          "label": "Reglas conocidas"
+        },
+        {
+          "id": "judgment",
+          "label": "Interpretación y criterio"
+        }
+      ],
+      "rows": [
+        {
+          "id": "available",
+          "label": "Datos disponibles"
+        },
+        {
+          "id": "missing",
+          "label": "Datos por habilitar"
+        }
+      ],
+      "zones": [
+        {
+          "row": "available",
+          "column": "rules",
+          "label": "Automatización convencional"
+        },
+        {
+          "row": "available",
+          "column": "judgment",
+          "label": "Candidata a asistencia con agente"
+        },
+        {
+          "row": "missing",
+          "column": "rules",
+          "label": "Integrar datos y automatizar"
+        },
+        {
+          "row": "missing",
+          "column": "judgment",
+          "label": "Preparar datos antes de pilotar"
+        }
+      ],
+      "items": [
+        {
+          "id": "form",
+          "after": "b1",
+          "kind": "opportunity",
+          "title": "Formulario de reserva",
+          "text": "Captura y validación con reglas.",
+          "row": "available",
+          "column": "rules",
+          "place_after": "b3",
+          "badge": "Automatización",
+          "badge_after": "b6"
+        },
+        {
+          "id": "readhelper",
+          "after": "b1",
+          "kind": "opportunity",
+          "title": "Explicar el estado",
+          "text": "Interpretar una consulta de reservas propias.",
+          "row": "available",
+          "column": "judgment",
+          "place_after": "b3",
+          "badge": "E · Exploración asistida",
+          "badge_after": "b6"
+        },
+        {
+          "id": "bookingagent",
+          "after": "b1",
+          "kind": "opportunity",
+          "title": "Preparar una reserva",
+          "text": "Comprender intención y proponer una operación.",
+          "row": "available",
+          "column": "judgment",
+          "place_after": "b3",
+          "badge": "P · Propone y espera aprobación",
+          "badge_after": "b6",
+          "human_after": "b5",
+          "selected_after": "b6"
+        },
+        {
+          "id": "exceptions",
+          "after": "b2",
+          "kind": "opportunity",
+          "title": "Excepciones comerciales",
+          "text": "Las fuentes y permisos todavía se deben definir.",
+          "row": "missing",
+          "column": "judgment",
+          "place_after": "b3",
+          "badge": "Pendiente de datos",
+          "badge_after": "b6"
+        }
+      ],
+      "support": [
+        {
+          "id": "evidence",
+          "after": "b2",
+          "kind": "data",
+          "title": "Disponibilidad comprobada en el caso",
+          "text": "Reservas por API; itinerario e importe en la solicitud. Las políticas comerciales requieren investigación."
+        },
+        {
+          "id": "value",
+          "after": "b4",
+          "kind": "value",
+          "title": "Qué resultado comparar",
+          "text": "Supuestos: 200 casos/mes; 8 → 6 min humanos/caso. Incluir revisión, errores, recuperación y costo."
+        },
+        {
+          "id": "human",
+          "after": "b5",
+          "kind": "decision",
+          "title": "H · Intervención humana obligatoria",
+          "text": "Crear y cancelar requieren aprobaciones independientes, vinculadas a cada acción."
+        },
+        {
+          "id": "scope",
+          "after": "b6",
+          "kind": "decision",
+          "title": "Elegida: reserva con aprobación",
+          "text": "Crear, consultar y cancelar reservas propias. P: el agente prepara y la persona decide. A: autonomía completa; E: exploración asistida; G: agente como control. Para las escrituras de este caso elegimos P."
+        }
+      ]
+    },
+    "C": {
+      "type": "swimlanes",
+      "title": "C · Del agente a las aplicaciones",
+      "description": "Sigue los pasos numerados y los cambios de carril. La aprobación humana precede a toda escritura. Después comprueba el resultado y la recuperación.",
+      "columns": [
+        {
+          "id": "trigger",
+          "label": "1 · Intención"
+        },
+        {
+          "id": "read",
+          "label": "2 · Contexto"
+        },
+        {
+          "id": "propose",
+          "label": "3 · Propuesta"
+        },
+        {
+          "id": "approve",
+          "label": "4 · Aprobación"
+        },
+        {
+          "id": "execute",
+          "label": "5 · Ejecución"
+        },
+        {
+          "id": "recover",
+          "label": "6 · Resultado"
+        }
+      ],
+      "rows": [
+        {
+          "id": "external",
+          "label": "Externo / API"
+        },
+        {
+          "id": "data",
+          "label": "Datos"
+        },
+        {
+          "id": "agent",
+          "label": "Agente"
+        },
+        {
+          "id": "human",
+          "label": "Persona"
+        }
+      ],
+      "items": [
+        {
+          "id": "trigger",
+          "after": "c2",
+          "kind": "event",
+          "title": "Solicitud explícita",
+          "text": "El viajero pide crear o cancelar.",
+          "row": "external",
+          "column": "trigger"
+        },
+        {
+          "id": "inputs",
+          "after": "c2",
+          "kind": "data",
+          "title": "Datos requeridos",
+          "text": "Itinerario e importe, o reserva que se desea cancelar.",
+          "row": "data",
+          "column": "read"
+        },
+        {
+          "id": "clarify",
+          "after": "c2",
+          "kind": "decision",
+          "title": "¿Falta información?",
+          "text": "Aclarar o detener; nunca inventar el importe.",
+          "row": "agent",
+          "column": "read"
+        },
+        {
+          "id": "read",
+          "after": "c3",
+          "kind": "workflow",
+          "title": "Consultar reservas propias",
+          "text": "GET /bookings o GET /bookings/{id}.",
+          "row": "agent",
+          "column": "read"
+        },
+        {
+          "id": "propose",
+          "after": "c4",
+          "kind": "workflow",
+          "title": "Preparar propuesta",
+          "text": "Mostrar acción, sujeto, datos e importe; guardar intención y clave.",
+          "row": "agent",
+          "column": "propose"
+        },
+        {
+          "id": "human",
+          "after": "c4",
+          "kind": "actor",
+          "title": "Aprobar o rechazar",
+          "text": "P · espera humana. Rechazo → fin sin escritura.",
+          "row": "human",
+          "column": "approve"
+        },
+        {
+          "id": "write",
+          "after": "c4",
+          "kind": "workflow",
+          "title": "Ejecutar propuesta aprobada",
+          "text": "POST para crear; DELETE para cancelar. Nueva aprobación para cancelar.",
+          "row": "agent",
+          "column": "execute"
+        },
+        {
+          "id": "verify",
+          "after": "c4",
+          "kind": "decision",
+          "title": "Validar aprobación",
+          "text": "La API verifica identidad, scopes y vínculo a la operación.",
+          "row": "external",
+          "column": "execute"
+        },
+        {
+          "id": "result",
+          "after": "c5",
+          "kind": "workflow",
+          "title": "Consultar y explicar",
+          "text": "Confirmar resultado o retomar la misma operación con su clave.",
+          "row": "agent",
+          "column": "recover"
+        },
+        {
+          "id": "compensate",
+          "after": "c5",
+          "kind": "workflow",
+          "title": "Conciliar / compensar",
+          "text": "Servicio y worker resuelven fallos tras el cobro.",
+          "row": "external",
+          "column": "recover"
+        },
+        {
+          "id": "audit",
+          "after": "c5",
+          "kind": "data",
+          "title": "Estado y auditoría",
+          "text": "Persistir resultado y evidencia atribuible.",
+          "row": "data",
+          "column": "recover"
+        }
+      ],
+      "support": [
+        {
+          "id": "unit",
+          "after": "c1",
+          "kind": "decision",
+          "title": "Primera unidad de trabajo",
+          "text": "Crear una reserva aprobada → consultar → cancelar con una aprobación nueva."
+        },
+        {
+          "id": "services",
+          "after": "c3",
+          "kind": "data",
+          "title": "Aplicaciones que sostienen el flujo",
+          "text": "API → PostgreSQL y pagos sintéticos. Worker: recuperación. Ledger: auditoría."
+        },
+        {
+          "id": "handoff",
+          "after": "c6",
+          "kind": "handoff",
+          "title": "Contexto para ARA/MODA",
+          "text": "ARA: comprobar controles en esta superficie con escritura. MODA: estudiar despliegue, secretos, persistencia y operación."
+        }
+      ],
+      "endpoints": [
+        {
+          "after": "c3",
+          "role": "Resource · lectura",
+          "method": "GET /bookings",
+          "purpose": "Listar reservas propias"
+        },
+        {
+          "after": "c3",
+          "role": "Resource · lectura",
+          "method": "GET /bookings/{id}",
+          "purpose": "Consultar una reserva propia"
+        },
+        {
+          "after": "c3",
+          "role": "Tool · escritura",
+          "method": "POST /bookings",
+          "purpose": "Crear y cobrar con aprobación"
+        },
+        {
+          "after": "c3",
+          "role": "Tool · escritura",
+          "method": "DELETE /bookings/{id}",
+          "purpose": "Cancelar y reembolsar con otra aprobación"
+        }
+      ]
+    }
+  }
+}

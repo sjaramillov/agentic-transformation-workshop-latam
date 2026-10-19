@@ -1,54 +1,25 @@
 # Empieza el workshop
 
-Puedes realizar la práctica en tu máquina o en AWS CloudShell. El repositorio incluye código, ejercicios, plantillas y diagramas bajo MIT.
+## 1. Abre la reunión con el cliente
 
-## Elige un recorrido
-
-| Recorrido | Necesitas | Obtendrás |
-| --- | --- | --- |
-| Decisión de negocio | [Ficha de valor](FICHA_VALOR.md) | Hipótesis, métrica, alternativas y responsable |
-| Agente de reservas | Python 3.11+, Git y Docker | Crear, consultar y cancelar con aprobación y PostgreSQL |
-| Agente con lenguaje natural | Lo anterior, AWS CLI y acceso a Bedrock | El mismo flujo con un modelo de lenguaje |
-| Evaluación de aplicaciones | Cuenta AWS y acceso a AWS Transform | Informes ARA/MODA y plan de mejoras |
-
-## 1. Clona y ejecuta
-
-Con Docker activo, en Linux, macOS o WSL:
+Con Git, Python 3.11+ y un navegador, en Linux, macOS o WSL:
 
 ```bash
 git clone https://github.com/sjaramillov/agentic-transformation-workshop-latam.git
 cd agentic-transformation-workshop-latam
-python3 booking_lab/run.py e2e --output .local/db-e2e.json
+python3 scripts/facilitate.py
 ```
 
-La primera ejecución descarga las imágenes. El comando levanta PostgreSQL, dos API, pagos simulados, un worker y auditoría. Recorre creación, consulta, cancelación y recuperación.
+Abre la URL que muestra la terminal si no se abre automáticamente. Mantén esa terminal abierta.
 
-**Resultado esperado:** cada escenario imprime `PASS`, el JSON indica `result: passed` y los contenedores quedan detenidos. Los archivos de la práctica se guardan en `.local/`.
+## 2. Pregunta, escucha y observa el tablero
 
-## 2. Usa el agente
+Elige entre las preguntas preparadas. El cliente responde, el coach explica qué aprendiste y los post-it se incorporan al proceso. Usa **Ampliar tablero** para verlo completo.
 
-```bash
-python3 booking_lab/run.py demo --output .local/demo.json
-```
+Recorrerás **A: proceso y dolores → B: oportunidad y autonomía → C: flujo del agente**. Son 21 situaciones. Puedes pausar con `Ctrl+C` y retomar con el mismo comando.
 
-Espera `DEMO_READY` y sigue la [demo paso a paso](AGENTE_EJECUTABLE.md) en una segunda terminal: propón una reserva, apruébala, consulta y cancela con otra aprobación. Esa guía incluye la opción de usar Bedrock para interpretar lenguaje natural.
+## 3. Continúa donde termina el coach
 
-## 3. Genera los ejercicios
+Al terminar encontrarás la síntesis y los contextos ARA/MODA. Sigue la [guía paso a paso desde D](GUIA_REPLICACION.md#4-lee-ara-con-el-caso-en-mente-d): incluye informes públicos, preguntas de lectura, agente ejecutable y comparación antes/después.
 
-```bash
-python3 scripts/workshop.py prepare --output .local/workshop-01
-```
-
-Obtendrás la ficha de valor, EventStorming, oportunidades, workflow, entregables de AI-DLC, contextos ARA/MODA y dos clones para análisis. El preparador toma el commit actual; registra tus cambios en Git antes de generar otra práctica y elige un directorio nuevo.
-
-Puedes consultar [el ejemplo resuelto](examples/workshop/README.md) como punto de partida.
-
-## 4. Completa el recorrido
-
-1. Define el problema y la métrica en la [ficha de valor](FICHA_VALOR.md).
-2. Sigue los módulos de la [guía A–J](GUIA_REPLICACION.md) con los [tableros](diagramas/README.md).
-3. Prepara [CloudShell](CLOUDSHELL.md) y ejecuta [ARA/MODA](EJECUCION_AWS.md).
-4. Prioriza, implementa una mejora y vuelve a evaluar.
-5. Organiza los entregables y la medición de resultados con [AI-DLC](AI_DLC.md).
-
-Al terminar tendrás un agente ejecutable, una aplicación evaluada y un plan de trabajo conectado con una métrica de negocio.
+La reunión y la lectura de informes funcionan sin AWS ni Docker. Instala Docker cuando llegues al agente; prepara tu cuenta AWS cuando decidas generar análisis o usar Bedrock.

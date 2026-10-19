@@ -1,5 +1,7 @@
 # Ejecutar el workshop en AWS CloudShell
 
+Para empezar por las preguntas, cliente y tableros, completa primero la [guía paso a paso](GUIA_REPLICACION.md) en tu equipo. El coach abre un servidor local en ese equipo. Esta página cubre la ejecución técnica en CloudShell.
+
 Abre CloudShell en la cuenta y región que usarás. El ejemplo utiliza `us-east-1`. Comprueba en privado tu identidad con `aws sts get-caller-identity`.
 
 | Recorrido | Requisitos |
@@ -29,10 +31,9 @@ Si `docker info` falla, resuelve el acceso al daemon antes de continuar. Ejecuta
 ```bash
 LAB_EVIDENCE_ENV='AWS CloudShell' \
 python3 booking_lab/run.py e2e --output .local/db-e2e.json
-python3 scripts/workshop.py prepare --output .local/workshop-01
 ```
 
-**Resultado esperado:** pruebas aprobadas y `.local/db-e2e.json` con `result: passed` y `test_containers_running: 0`. Los ejercicios quedan en `.local/workshop-01`. Este recorrido funciona sin ATX ni inferencias Bedrock.
+**Resultado esperado:** pruebas aprobadas y `.local/db-e2e.json` con `result: passed` y `test_containers_running: 0`. Este recorrido funciona sin ATX ni inferencias Bedrock.
 
 Para crear, consultar y cancelar reservas con aprobación interactiva, sigue [Agente ejecutable](AGENTE_EJECUTABLE.md).
 
@@ -55,6 +56,8 @@ python3 booking_lab/bedrock_e2e.py \
 Si falla el acceso al modelo, revisa cuenta, región y permiso `bedrock:InvokeModel`. Si una propuesta es rechazada, consulta el mensaje y corrige el objetivo o la configuración; no se sustituye Bedrock por otro planificador. Los [recibos y criterios detallados](evidence/bedrock/README.md) están disponibles como referencia.
 
 ## 4. Prepara ATX para ARA/MODA
+
+Al continuar en Ejecución AWS elegirás la sesión de discovery y prepararás sus fuentes. Para conservar el trabajo hecho en tu equipo, sube su `session.json` a `.local/discovery-01/` del clon y usa la misma revisión de Git. Puedes comprobarla con `git rev-parse HEAD` en ambos equipos.
 
 Si `atx --version` y `atx ct status --health` funcionan, continúa en [Ejecución AWS](EJECUCION_AWS.md). Si falta ATX, este ejemplo instala Node 22.23.3 y ATX 3.19.0 en Linux x86_64. Consulta también la [instalación oficial](https://docs.aws.amazon.com/transform/latest/userguide/custom.html).
 

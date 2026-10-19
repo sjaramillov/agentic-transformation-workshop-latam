@@ -1,0 +1,874 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tablero de discovery</title><link rel="icon" href="data:,"><style>:root {
+  color-scheme:light;
+  --paper:oklch(97% .012 85);
+  --ink:oklch(26% .022 65);
+  --muted:oklch(47% .022 65);
+  --line:oklch(82% .025 85);
+  --accent:oklch(38% .075 175);
+  --surface:oklch(99% .005 85);
+  --board:oklch(93% .022 85);
+}
+* {
+  box-sizing:border-box;
+}
+body {
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+}
+button,a {
+  touch-action:manipulation;
+}
+a {
+  color:var(--accent);
+  text-underline-offset:3px;
+}
+button {
+  font:inherit;
+  cursor:pointer;
+}
+button:disabled {
+  cursor:wait;
+  opacity:.65;
+}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible {
+  outline:3px solid var(--accent);
+  outline-offset:4px;
+}
+.skip {
+  position:absolute;
+  left:16px;
+  top:-80px;
+  padding:10px;
+  background:var(--surface);
+  z-index:3;
+}
+.skip:focus {
+  top:10px;
+}
+.topbar {
+  min-height:68px;
+  padding:16px max(24px,calc((100vw - 1400px)/2));
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  border-bottom:1px solid var(--line);
+}
+.brand {
+  font-size:18px;
+  font-weight:750;
+  text-decoration:none;
+  color:var(--ink);
+}
+.brand span {
+  font-size:10px;
+  letter-spacing:.13em;
+  margin-left:10px;
+  color:var(--muted);
+}
+#save-status {
+  font-size:12px;
+  color:var(--muted);
+}
+main {
+  max-width:1450px;
+  margin:auto;
+  padding:34px 28px 20px;
+}
+.heading {
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:45px;
+  margin-bottom:28px;
+}
+h1 {
+  font-size:2.5rem;
+  line-height:1.12;
+  letter-spacing:-.04em;
+  font-weight:720;
+  margin:8px 0 16px;
+}
+h2 {
+  font-size:1.35rem;
+  line-height:1.3;
+  letter-spacing:-.02em;
+  margin:10px 0;
+}
+h3 {
+  font-size:1rem;
+  margin:12px 0 6px;
+}
+p {
+  max-width:70ch;
+  margin:10px 0;
+}
+.eyebrow {
+  font-size:10px;
+  letter-spacing:.14em;
+  font-weight:750;
+  color:var(--muted);
+  margin:0;
+}
+.heading>div:first-child {
+  max-width:760px;
+}
+.heading>div:first-child>p:last-child {
+  font-size:14px;
+  color:var(--muted);
+}
+.progress-box {
+  min-width:240px;
+  padding-bottom:4px;
+}
+.progress-box label {
+  font-size:13px;
+  font-weight:650;
+}
+.progress-box p {
+  font-size:11px;
+  color:var(--muted);
+}
+progress {
+  display:block;
+  width:100%;
+  height:7px;
+  margin-top:12px;
+  accent-color:var(--accent);
+}
+.phases {
+  list-style:none;
+  display:flex;
+  margin:0 0 30px;
+  padding:0;
+  border-bottom:1px solid var(--line);
+  gap:26px;
+}
+.phase {
+  flex:1;
+  padding:12px 0 16px;
+  color:var(--muted);
+  font-size:13px;
+}
+.phase b {
+  display:block;
+  font-size:14px;
+  color:var(--ink);
+}
+.phase.current {
+  border-bottom:3px solid var(--accent);
+}
+.phase.current b {
+  color:var(--accent);
+}
+.phase span {
+  font-size:11px;
+}
+.workspace {
+  display:grid;
+  grid-template-columns:minmax(320px,.9fr) minmax(400px,1.1fr);
+  gap:40px;
+  align-items:start;
+}
+#exercise {
+  min-width:0;
+  outline-offset:6px;
+}
+#question>h2 {
+  font-size:1.65rem;
+  margin:10px 0 14px;
+}
+#question>p {
+  font-size:15px;
+}
+.step-label {
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+}
+.options {
+  display:grid;
+  gap:10px;
+  margin-top:22px;
+}
+.option {
+  text-align:left;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:7px;
+  padding:16px;
+  display:flex;
+  align-items:start;
+  gap:13px;
+  line-height:1.45;
+  font-size:14px;
+  color:var(--ink);
+}
+.option:hover {
+  border-color:var(--accent);
+  background:oklch(95% .025 175);
+}
+.option .letter {
+  font-size:11px;
+  padding-top:3px;
+  color:var(--muted);
+  font-weight:700;
+  flex-shrink:0;
+}
+.hint {
+  font-size:12px;
+  color:var(--muted);
+  margin-top:16px;
+}
+.selected-question {
+  font-size:13px;
+  color:var(--muted);
+  padding:12px 0;
+  border-block:1px solid var(--line);
+}
+.dialogue {
+  padding:12px 0;
+}
+.dialogue h3 {
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.dialogue p {
+  font-size:14px;
+}
+.coach {
+  background:oklch(94% .028 175);
+  border-radius:8px;
+  padding:16px 20px;
+  margin:12px 0 22px;
+}
+.coach h3 {
+  color:var(--accent);
+  margin:0 0 8px;
+}
+.coach p {
+  font-size:14px;
+}
+.coach .followup {
+  font-size:12px;
+}
+.primary {
+  background:var(--accent);
+  color:oklch(98% .007 175);
+  border:1px solid var(--accent);
+  border-radius:6px;
+  padding:12px 20px;
+  font-weight:650;
+  font-size:14px;
+}
+.primary:hover {
+  background:oklch(30% .065 175);
+}
+.secondary {
+  background:transparent;
+  border:1px solid var(--line);
+  border-radius:5px;
+  padding:10px 15px;
+}
+.board {
+  padding:24px;
+  background:var(--board);
+  border:1px solid var(--line);
+  border-radius:9px;
+  min-height:340px;
+}
+.board-heading {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+}
+.board-heading h2 {
+  font-size:1.2rem;
+  margin-bottom:16px;
+}
+#note-count {
+  font-size:11px;
+  color:var(--muted);
+  white-space:nowrap;
+}
+#board-empty {
+  font-size:14px;
+  color:var(--muted);
+  margin:40px 0;
+}
+.board-filters {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:18px;
+}
+.filter {
+  background:transparent;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:5px 12px;
+  font-size:11px;
+  color:var(--ink);
+}
+.filter[aria-pressed=true] {
+  background:var(--ink);
+  color:var(--paper);
+  border-color:var(--ink);
+}
+.filter:hover {
+  outline:1px solid var(--muted);
+}
+.notes {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.note {
+  padding:15px 16px 18px;
+  background:oklch(94% .095 90);
+  box-shadow:0 2px 3px oklch(25% .02 80 / .1);
+  border:1px solid oklch(75% .07 90 / .25);
+  overflow-wrap:anywhere;
+}
+.note small {
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.note h2,.note h3 {
+  font-size:14px;
+  margin:9px 0 8px;
+  line-height:1.3;
+}
+.note p {
+  font-size:12px;
+  line-height:1.5;
+  margin:0;
+}
+.note.pain {
+  background:oklch(90% .065 15);
+}
+.note.event {
+  background:oklch(91% .092 65);
+}
+.note.data {
+  background:oklch(91% .065 155);
+}
+.note.actor {
+  background:oklch(93% .035 265);
+}
+.note.workflow {
+  background:oklch(93% .045 225);
+}
+.note.handoff {
+  background:oklch(90% .055 175);
+}
+.snapshot {
+  max-width:1100px;
+}
+.snapshot .notes {
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.score-list {
+  padding:0;
+  list-style:none;
+  margin:20px 0;
+}
+.score-list li {
+  padding:10px 0;
+  border-bottom:1px solid var(--line);
+  font-size:14px;
+}
+.next-steps {
+  padding-left:20px;
+}
+.next-steps li {
+  margin:15px 0;
+  font-size:14px;
+}
+.error {
+  padding:12px;
+  background:oklch(93% .055 25);
+  color:oklch(36% .13 25);
+}
+footer {
+  margin-top:48px;
+  padding:20px 0;
+  border-top:1px solid var(--line);
+  font-size:11px;
+  color:var(--muted);
+}
+[hidden] {
+  display:none!important;
+}
+code {
+  font-size:12px;
+  overflow-wrap:anywhere;
+}
+pre {
+  max-width:100%;
+  overflow:auto;
+  padding:14px;
+  background:var(--board);
+  border-radius:5px;
+  line-height:1.6;
+}
+blockquote {
+  margin:16px 0;
+  font-size:14px;
+}
+#feedback:empty {
+  display:none;
+}
+@media(max-width:900px) {
+  .workspace {
+    grid-template-columns:1fr;
+    gap:32px;
+  }
+  .heading {
+    align-items:start;
+    gap:20px;
+  }
+  .progress-box {
+    min-width:190px;
+  }
+  .board {
+    padding:20px;
+  }
+  .notes {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+@media(max-width:600px) {
+  main {
+    padding:24px 18px;
+  }
+  .heading {
+    display:block;
+  }
+  h1 {
+    font-size:2.1rem;
+  }
+  .progress-box {
+    margin-top:22px;
+  }
+  .phases {
+    gap:12px;
+    margin-bottom:24px;
+  }
+  .phase b {
+    font-size:12px;
+  }
+  .phase span {
+    font-size:10px;
+  }
+  .topbar {
+    padding:14px 18px;
+    align-items:start;
+  }
+  .brand span {
+    display:block;
+    margin:0;
+  }
+  #save-status {
+    max-width:135px;
+    text-align:right;
+  }
+  .notes,.snapshot .notes {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .note {
+    padding:12px;
+  }
+  .board {
+    padding:16px;
+  }
+  .option {
+    padding:14px;
+  }
+  .board-heading {
+    display:block;
+  }
+  .board-heading h2 {
+    margin-bottom:5px;
+  }
+  #note-count {
+    display:block;
+    margin-bottom:14px;
+  }
+}
+/* Spatial boards: notes belong to a process step, quadrant or swimlane. */
+.board {
+  min-width:0;
+}
+.board-actions {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:8px;
+}
+.board-actions button {
+  font-size:11px;
+  padding:7px 10px;
+  white-space:nowrap;
+}
+.board-expanded {
+  grid-template-columns:1fr;
+}
+.board-expanded>.board {
+  order:-1;
+}
+.map-title {
+  font-size:17px;
+  margin:12px 0 8px;
+}
+.map-description {
+  font-size:12px;
+  color:var(--muted);
+  max-width:85ch;
+}
+.board-scroll {
+  overflow-x:auto;
+  max-width:100%;
+  border:1px solid var(--line);
+  border-radius:5px;
+  background:oklch(97% .01 85);
+  margin:12px 0 20px;
+  scrollbar-color:var(--muted) var(--board);
+}
+.scroll-hint {
+  font-size:11px;
+  color:var(--muted);
+}
+.process-map {
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
+  min-width:1010px;
+  width:100%;
+  font-size:12px;
+}
+.process-map caption,.endpoint-table caption {
+  text-align:left;
+  font-size:12px;
+  font-weight:650;
+  padding:12px;
+  background:var(--board);
+  caption-side:top;
+}
+.process-map th {
+  padding:12px 8px;
+  text-align:left;
+  vertical-align:top;
+  color:var(--muted);
+  background:oklch(95% .02 85);
+  border-bottom:1px solid var(--line);
+}
+.process-map thead th {
+  height:48px;
+  color:var(--ink);
+}
+.process-map th:first-child {
+  width:112px;
+  position:sticky;
+  left:0;
+  z-index:1;
+  border-right:1px solid var(--line);
+}
+.process-map td {
+  padding:9px;
+  vertical-align:top;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.process-map td:last-child {
+  border-right:0;
+}
+.process-map tbody tr:last-child>* {
+  border-bottom:0;
+}
+.process-map .note {
+  padding:10px 11px;
+  margin:0 0 9px;
+  min-height:100px;
+}
+.process-map .note:last-child {
+  margin-bottom:0;
+}
+.note h4 {
+  font-size:13px;
+  line-height:1.35;
+  margin:6px 0;
+}
+.process-map .note p {
+  font-size:11px;
+  line-height:1.45;
+}
+.note.command {
+  background:oklch(90% .06 245);
+}
+.note.policy {
+  background:oklch(91% .06 305);
+}
+.timeline [data-column=recover] {
+  border-left:2px dashed var(--muted);
+}
+.swimlanes {
+  min-width:1200px;
+}
+.swimlanes td[data-row=human] {
+  background:oklch(94% .035 265);
+}
+.swimlanes td[data-column=approve] {
+  border-left:2px solid oklch(60% .07 265);
+  border-right:2px solid oklch(60% .07 265);
+}
+.empty-cell {
+  font-size:11px;
+  color:var(--muted);
+}
+.quadrant {
+  min-width:570px;
+}
+.quadrant th:first-child {
+  width:100px;
+}
+.quadrant td {
+  height:170px;
+  padding:14px;
+}
+.quadrant td[data-row=available] {
+  background:oklch(95% .03 165);
+}
+.quadrant td[data-row=missing] {
+  background:oklch(95% .035 85);
+}
+.zone-label {
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:var(--muted);
+  margin:0 0 14px;
+}
+.quadrant .note {
+  min-height:unset;
+  margin-bottom:14px;
+}
+.tray {
+  border:1px dashed var(--muted);
+  border-radius:5px;
+  padding:12px;
+  margin:18px 0;
+}
+.tray>h4,.board-support>h4 {
+  font-size:12px;
+  margin:0 0 12px;
+}
+.support-notes {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:12px;
+}
+.support-notes .note {
+  padding:12px;
+}
+.support-notes .note p {
+  font-size:11px;
+}
+.support-notes .note h4 {
+  font-size:13px;
+}
+.autonomy,.human-badge,.chosen-label {
+  display:block;
+  font-size:10px;
+  line-height:1.5;
+  margin-top:9px;
+  font-weight:650;
+}
+.autonomy {
+  border-top:1px solid oklch(65% .04 80 / .5);
+  padding-top:8px;
+}
+.human-badge {
+  color:oklch(35% .08 285);
+}
+.chosen-label {
+  color:var(--accent);
+}
+.note.selected {
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+.endpoint-table {
+  width:100%;
+  min-width:570px;
+  border-collapse:collapse;
+  font-size:11px;
+}
+.endpoint-table th,.endpoint-table td {
+  text-align:left;
+  padding:10px;
+  border-bottom:1px solid var(--line);
+}
+.endpoint-table th {
+  background:var(--board);
+}
+.endpoint-table td:nth-child(2) {
+  font-family:ui-monospace,monospace;
+}
+.saved-board {
+  margin-top:36px;
+  padding:24px;
+  background:var(--board);
+  border:1px solid var(--line);
+  border-radius:8px;
+}
+.snapshot {
+  max-width:1460px;
+}
+.snapshot .scroll-hint {
+  display:none;
+}
+@media(max-width:600px) {
+  .board-actions {
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .board-actions #note-count {
+    margin:0;
+  }
+  .support-notes {
+    grid-template-columns:1fr;
+  }
+  .saved-board {
+    padding:14px;
+  }
+  .process-map th:first-child {
+    width:90px;
+  }
+  .board-filters {
+    gap:8px;
+  }
+  .filter {
+    min-height:36px;
+  }
+}
+</style><main class="snapshot"><h1>Tablero de discovery</h1><p>Booking MIT · 21/21 situaciones</p><div id="saved-boards"></div><noscript>Activa JavaScript para ver los tableros. La conversación está en resumen.md.</noscript></main><script>'use strict';
+// Shared by the live lesson and its self-contained, offline board export.
+const WorkshopBoards = (() => {
+  function el(tag, text, className) {
+    const value = document.createElement(tag);
+    if (text !== undefined) value.textContent = text;
+    if (className) value.className = className;
+    return value;
+  }
+  function card(note, kinds) {
+    const value = el('article', undefined, `note ${note.kind}`);
+    value.dataset.noteId = note.id;
+    if (note.selected) value.classList.add('selected');
+    value.append(el('small', kinds[note.kind]), el('h4', note.title), el('p', note.text));
+    if (note.badge) value.append(el('span', note.badge, 'autonomy'));
+    if (note.human) value.append(el('span', 'H · aprobación humana', 'human-badge'));
+    if (note.selected) value.append(el('strong', 'Oportunidad elegida', 'chosen-label'));
+    return value;
+  }
+  function region(table, label) {
+    const scroll = el('div', undefined, 'board-scroll');
+    scroll.tabIndex = 0;
+    scroll.setAttribute('role', 'region');
+    scroll.setAttribute('aria-label', label + '. Desplazamiento horizontal disponible.');
+    scroll.append(table);
+    return scroll;
+  }
+  function render(target, board, kinds) {
+    target.replaceChildren(el('h3', board.title, 'map-title'), el('p', board.description, 'map-description'));
+    const waiting = board.items.filter(n => !n.placed);
+    if (waiting.length) {
+      const tray = el('section', undefined, 'tray');
+      tray.append(el('h4', 'Por ubicar · seguimos investigando'));
+      const notes = el('div', undefined, 'support-notes');
+      waiting.forEach(n => notes.append(card(n, kinds)));
+      tray.append(notes);
+      target.append(tray);
+    }
+    const table = el('table', undefined, `process-map ${board.type}`);
+    const caption = board.type === 'quadrant' ? '↑ Disponibilidad de datos · Criterio requerido →' : board.type === 'timeline' ? 'Recorrido habitual 1 → 4 · Excepción y recuperación 5' : '1 → 2 → 3 → 4 → 5 → 6 · Si se rechaza en 4, termina sin escritura';
+    table.append(el('caption', caption));
+    const head = el('thead');
+    const headings = el('tr');
+    const corner = el('th', board.type === 'quadrant' ? 'Datos / criterio' : 'Carril / paso');
+    corner.scope = 'col';
+    headings.append(corner);
+    for (const column of board.columns) {
+      const th = el('th', column.label);
+      th.scope = 'col';
+      th.dataset.column = column.id;
+      headings.append(th);
+    }
+    head.append(headings);
+    table.append(head);
+    const body = el('tbody');
+    for (const row of board.rows) {
+      const tr = el('tr');
+      const label = el('th', row.label);
+      label.scope = 'row';
+      tr.append(label);
+      for (const column of board.columns) {
+        const cell = el('td');
+        cell.dataset.row = row.id;
+        cell.dataset.column = column.id;
+        const zone = board.zones?.find(z => z.row === row.id && z.column === column.id);
+        if (zone) cell.append(el('h4', zone.label, 'zone-label'));
+        const placed = board.items.filter(n => n.placed && n.row === row.id && n.column === column.id);
+        placed.forEach(n => cell.append(card(n, kinds)));
+        if (!placed.length) {
+          const placeholder = el('span', zone ? 'Sin oportunidad ubicada aún' : '·', 'empty-cell');
+          if (!zone) placeholder.setAttribute('aria-label', 'Sin nota en este paso');
+          cell.append(placeholder);
+        }
+        tr.append(cell);
+      }
+      body.append(tr);
+    }
+    table.append(body);
+    target.append(el('p', 'Puedes ampliar el tablero o desplazarlo horizontalmente para seguir el recorrido.', 'scroll-hint'), region(table, board.title));
+    if (board.endpoints.length) {
+      const endpoints = el('table', undefined, 'endpoint-table');
+      endpoints.append(el('caption', 'Superficie que evaluará ARA'));
+      const h = el('thead');
+      const r = el('tr');
+      for (const text of ['Uso del agente', 'Operación', 'Efecto']) {
+        const th = el('th', text); th.scope = 'col'; r.append(th);
+      }
+      h.append(r); endpoints.append(h);
+      const b = el('tbody');
+      for (const endpoint of board.endpoints) {
+        const tr = el('tr');
+        tr.append(el('td', endpoint.role), el('td', endpoint.method), el('td', endpoint.purpose));
+        b.append(tr);
+      }
+      endpoints.append(b);
+      target.append(region(endpoints, 'Operaciones de lectura y escritura'));
+    }
+    if (board.support.length) {
+      const support = el('section', undefined, 'board-support');
+      support.append(el('h4', 'Acuerdos y dependencias'));
+      const notes = el('div', undefined, 'support-notes');
+      board.support.forEach(n => notes.append(card(n, kinds)));
+      support.append(notes);
+      target.append(support);
+    }
+  }
+  return {render};
+})();
+</script><script type="application/json" id="board-data">{"boards": {"A": {"type": "timeline", "title": "A · El proceso y sus puntos de dolor", "description": "Lee de izquierda a derecha. Cada columna conecta quién actúa, qué solicita, qué información usa y qué sucede. La excepción tiene su propio tramo.", "columns": [{"id": "start", "label": "1 · Inicio"}, {"id": "approve", "label": "2 · Decisión"}, {"id": "pay", "label": "3 · Efecto"}, {"id": "result", "label": "4 · Resultado"}, {"id": "recover", "label": "5 · Excepción / recuperación"}], "rows": [{"id": "actor", "label": "Personas"}, {"id": "command", "label": "Comandos"}, {"id": "data", "label": "Información"}, {"id": "event", "label": "Eventos"}, {"id": "policy", "label": "Reglas"}, {"id": "pain", "label": "Dolores"}], "items": [{"id": "uncertain", "kind": "pain", "title": "Resultado incierto", "text": "Se pierde la respuesta: ¿se reservó y se cobró?", "row": "pain", "column": "recover", "placed": true, "human": false, "selected": false}, {"id": "request", "kind": "event", "title": "Solicitud recibida", "text": "Comienza el caso de reserva.", "row": "event", "column": "start", "placed": true, "human": false, "selected": false}, {"id": "approved", "kind": "event", "title": "Propuesta aprobada", "text": "La persona confirmó itinerario e importe.", "row": "event", "column": "approve", "placed": true, "human": false, "selected": false}, {"id": "paid", "kind": "event", "title": "Pago capturado", "text": "Se registró el cobro sintético.", "row": "event", "column": "pay", "placed": true, "human": false, "selected": false}, {"id": "booked", "kind": "event", "title": "Reserva confirmada", "text": "La reserva quedó persistida.", "row": "event", "column": "result", "placed": true, "human": false, "selected": false}, {"id": "recovered", "kind": "event", "title": "Caso reconciliado", "text": "Reserva confirmada o cobro compensado.", "row": "event", "column": "recover", "placed": true, "human": false, "selected": false}, {"id": "resume", "kind": "command", "title": "Retomar o compensar", "text": "Respuesta perdida: misma operación. Fallo tras cobro: reembolso.", "row": "command", "column": "recover", "placed": true, "human": false, "selected": false}, {"id": "traveler", "kind": "actor", "title": "Viajero", "text": "Solicita la reserva.", "row": "actor", "column": "start", "placed": true, "human": false, "selected": false}, {"id": "reviewer", "kind": "actor", "title": "Persona que aprueba", "text": "Revisa la propuesta concreta.", "row": "actor", "column": "approve", "placed": true, "human": false, "selected": false}, {"id": "operator", "kind": "actor", "title": "Operaciones", "text": "Consulta y concilia el caso.", "row": "actor", "column": "recover", "placed": true, "human": false, "selected": false}, {"id": "ask", "kind": "command", "title": "Solicitar reserva", "text": "Recoger la intención del viajero.", "row": "command", "column": "start", "placed": true, "human": false, "selected": false}, {"id": "confirm", "kind": "command", "title": "Aprobar propuesta", "text": "Confirmar acción, itinerario e importe.", "row": "command", "column": "approve", "placed": true, "human": false, "selected": false}, {"id": "capture", "kind": "command", "title": "Crear y cobrar", "text": "El servicio valida y ejecuta la operación.", "row": "command", "column": "pay", "placed": true, "human": false, "selected": false}, {"id": "consent", "kind": "policy", "title": "Si se aprueba → ejecutar", "text": "El rechazo termina sin escritura.", "row": "policy", "column": "approve", "placed": true, "human": false, "selected": false}, {"id": "retry", "kind": "policy", "title": "Si hay incertidumbre → retomar", "text": "Conservar identidad, payload y clave; no abrir otro intento.", "row": "policy", "column": "recover", "placed": true, "human": false, "selected": false}, {"id": "input", "kind": "data", "title": "Solicitud", "text": "Itinerario e importe explícitos.", "row": "data", "column": "start", "placed": true, "human": false, "selected": false}, {"id": "bookingdata", "kind": "data", "title": "Reservas propias", "text": "Consultar por API con la identidad autorizada.", "row": "data", "column": "result", "placed": true, "human": false, "selected": false}, {"id": "intent", "kind": "data", "title": "Intención persistida", "text": "Clave y estado del agente para recuperar el mismo intento.", "row": "data", "column": "recover", "placed": true, "human": false, "selected": false}, {"id": "manual", "kind": "pain", "title": "Tiempo de conciliación", "text": "Consultas y recuperación manual consumen tiempo humano.", "row": "pain", "column": "recover", "placed": true, "human": false, "selected": false}, {"id": "stop", "kind": "pain", "title": "Detener ante una violación", "text": "Duplicado, escritura no aprobada o acceso cruzado.", "row": "pain", "column": "pay", "placed": true, "human": false, "selected": false}], "support": [{"id": "boundary", "kind": "decision", "title": "Límite del proceso", "text": "Desde solicitud hasta reserva confirmada o fallo reconciliado, sin cobro huérfano.", "placed": true, "human": false, "selected": false}, {"id": "systems", "kind": "data", "title": "Dependencias", "text": "API Python → PostgreSQL · pagos sintéticos · worker de recuperación.", "placed": true, "human": false, "selected": false}, {"id": "cancel", "kind": "decision", "title": "Extensión: cancelar", "text": "Se inicia otro recorrido con otra aprobación: cancelación → reembolso. Lo diseñaremos en C.", "placed": true, "human": false, "selected": false}], "endpoints": []}, "B": {"type": "quadrant", "title": "B · Dónde conviene intervenir", "description": "Ubica cada oportunidad por el criterio que necesita y por sus datos accesibles. Primero reúne candidatas; luego colócalas y acuerda su autonomía.", "columns": [{"id": "rules", "label": "Reglas conocidas"}, {"id": "judgment", "label": "Interpretación y criterio"}], "rows": [{"id": "available", "label": "Datos disponibles"}, {"id": "missing", "label": "Datos por habilitar"}], "zones": [{"row": "available", "column": "rules", "label": "Automatización convencional"}, {"row": "available", "column": "judgment", "label": "Candidata a asistencia con agente"}, {"row": "missing", "column": "rules", "label": "Integrar datos y automatizar"}, {"row": "missing", "column": "judgment", "label": "Preparar datos antes de pilotar"}], "items": [{"id": "form", "kind": "opportunity", "title": "Formulario de reserva", "text": "Captura y validación con reglas.", "row": "available", "column": "rules", "placed": true, "badge": "Automatización", "human": false, "selected": false}, {"id": "readhelper", "kind": "opportunity", "title": "Explicar el estado", "text": "Interpretar una consulta de reservas propias.", "row": "available", "column": "judgment", "placed": true, "badge": "E · Exploración asistida", "human": false, "selected": false}, {"id": "bookingagent", "kind": "opportunity", "title": "Preparar una reserva", "text": "Comprender intención y proponer una operación.", "row": "available", "column": "judgment", "placed": true, "badge": "P · Propone y espera aprobación", "human": true, "selected": true}, {"id": "exceptions", "kind": "opportunity", "title": "Excepciones comerciales", "text": "Las fuentes y permisos todavía se deben definir.", "row": "missing", "column": "judgment", "placed": true, "badge": "Pendiente de datos", "human": false, "selected": false}], "support": [{"id": "evidence", "kind": "data", "title": "Disponibilidad comprobada en el caso", "text": "Reservas por API; itinerario e importe en la solicitud. Las políticas comerciales requieren investigación.", "placed": true, "human": false, "selected": false}, {"id": "value", "kind": "value", "title": "Qué resultado comparar", "text": "Supuestos: 200 casos/mes; 8 → 6 min humanos/caso. Incluir revisión, errores, recuperación y costo.", "placed": true, "human": false, "selected": false}, {"id": "human", "kind": "decision", "title": "H · Intervención humana obligatoria", "text": "Crear y cancelar requieren aprobaciones independientes, vinculadas a cada acción.", "placed": true, "human": false, "selected": false}, {"id": "scope", "kind": "decision", "title": "Elegida: reserva con aprobación", "text": "Crear, consultar y cancelar reservas propias. P: el agente prepara y la persona decide. A: autonomía completa; E: exploración asistida; G: agente como control. Para las escrituras de este caso elegimos P.", "placed": true, "human": false, "selected": false}], "endpoints": []}, "C": {"type": "swimlanes", "title": "C · Del agente a las aplicaciones", "description": "Sigue los pasos numerados y los cambios de carril. La aprobación humana precede a toda escritura. Después comprueba el resultado y la recuperación.", "columns": [{"id": "trigger", "label": "1 · Intención"}, {"id": "read", "label": "2 · Contexto"}, {"id": "propose", "label": "3 · Propuesta"}, {"id": "approve", "label": "4 · Aprobación"}, {"id": "execute", "label": "5 · Ejecución"}, {"id": "recover", "label": "6 · Resultado"}], "rows": [{"id": "external", "label": "Externo / API"}, {"id": "data", "label": "Datos"}, {"id": "agent", "label": "Agente"}, {"id": "human", "label": "Persona"}], "items": [{"id": "trigger", "kind": "event", "title": "Solicitud explícita", "text": "El viajero pide crear o cancelar.", "row": "external", "column": "trigger", "placed": true, "human": false, "selected": false}, {"id": "inputs", "kind": "data", "title": "Datos requeridos", "text": "Itinerario e importe, o reserva que se desea cancelar.", "row": "data", "column": "read", "placed": true, "human": false, "selected": false}, {"id": "clarify", "kind": "decision", "title": "¿Falta información?", "text": "Aclarar o detener; nunca inventar el importe.", "row": "agent", "column": "read", "placed": true, "human": false, "selected": false}, {"id": "read", "kind": "workflow", "title": "Consultar reservas propias", "text": "GET /bookings o GET /bookings/{id}.", "row": "agent", "column": "read", "placed": true, "human": false, "selected": false}, {"id": "propose", "kind": "workflow", "title": "Preparar propuesta", "text": "Mostrar acción, sujeto, datos e importe; guardar intención y clave.", "row": "agent", "column": "propose", "placed": true, "human": false, "selected": false}, {"id": "human", "kind": "actor", "title": "Aprobar o rechazar", "text": "P · espera humana. Rechazo → fin sin escritura.", "row": "human", "column": "approve", "placed": true, "human": false, "selected": false}, {"id": "write", "kind": "workflow", "title": "Ejecutar propuesta aprobada", "text": "POST para crear; DELETE para cancelar. Nueva aprobación para cancelar.", "row": "agent", "column": "execute", "placed": true, "human": false, "selected": false}, {"id": "verify", "kind": "decision", "title": "Validar aprobación", "text": "La API verifica identidad, scopes y vínculo a la operación.", "row": "external", "column": "execute", "placed": true, "human": false, "selected": false}, {"id": "result", "kind": "workflow", "title": "Consultar y explicar", "text": "Confirmar resultado o retomar la misma operación con su clave.", "row": "agent", "column": "recover", "placed": true, "human": false, "selected": false}, {"id": "compensate", "kind": "workflow", "title": "Conciliar / compensar", "text": "Servicio y worker resuelven fallos tras el cobro.", "row": "external", "column": "recover", "placed": true, "human": false, "selected": false}, {"id": "audit", "kind": "data", "title": "Estado y auditoría", "text": "Persistir resultado y evidencia atribuible.", "row": "data", "column": "recover", "placed": true, "human": false, "selected": false}], "support": [{"id": "unit", "kind": "decision", "title": "Primera unidad de trabajo", "text": "Crear una reserva aprobada → consultar → cancelar con una aprobación nueva.", "placed": true, "human": false, "selected": false}, {"id": "services", "kind": "data", "title": "Aplicaciones que sostienen el flujo", "text": "API → PostgreSQL y pagos sintéticos. Worker: recuperación. Ledger: auditoría.", "placed": true, "human": false, "selected": false}, {"id": "handoff", "kind": "handoff", "title": "Contexto para ARA/MODA", "text": "ARA: comprobar controles en esta superficie con escritura. MODA: estudiar despliegue, secretos, persistencia y operación.", "placed": true, "human": false, "selected": false}], "endpoints": [{"role": "Resource · lectura", "method": "GET /bookings", "purpose": "Listar reservas propias", "placed": true, "human": false, "selected": false}, {"role": "Resource · lectura", "method": "GET /bookings/{id}", "purpose": "Consultar una reserva propia", "placed": true, "human": false, "selected": false}, {"role": "Tool · escritura", "method": "POST /bookings", "purpose": "Crear y cobrar con aprobación", "placed": true, "human": false, "selected": false}, {"role": "Tool · escritura", "method": "DELETE /bookings/{id}", "purpose": "Cancelar y reembolsar con otra aprobación", "placed": true, "human": false, "selected": false}]}}, "kinds": {"pain": "Dolor", "event": "Evento", "actor": "Persona", "data": "Datos", "command": "Comando", "policy": "Regla", "decision": "Decisión", "opportunity": "Oportunidad", "value": "Valor", "workflow": "Flujo", "handoff": "Evaluación"}}</script><script>const saved=JSON.parse(document.getElementById("board-data").textContent);for(const board of Object.values(saved.boards)){const section=document.createElement("section");section.className="saved-board";document.getElementById("saved-boards").append(section);WorkshopBoards.render(section,board,saved.kinds);}</script></html>

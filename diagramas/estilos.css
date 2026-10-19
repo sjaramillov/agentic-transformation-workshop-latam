@@ -1,10 +1,10 @@
 :root {
   color-scheme: light;
-  --ink: #17283b;
+  --ink: oklch(31% 0.035 164);
   --muted: #596a79;
-  --paper: #f4f1e9;
+  --paper: oklch(96% 0.012 95);
   --line: #dedbd2;
-  --blue: #315a77;
+  --blue: oklch(43% 0.055 164);
   --white: #fffdfa;
 }
 
@@ -19,18 +19,18 @@ body {
 .hero { padding: clamp(2rem, 6vw, 5rem) max(1.25rem, calc((100vw - 1320px) / 2)); background: var(--ink); color: var(--white); }
 .eyebrow, .board-copy span { margin: 0; font-size: .76rem; font-weight: 800; letter-spacing: .13em; }
 .eyebrow { color: #9fd5e6; }
-h1 { max-width: 900px; margin: .55rem 0 .7rem; font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.05; letter-spacing: -.04em; }
+h1 { max-width: 900px; margin: .55rem 0 .7rem; font-size: 2.8rem; line-height: 1.05; letter-spacing: -.04em; }
 .intro { max-width: 760px; margin: 0; color: #d5e0e9; font-size: 1.13rem; }
 nav { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.6rem; }
 nav a, .board-copy a { display: inline-flex; align-items: center; min-height: 40px; border-radius: 999px; padding: .45rem .85rem; font-weight: 700; text-decoration: none; }
 nav a { border: 1px solid #587287; color: var(--white); }
 nav a:hover, nav a:focus-visible { outline: 3px solid #f4d578; outline-offset: 2px; background: #27435a; }
 main { width: min(1320px, calc(100% - 2rem)); margin: 2rem auto 4rem; }
-.scope { margin: 0 0 1.2rem; border-left: 5px solid #df9a48; border-radius: 8px; padding: 1rem 1.2rem; background: #fff7df; }
+.scope { margin: 0 0 1.2rem; border: 1px solid #ddca95; border-radius: 8px; padding: 1rem 1.2rem; background: #fff7df; }
 .board-card { overflow: hidden; margin: 1.2rem 0 2rem; border: 1px solid var(--line); border-radius: 18px; background: var(--white); box-shadow: 0 12px 32px #17283b0c; }
 .board-copy { padding: 1.5rem clamp(1.1rem, 3vw, 2rem) .6rem; }
 .board-copy span { color: var(--blue); }
-h2 { margin: .35rem 0 .4rem; font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.2; letter-spacing: -.02em; }
+h2 { margin: .35rem 0 .4rem; font-size: 1.8rem; line-height: 1.2; letter-spacing: -.02em; }
 .board-copy p { max-width: 850px; margin: .4rem 0 .8rem; color: var(--muted); }
 .board-copy a { color: var(--white); background: var(--blue); }
 .board-copy a:hover, .board-copy a:focus-visible { outline: 3px solid #e7bf58; outline-offset: 2px; background: #1d3f59; }
@@ -48,3 +48,8 @@ footer a { color: var(--blue); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+.skip { position: absolute; left: 1rem; top: -5rem; background: var(--white); color: var(--ink); padding: .7rem; z-index: 2; }
+.skip:focus { top: 1rem; }
+.scope a { color: var(--blue); }
+@media (max-width: 640px) { h1 { font-size: 2.2rem; } h2 { font-size: 1.5rem; } }

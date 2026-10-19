@@ -1,77 +1,189 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1650 980" role="img" aria-labelledby="title desc">
-  <title id="title">Workflow de rebooking con aprobación humana</title>
-  <desc id="desc">Un evento de cancelación lleva a consultar la reserva, preparar opciones con un agente y detenerse para revisión humana. Si se aprueba, se actualiza la reserva; si se pide revisar, el agente ajusta la propuesta. Step Functions mantiene el callback y la espera.</desc>
-  <defs>
-    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#d8d3c8" /></pattern>
-    <filter id="shadow" x="-20%" y="-20%" width="150%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#344354" flood-opacity=".16" /></filter>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#526778" /></marker>
-    <marker id="dottedArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#74629a" /></marker>
-    <style>
-      text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;fill:#17283b}.white{fill:#fffdfa!important}.muted{fill:#536575}.kicker{font-size:14px;font-weight:800;letter-spacing:2px}.title{font-size:34px;font-weight:800}.subtitle{font-size:17px}.lane{font-size:15px;font-weight:850;letter-spacing:1px}.tag{font-size:11px;font-weight:900;letter-spacing:1px}.note-title{font-size:17px;font-weight:800}.body{font-size:14px}.tiny{font-size:12px;font-weight:700}
-    </style>
-  </defs>
-  <rect width="1650" height="980" fill="#f4f1e9" /><rect width="1650" height="980" fill="url(#grid)" opacity=".55" />
-  <path d="M0 0H1650V140H0Z" fill="#17283b" />
-  <text x="42" y="38" class="kicker" style="fill:#a8d9e6">BOOKING MIT · DISEÑO PROPUESTO · C</text>
-  <text x="42" y="83" class="title white" style="fill:#fffdfa">Proponer, esperar, actuar</text>
-  <text x="42" y="115" class="subtitle" style="fill:#d8e3eb">La persona conserva la decisión antes de cualquier escritura sobre la reserva.</text>
-  <text x="1605" y="48" text-anchor="end" class="tiny" style="fill:#c6d5df">FLUJO EXPLICATIVO · LA APROBACIÓN ES EXPLÍCITA</text>
-
-
-  <g>
-    <rect x="22" y="170" width="1606" height="124" rx="12" fill="#fffdfa" stroke="#dedbd2" />
-    <rect x="22" y="302" width="1606" height="124" rx="12" fill="#eef3f0" stroke="#dedbd2" />
-    <rect x="22" y="434" width="1606" height="124" rx="12" fill="#f5eef8" stroke="#dedbd2" />
-    <rect x="22" y="566" width="1606" height="124" rx="12" fill="#fbf4dd" stroke="#dedbd2" />
-    <rect x="22" y="698" width="1606" height="124" rx="12" fill="#eaf0f4" stroke="#dedbd2" />
-    <rect x="22" y="170" width="188" height="124" rx="12" fill="#d9eaf0" /><rect x="22" y="302" width="188" height="124" rx="12" fill="#dceadf" />
-    <rect x="22" y="434" width="188" height="124" rx="12" fill="#e7def2" /><rect x="22" y="566" width="188" height="124" rx="12" fill="#f4e7b8" />
-    <rect x="22" y="698" width="188" height="124" rx="12" fill="#dce5eb" />
-    <text x="42" y="220" class="lane">EXTERNO</text><text x="42" y="247" class="tiny muted">Viajero · operador</text>
-    <text x="42" y="352" class="lane">DATOS / SERVICIO</text><text x="42" y="379" class="tiny muted">booking · reglas</text>
-    <text x="42" y="484" class="lane">AGENTE</text><text x="42" y="511" class="tiny muted">prepara, no aprueba</text>
-    <text x="42" y="616" class="lane">PERSONA</text><text x="42" y="643" class="tiny muted">revisa y decide</text>
-    <text x="42" y="748" class="lane">ORQUESTACIÓN</text><text x="42" y="775" class="tiny muted">saga · recuperación · auditoría</text>
-  </g>
-
-
-  <g fill="none" stroke="#526778" stroke-width="3">
-    <path d="M386 232C438 232 450 350 492 350" />
-    <path d="M692 364C744 364 750 474 794 474" />
-    <path d="M992 496C1033 496 1024 610 1052 610" />
-    <path d="M1208 628H1244" />
-    <path d="M1282 604C1314 558 1307 430 1307 393" />
-    <path d="M1404 352C1450 352 1451 232 1474 232" />
-  </g>
-  <path d="M1268 657C1223 740 1082 775 977 524" fill="none" stroke="#cb714f" stroke-width="3" stroke-dasharray="8 7" />
-
-
-  <g fill="none" stroke="#78669b" stroke-width="2.5" stroke-dasharray="5 7">
-    <path d="M1057 723C1057 692 1085 677 1085 663" />
-    <path d="M1182 760C1275 760 1295 700 1287 662" />
-  </g>
-
-
-  <g filter="url(#shadow)">
-    <g><rect x="236" y="190" width="150" height="84" rx="9" fill="#cfe8f0" /><path d="M356 190H386V220Z" fill="#add6e2" /><text x="251" y="215" class="tag">INICIO</text><text x="251" y="241" class="note-title">Nueva reserva</text><text x="251" y="261" class="body">Intención del viajero</text></g>
-    <g><rect x="492" y="318" width="200" height="88" rx="9" fill="#d9ecdc" /><path d="M662 318H692V348Z" fill="#b9d9bf" /><text x="508" y="343" class="tag">LECTURA</text><text x="508" y="370" class="note-title">Itinerario + importe</text><text x="508" y="391" class="body">Datos y reglas disponibles</text></g>
-    <g><rect x="794" y="448" width="198" height="92" rx="9" fill="#e4d8f0" /><path d="M962 448H992V478Z" fill="#cbb8e1" /><text x="810" y="474" class="tag">AGENT · POSTURA P</text><text x="810" y="501" class="note-title">Borrador de reserva</text><text x="810" y="523" class="body">Opciones + explicación</text></g>
-    <g><rect x="1052" y="582" width="156" height="82" rx="9" fill="#ffe8a4" /><path d="M1178 582H1208V612Z" fill="#f1d373" /><text x="1067" y="607" class="tag">HUMAN REVIEW</text><text x="1067" y="634" class="note-title">Revisar</text><text x="1067" y="653" class="body">Editar o aprobar</text></g>
-    <g><rect x="1270" y="309" width="178" height="84" rx="9" fill="#cfe8f0" /><path d="M1418 309H1448V339Z" fill="#add6e2" /><text x="1285" y="334" class="tag">SOLO SI APRUEBA</text><text x="1285" y="360" class="note-title">Crear o cancelar</text><text x="1285" y="381" class="body">Contrato idempotente</text></g>
-    <g><rect x="1474" y="190" width="142" height="84" rx="9" fill="#d9ecdc" /><path d="M1586 190H1616V220Z" fill="#b9d9bf" /><text x="1488" y="215" class="tag">CIERRE</text><text x="1488" y="241" class="note-title">Ver resultado</text><text x="1488" y="261" class="body">Registrar resultado</text></g>
-    <g><rect x="865" y="728" width="312" height="72" rx="9" fill="#e4d8f0" /><text x="885" y="755" class="tag">ESTADO DURABLE</text><text x="885" y="780" class="note-title">Operación + outbox + worker</text></g>
-    <g><rect x="1282" y="728" width="290" height="72" rx="9" fill="#d9ecdc" /><text x="1302" y="755" class="tag">OPERACIÓN</text><text x="1302" y="780" class="note-title">Eventos atribuibles</text></g>
-  </g>
-  <g>
-    <polygon points="1266,585 1308,627 1266,669 1224,627" fill="#ffe8a4" stroke="#b8852f" stroke-width="2" />
-    <text x="1266" y="623" text-anchor="middle" class="tiny">¿OK?</text><text x="1266" y="640" text-anchor="middle" class="tiny">DECIDE</text>
-    <text x="1309" y="555" class="tiny" style="fill:#3d7755">SÍ · ejecutar</text>
-    <text x="1126" y="735" class="tiny" style="fill:#a14f3c">NO · revisar propuesta</text>
-  </g>
-
-  <rect x="22" y="856" width="1606" height="82" rx="14" fill="#17283b" />
-  <path d="M63 888H113" stroke="#526778" stroke-width="3" /><text x="127" y="894" class="body white" style="fill:#fffdfa">flujo de negocio</text>
-  <path d="M365 888H415" stroke="#78669b" stroke-width="2.5" stroke-dasharray="5 7" /><text x="429" y="894" class="body white" style="fill:#fffdfa">control de la orquestación</text>
-  <text x="810" y="894" class="body white" style="fill:#fffdfa">La aprobación humana es un paso del diseño, no una nota al margen.</text>
-  <text x="42" y="963" class="tiny muted">Fuente conceptual: módulos A–C. El flujo es ilustrativo; valida APIs, controles y servicios antes de implementarlo.</text>
-<polygon points="492.00,350.00 483.00,354.00 483.00,346.00" fill="#526778" stroke="none" aria-hidden="true" /><polygon points="794.00,474.00 785.00,478.00 785.00,470.00" fill="#526778" stroke="none" aria-hidden="true" /><polygon points="1052.00,610.00 1043.00,614.00 1043.00,606.00" fill="#526778" stroke="none" aria-hidden="true" /><polygon points="1244.00,628.00 1235.00,632.00 1235.00,624.00" fill="#526778" stroke="none" aria-hidden="true" /><polygon points="1307.00,393.00 1311.00,402.00 1303.00,402.00" fill="#526778" stroke="none" aria-hidden="true" /><polygon points="1474.00,232.00 1465.00,236.00 1465.00,228.00" fill="#526778" stroke="none" aria-hidden="true" /><polygon points="977.00,524.00 984.16,530.76 976.78,533.85" fill="#cb714f" stroke="none" aria-hidden="true" /><polygon points="1085.00,663.00 1089.00,672.00 1081.00,672.00" fill="#78669b" stroke="none" aria-hidden="true" /><polygon points="1287.00,662.00 1292.77,669.98 1284.94,671.63" fill="#78669b" stroke="none" aria-hidden="true" /><polygon points="113.00,888.00 104.00,892.00 104.00,884.00" fill="#526778" stroke="none" aria-hidden="true" /><polygon points="415.00,888.00 406.00,892.00 406.00,884.00" fill="#78669b" stroke="none" aria-hidden="true" /></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1862.8999999999999" role="img" aria-labelledby="title desc">
+<title id="title">Proponer, aprobar, ejecutar y recuperar</title><desc id="desc">Cada columna es un paso; cada carril muestra quién actúa y qué información necesita.</desc>
+<defs><pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#c4cbbd"/></pattern><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#276459"/></marker></defs>
+<rect width="100%" height="100%" fill="#f6f4ed"/><rect width="100%" height="100%" fill="url(#dots)" opacity=".55"/>
+<g font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<text x="40" y="42" font-size="15" font-weight="750" fill="#276459" text-anchor="start">C · DISEÑO DEL FLUJO</text>
+<text x="40" y="94" font-size="38" font-weight="760" fill="#203b33" text-anchor="start">Proponer, aprobar, ejecutar y recuperar</text>
+<text x="40" y="129" font-size="19" font-weight="400" fill="#53645b" text-anchor="start">Cada columna es un paso; cada carril muestra quién actúa y qué información necesita.</text>
+<path d="M40 155L1560 155" fill="none" stroke="#cbd1c7" stroke-width="2" />
+<text x="40" y="190" font-size="15" font-weight="800" fill="#276459" text-anchor="start">UNIDAD DEL EJERCICIO</text>
+<text x="40" y="219" font-size="18" font-weight="400" fill="#203b33" text-anchor="start">Crear una reserva aprobada → consultar → cancelar con una aprobación nueva. Rechazar termina sin escritura.</text>
+<text x="200" y="267.3" font-size="17" font-weight="750" fill="#203b33" text-anchor="start">1 · Intención</text>
+<path d="M405 261.3L417 261.3" fill="none" stroke="#276459" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="431" y="267.3" font-size="17" font-weight="750" fill="#203b33" text-anchor="start">2 · Contexto</text>
+<path d="M636 261.3L648 261.3" fill="none" stroke="#276459" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="662" y="267.3" font-size="17" font-weight="750" fill="#203b33" text-anchor="start">3 · Propuesta</text>
+<path d="M867 261.3L879 261.3" fill="none" stroke="#276459" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="893" y="267.3" font-size="17" font-weight="750" fill="#203b33" text-anchor="start">4 · Aprobación</text>
+<path d="M1098 261.3L1110 261.3" fill="none" stroke="#276459" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1124" y="267.3" font-size="17" font-weight="750" fill="#203b33" text-anchor="start">5 · Ejecución</text>
+<path d="M1329 261.3L1341 261.3" fill="none" stroke="#276459" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1355" y="267.3" font-size="17" font-weight="750" fill="#203b33" text-anchor="start">6 · Resultado</text>
+<rect x="24" y="317.3" width="1552" height="232" rx="6" fill="#fffdf580" stroke="#d2d8cd" />
+<text x="40" y="355.3" font-size="19" font-weight="750" fill="#203b33" text-anchor="start">Externo /</text>
+<text x="40" y="380.95" font-size="19" font-weight="750" fill="#203b33" text-anchor="start">API</text>
+<rect x="192" y="331.3" width="215" height="154" rx="6" fill="#273f3112" stroke="none" />
+<rect x="190" y="327.3" width="215" height="154" rx="4" fill="#ffe1bc" stroke="#203b3314" />
+<path d="M387 327.3h18v18z" fill="#203b3315"/>
+<text x="206" y="352.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">EVENTO · C2</text>
+<text x="206" y="380.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Solicitud</text>
+<text x="206" y="407.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">explícita</text>
+<text x="206" y="437.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">El viajero pide</text>
+<text x="206" y="460.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">crear o cancelar.</text>
+<text x="528.5" y="362.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<text x="759.5" y="362.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<text x="990.5" y="362.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<rect x="1116" y="331.3" width="215" height="200" rx="6" fill="#273f3112" stroke="none" />
+<rect x="1114" y="327.3" width="215" height="200" rx="4" fill="#fff0bb" stroke="#203b3314" />
+<path d="M1311 327.3h18v18z" fill="#203b3315"/>
+<text x="1130" y="352.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">DECISIÓN · C4</text>
+<text x="1130" y="380.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Validar</text>
+<text x="1130" y="407.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">aprobación</text>
+<text x="1130" y="437.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">La API verifica</text>
+<text x="1130" y="460.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">identidad, scopes</text>
+<text x="1130" y="483.2" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">y vínculo a la</text>
+<text x="1130" y="506.15" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">operación.</text>
+<rect x="1347" y="331.3" width="215" height="177" rx="6" fill="#273f3112" stroke="none" />
+<rect x="1345" y="327.3" width="215" height="177" rx="4" fill="#d7eaf2" stroke="#203b3314" />
+<path d="M1542 327.3h18v18z" fill="#203b3315"/>
+<text x="1361" y="352.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">FLUJO · C5</text>
+<text x="1361" y="380.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Conciliar /</text>
+<text x="1361" y="407.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">compensar</text>
+<text x="1361" y="437.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">Servicio y worker</text>
+<text x="1361" y="460.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">resuelven fallos</text>
+<text x="1361" y="483.2" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">tras el cobro.</text>
+<path d="M875 317.3L875 549.3" fill="none" stroke="#9d8124" stroke-width="2" stroke-dasharray="6 6" />
+<path d="M1106 317.3L1106 549.3" fill="none" stroke="#9d8124" stroke-width="2" stroke-dasharray="6 6" />
+<rect x="24" y="561.3" width="1552" height="232" rx="6" fill="#fffdf580" stroke="#d2d8cd" />
+<text x="40" y="599.3" font-size="19" font-weight="750" fill="#203b33" text-anchor="start">Datos</text>
+<text x="297.5" y="606.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<rect x="423" y="575.3" width="215" height="173" rx="6" fill="#273f3112" stroke="none" />
+<rect x="421" y="571.3" width="215" height="173" rx="4" fill="#dcebdc" stroke="#203b3314" />
+<path d="M618 571.3h18v18z" fill="#203b3315"/>
+<text x="437" y="596.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">DATOS · C2</text>
+<text x="437" y="624.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Datos requeridos</text>
+<text x="437" y="654.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">Itinerario e</text>
+<text x="437" y="677.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">importe, o reserva</text>
+<text x="437" y="700.2" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">que se desea</text>
+<text x="437" y="723.1500000000001" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">cancelar.</text>
+<text x="759.5" y="606.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<text x="990.5" y="606.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<text x="1221.5" y="606.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<rect x="1347" y="575.3" width="215" height="200" rx="6" fill="#273f3112" stroke="none" />
+<rect x="1345" y="571.3" width="215" height="200" rx="4" fill="#dcebdc" stroke="#203b3314" />
+<path d="M1542 571.3h18v18z" fill="#203b3315"/>
+<text x="1361" y="596.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">DATOS · C5</text>
+<text x="1361" y="624.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Estado y</text>
+<text x="1361" y="651.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">auditoría</text>
+<text x="1361" y="681.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">Persistir</text>
+<text x="1361" y="704.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">resultado y</text>
+<text x="1361" y="727.2" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">evidencia</text>
+<text x="1361" y="750.1500000000001" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">atribuible.</text>
+<path d="M875 561.3L875 793.3" fill="none" stroke="#9d8124" stroke-width="2" stroke-dasharray="6 6" />
+<path d="M1106 561.3L1106 793.3" fill="none" stroke="#9d8124" stroke-width="2" stroke-dasharray="6 6" />
+<rect x="24" y="805.3" width="1552" height="398" rx="6" fill="#fffdf580" stroke="#d2d8cd" />
+<text x="40" y="843.3" font-size="19" font-weight="750" fill="#203b33" text-anchor="start">Agente</text>
+<text x="297.5" y="850.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<rect x="423" y="819.3" width="215" height="177" rx="6" fill="#273f3112" stroke="none" />
+<rect x="421" y="815.3" width="215" height="177" rx="4" fill="#fff0bb" stroke="#203b3314" />
+<path d="M618 815.3h18v18z" fill="#203b3315"/>
+<text x="437" y="840.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">DECISIÓN · C2</text>
+<text x="437" y="868.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">¿Falta</text>
+<text x="437" y="895.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">información?</text>
+<text x="437" y="925.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">Aclarar o detener;</text>
+<text x="437" y="948.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">nunca inventar el</text>
+<text x="437" y="971.2" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">importe.</text>
+<rect x="423" y="1008.3" width="215" height="177" rx="6" fill="#273f3112" stroke="none" />
+<rect x="421" y="1004.3" width="215" height="177" rx="4" fill="#d7eaf2" stroke="#203b3314" />
+<path d="M618 1004.3h18v18z" fill="#203b3315"/>
+<text x="437" y="1029.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">FLUJO · C3</text>
+<text x="437" y="1057.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Consultar</text>
+<text x="437" y="1084.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">reservas propias</text>
+<text x="437" y="1114.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">GET /bookings o</text>
+<text x="437" y="1137.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">GET</text>
+<text x="437" y="1160.2" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">/bookings/{id}.</text>
+<rect x="654" y="819.3" width="215" height="200" rx="6" fill="#273f3112" stroke="none" />
+<rect x="652" y="815.3" width="215" height="200" rx="4" fill="#d7eaf2" stroke="#203b3314" />
+<path d="M849 815.3h18v18z" fill="#203b3315"/>
+<text x="668" y="840.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">FLUJO · C4</text>
+<text x="668" y="868.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Preparar</text>
+<text x="668" y="895.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">propuesta</text>
+<text x="668" y="925.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">Mostrar acción,</text>
+<text x="668" y="948.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">sujeto, datos e</text>
+<text x="668" y="971.2" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">importe; guardar</text>
+<text x="668" y="994.1500000000001" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">intención y clave.</text>
+<text x="990.5" y="850.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<rect x="1116" y="819.3" width="215" height="250" rx="6" fill="#273f3112" stroke="none" />
+<rect x="1114" y="815.3" width="215" height="250" rx="4" fill="#d7eaf2" stroke="#203b3314" />
+<path d="M1311 815.3h18v18z" fill="#203b3315"/>
+<text x="1130" y="840.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">FLUJO · C4</text>
+<text x="1130" y="868.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Ejecutar</text>
+<text x="1130" y="895.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">propuesta</text>
+<text x="1130" y="922.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">aprobada</text>
+<text x="1130" y="952.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">POST para crear;</text>
+<text x="1130" y="975.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">DELETE para</text>
+<text x="1130" y="998.2" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">cancelar. Nueva</text>
+<text x="1130" y="1021.1500000000001" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">aprobación para</text>
+<text x="1130" y="1044.1000000000001" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">cancelar.</text>
+<rect x="1347" y="819.3" width="215" height="223" rx="6" fill="#273f3112" stroke="none" />
+<rect x="1345" y="815.3" width="215" height="223" rx="4" fill="#d7eaf2" stroke="#203b3314" />
+<path d="M1542 815.3h18v18z" fill="#203b3315"/>
+<text x="1361" y="840.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">FLUJO · C5</text>
+<text x="1361" y="868.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Consultar y</text>
+<text x="1361" y="895.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">explicar</text>
+<text x="1361" y="925.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">Confirmar</text>
+<text x="1361" y="948.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">resultado o</text>
+<text x="1361" y="971.2" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">retomar la misma</text>
+<text x="1361" y="994.1500000000001" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">operación con su</text>
+<text x="1361" y="1017.1000000000001" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">clave.</text>
+<path d="M875 805.3L875 1203.3" fill="none" stroke="#9d8124" stroke-width="2" stroke-dasharray="6 6" />
+<path d="M1106 805.3L1106 1203.3" fill="none" stroke="#9d8124" stroke-width="2" stroke-dasharray="6 6" />
+<rect x="24" y="1215.3" width="1552" height="209" rx="6" fill="#fffdf580" stroke="#d2d8cd" />
+<text x="40" y="1253.3" font-size="19" font-weight="750" fill="#203b33" text-anchor="start">Persona</text>
+<text x="297.5" y="1260.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<text x="528.5" y="1260.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<text x="759.5" y="1260.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<rect x="885" y="1229.3" width="215" height="177" rx="6" fill="#273f3112" stroke="none" />
+<rect x="883" y="1225.3" width="215" height="177" rx="4" fill="#e5dcf1" stroke="#203b3314" />
+<path d="M1080 1225.3h18v18z" fill="#203b3315"/>
+<text x="899" y="1250.3" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">PERSONA · C4</text>
+<text x="899" y="1278.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Aprobar o</text>
+<text x="899" y="1305.3" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">rechazar</text>
+<text x="899" y="1335.3" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">P · espera humana.</text>
+<text x="899" y="1358.25" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">Rechazo → fin sin</text>
+<text x="899" y="1381.2" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">escritura.</text>
+<text x="1221.5" y="1260.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<text x="1452.5" y="1260.3" font-size="24" font-weight="400" fill="#869789" text-anchor="middle">·</text>
+<path d="M875 1215.3L875 1424.3" fill="none" stroke="#9d8124" stroke-width="2" stroke-dasharray="6 6" />
+<path d="M1106 1215.3L1106 1424.3" fill="none" stroke="#9d8124" stroke-width="2" stroke-dasharray="6 6" />
+<text x="40" y="1461.3" font-size="15" font-weight="800" fill="#276459" text-anchor="start">SUPERFICIE PARA ARA</text>
+<text x="40" y="1490.3" font-size="18" font-weight="400" fill="#203b33" text-anchor="start">GET /bookings · GET /bookings/{id}: consultar. POST /bookings: crear. DELETE /bookings/{id}: cancelar.</text>
+<rect x="42.0" y="1554.6" width="494.6666666666667" height="150" rx="6" fill="#273f3112" stroke="none" />
+<rect x="40.0" y="1550.6" width="494.6666666666667" height="150" rx="4" fill="#fff0bb" stroke="#203b3314" />
+<path d="M516.6666666666667 1550.6h18v18z" fill="#203b3315"/>
+<text x="56.0" y="1575.6" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">DECISIÓN · C1</text>
+<text x="56.0" y="1603.6" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Primera unidad de trabajo</text>
+<text x="56.0" y="1633.6" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">Crear una reserva aprobada → consultar →</text>
+<text x="56.0" y="1656.55" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">cancelar con una aprobación nueva.</text>
+<rect x="554.6666666666667" y="1554.6" width="494.6666666666667" height="150" rx="6" fill="#273f3112" stroke="none" />
+<rect x="552.6666666666667" y="1550.6" width="494.6666666666667" height="150" rx="4" fill="#dcebdc" stroke="#203b3314" />
+<path d="M1029.3333333333335 1550.6h18v18z" fill="#203b3315"/>
+<text x="568.6666666666667" y="1575.6" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">DATOS · C3</text>
+<text x="568.6666666666667" y="1603.6" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Aplicaciones que sostienen el flujo</text>
+<text x="568.6666666666667" y="1633.6" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">API → PostgreSQL y pagos sintéticos. Worker:</text>
+<text x="568.6666666666667" y="1656.55" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">recuperación. Ledger: auditoría.</text>
+<rect x="1067.3333333333335" y="1554.6" width="494.6666666666667" height="150" rx="6" fill="#273f3112" stroke="none" />
+<rect x="1065.3333333333335" y="1550.6" width="494.6666666666667" height="150" rx="4" fill="#e5dcf1" stroke="#203b3314" />
+<path d="M1542.0000000000002 1550.6h18v18z" fill="#203b3315"/>
+<text x="1081.3333333333335" y="1575.6" font-size="12" font-weight="800" fill="#203b33" text-anchor="start">EVALUACIÓN · C6</text>
+<text x="1081.3333333333335" y="1603.6" font-size="20" font-weight="750" fill="#203b33" text-anchor="start">Contexto para ARA/MODA</text>
+<text x="1081.3333333333335" y="1633.6" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">ARA: comprobar controles en esta superficie con</text>
+<text x="1081.3333333333335" y="1656.55" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">escritura. MODA: estudiar despliegue, secretos,</text>
+<text x="1081.3333333333335" y="1679.5" font-size="17" font-weight="400" fill="#203b33" text-anchor="start">persistencia y operación.</text>
+<text x="40" y="1730.6" font-size="15" font-weight="800" fill="#276459" text-anchor="start">ASÍ SE FORMA EL TABLERO</text>
+<text x="40" y="1759.6" font-size="18" font-weight="400" fill="#203b33" text-anchor="start">C1 unidad → C2 intención y datos → C3 APIs → C4 propuesta, aprobación y ejecución → C5 recuperación → C6 contexto para ARA/MODA.</text>
+<path d="M40 1807.8999999999999L1560 1807.8999999999999" fill="none" stroke="#cbd1c7" stroke-width="2" />
+<text x="40" y="1837.8999999999999" font-size="14" font-weight="400" fill="#53645b" text-anchor="start">Fuente editable: workshop/discovery.json · Estado final de la práctica</text>
+<text x="1560" y="1837.8999999999999" font-size="13" font-weight="700" fill="#53645b" text-anchor="end">BOOKING MIT · MATERIAL ABIERTO</text></g>
+</svg>

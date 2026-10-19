@@ -1,53 +1,48 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
-  <title>Tableros del laboratorio — Agentic Transformation Workshop</title>
-  <link rel="stylesheet" href="estilos.css">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <title>Del dolor al valor · Tableros de Booking MIT</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="estilos.css">
 </head>
 <body>
+  <a class="skip" href="#tableros">Ir a los tableros</a>
   <header class="hero">
-    <p class="eyebrow">AGENTIC TRANSFORMATION · LATAM</p>
-    <h1>Del viaje de cliente al ciclo de transformación</h1>
-    <p class="intro">Seis tableros de notas para conectar una hipótesis de valor con el servicio original Booking MIT, los agentes, la revisión humana, las pruebas y las operaciones.</p>
+    <p class="eyebrow">BOOKING MIT · WORKSHOP ABIERTO</p>
+    <h1>Del dolor del proceso a una mejora con valor</h1>
+    <p class="intro">Seis tableros para escuchar al cliente, elegir una oportunidad, diseñar el flujo y conectar ARA/MODA con AI-DLC.</p>
     <nav aria-label="Navegación de tableros">
-      <a href="#valor">Valor y AI-DLC</a>
-      <a href="#journey">Journey</a>
-      <a href="#oportunidad">Oportunidad</a>
-      <a href="#workflow">Workflow</a>
-      <a href="#ciclo">Ciclo ARA/MODA</a>
-      <a href="#operacion">Operación</a>
+      <a href="#journey">A · Proceso</a><a href="#oportunidad">B · Oportunidad</a><a href="#workflow">C · Flujo</a><a href="#ciclo">ARA/MODA</a><a href="#operacion">Responsables</a><a href="#valor">Valor y AI-DLC</a>
     </nav>
   </header>
-  <main>
-    <p class="scope"><strong>Cómo leerlos:</strong> son esquemas cualitativos basados en la guía guardada. En pantallas pequeñas desplaza cada tablero horizontalmente para leerlo. No reproducen literalmente los tableros del evento ni representan métricas observadas.</p>
-    <section id="valor" class="board-card">
-      <div class="board-copy"><span>06 · RECORRIDO A–J</span><h2>Qué merece construirse: decisiones con evidencia</h2><p>Conecta problema, métrica, autonomía, evaluación técnica, cambios y medición. Las fases de AI-DLC organizan los entregables. La ficha expresa una hipótesis de negocio; las pruebas verifican el comportamiento del laboratorio.</p><a href="06-valor-ai-dlc.svg">Abrir el SVG</a></div>
-      <div class="board-scroll" tabindex="0" role="region" aria-label="Tablero ampliado, desplazamiento horizontal"><img src="06-valor-ai-dlc.svg" alt="Seis notas adhesivas conectan problema, hipótesis de valor, autonomía con aprobación, análisis ARA/MODA, implementación con pruebas y medición del resultado de negocio. Inception, Construction y Operations organizan el recorrido."></div>
-    </section>
+  <main id="tableros">
+    <p class="scope"><strong>Para practicar:</strong> sigue la <a href="../GUIA_REPLICACION.md">guía paso a paso</a> y deja que las notas aparezcan con cada respuesta. Estas láminas muestran la síntesis completa. También puedes guardar los <a href="../examples/discovery/tableros.html">tableros interactivos del caso resuelto</a>.</p>
     <section id="journey" class="board-card">
-      <div class="board-copy"><span>01 · MÓDULO A</span><h2>EventStorming: una reserva necesita recuperarse</h2><p>Seguir cada momento ayuda a encontrar el cruce entre eventos del dominio, decisiones y puntos de fricción. El historial de excepciones de socios no está disponible por una API.</p><a href="01-eventstorming.svg">Abrir el SVG</a></div>
-      <div class="board-scroll" tabindex="0" role="region" aria-label="Tablero ampliado, desplazamiento horizontal"><img src="01-eventstorming.svg" alt="Tablero EventStorming con seis momentos desde la búsqueda hasta la actualización de la reserva y carriles de actores, comandos, eventos, sistemas y fricciones"></div>
+      <div class="board-copy"><span>A · Entender el proceso</span><h2>Empezar por el dolor</h2><p>Sigue la solicitud hasta el resultado y su excepción. Las notas se ubican bajo el momento correspondiente, en filas de personas, comandos, información, eventos, reglas y dolores.</p><a href="01-eventstorming.svg">Abrir o guardar SVG</a></div>
+      <div class="board-scroll" tabindex="0" role="region" aria-label="Empezar por el dolor, desplazamiento horizontal"><img src="01-eventstorming.svg" alt="Proceso de Booking MIT con cinco momentos y seis filas; el dolor de una respuesta perdida se ubica en la recuperación." loading="lazy"></div>
     </section>
     <section id="oportunidad" class="board-card">
-      <div class="board-copy"><span>02 · MÓDULO B</span><h2>Oportunidad: juicio más datos</h2><p>El ejemplo favorece un agente donde hay juicio y acceso a la información necesaria. La autonomía P prepara una propuesta para aprobación; los reembolsos mantienen un control humano.</p><a href="02-oportunidad-agente.svg">Abrir el SVG</a></div>
-      <div class="board-scroll" tabindex="0" role="region" aria-label="Tablero ampliado, desplazamiento horizontal"><img src="02-oportunidad-agente.svg" alt="Matriz cualitativa de juicio y acceso a datos con post-its para excepciones de socios, elegibilidad de reembolso y rebooking, junto a niveles de autonomía A, P, E y G"></div>
+      <div class="board-copy"><span>B · Elegir la oportunidad</span><h2>Colocar las oportunidades en cuadrantes</h2><p>Primero reúne candidatas; después comprueba los datos, ubícalas y acuerda autonomía. A, P, E y G son patrones. H identifica las acciones que requieren intervención humana.</p><a href="02-oportunidad-agente.svg">Abrir o guardar SVG</a></div>
+      <div class="board-scroll" tabindex="0" role="region" aria-label="Colocar las oportunidades en cuadrantes, desplazamiento horizontal"><img src="02-oportunidad-agente.svg" alt="Cuadrantes de reglas o criterio y datos disponibles o por habilitar; la reserva con aprobación queda elegida con P y H." loading="lazy"></div>
     </section>
     <section id="workflow" class="board-card">
-      <div class="board-copy"><span>03 · MÓDULO C</span><h2>Workflow: proponer, esperar, actuar</h2><p>El diseño conserva la confirmación humana. La API ejecuta la operación y PostgreSQL conserva el estado, mientras el worker recupera y entrega la auditoría. La política conversacional corresponde al cliente que integra el backend.</p><a href="03-workflow-rebooking.svg">Abrir el SVG</a></div>
-      <div class="board-scroll" tabindex="0" role="region" aria-label="Tablero ampliado, desplazamiento horizontal"><img src="03-workflow-rebooking.svg" alt="Workflow en carriles que conecta la cancelación de una aerolínea, la consulta de datos, la propuesta de un agente, la revisión humana, la actualización de booking y la notificación"></div>
+      <div class="board-copy"><span>C · Diseñar y evaluar</span><h2>Seguir el cambio entre carriles</h2><p>El agente consulta y propone. La persona aprueba o rechaza. La API valida la autorización; el servicio conserva y recupera el resultado. Crear y cancelar necesitan aprobaciones independientes.</p><a href="03-workflow-rebooking.svg">Abrir o guardar SVG</a></div>
+      <div class="board-scroll" tabindex="0" role="region" aria-label="Seguir el cambio entre carriles, desplazamiento horizontal"><img src="03-workflow-rebooking.svg" alt="Seis pasos y cuatro carriles muestran intención, contexto, propuesta, aprobación, ejecución y resultado, con las cuatro operaciones reales de la API." loading="lazy"></div>
     </section>
     <section id="ciclo" class="board-card">
-      <div class="board-copy"><span>04 · MÓDULOS D–I</span><h2>Medir, priorizar, cambiar y volver a medir</h2><p>ARA evalúa si el agente puede operar con seguridad; MODA recomienda rutas de modernización. Son lecturas complementarias. La remediación local requiere revisión antes de integrarse.</p><a href="04-ciclo-ara-moda.svg">Abrir el SVG</a></div>
-      <div class="board-scroll" tabindex="0" role="region" aria-label="Tablero ampliado, desplazamiento horizontal"><img src="04-ciclo-ara-moda.svg" alt="Ciclo de análisis ARA y MODA, priorización, remediación en rama local, revisión humana, integración y nueva medición con un lazo de retroalimentación"></div>
+      <div class="board-copy"><span>D–I · Evaluar y mejorar</span><h2>Conectar un hallazgo con un cambio</h2><p>ARA revisa controles para la interacción con agentes. MODA estudia brechas y rutas de modernización. Las dos evaluaciones ayudan a priorizar una unidad de trabajo que se revisa, prueba y vuelve a evaluar.</p><a href="04-ciclo-ara-moda.svg">Abrir o guardar SVG</a></div>
+      <div class="board-scroll" tabindex="0" role="region" aria-label="Conectar un hallazgo con un cambio, desplazamiento horizontal"><img src="04-ciclo-ara-moda.svg" alt="ARA y MODA alimentan la prioridad; después se cambia, comprueba y reevalúa con commits, alcance y cobertura identificados." loading="lazy"></div>
     </section>
     <section id="operacion" class="board-card">
-      <div class="board-copy"><span>05 · MÓDULO J</span><h2>Operación: plataforma, equipos y puertas</h2><p>Una TD depende de la plataforma que la recibe. El tablero asigna responsabilidades para revisar, probar, desplegar gradualmente y responder a incidentes.</p><a href="05-modelo-operativo.svg">Abrir el SVG</a></div>
-      <div class="board-scroll" tabindex="0" role="region" aria-label="Tablero ampliado, desplazamiento horizontal"><img src="05-modelo-operativo.svg" alt="Tablero operativo con cinco puertas de control y responsabilidades de plataforma, aplicación, seguridad, identidad y SRE"></div>
+      <div class="board-copy"><span>J · Sostener la mejora</span><h2>Acordar responsables y entregables</h2><p>Producto, aplicación, seguridad, plataforma y operación acuerdan qué decisión les corresponde y qué necesitan entregar para sostener el piloto.</p><a href="05-modelo-operativo.svg">Abrir o guardar SVG</a></div>
+      <div class="board-scroll" tabindex="0" role="region" aria-label="Acordar responsables y entregables, desplazamiento horizontal"><img src="05-modelo-operativo.svg" alt="Tabla de responsabilidades con decisiones, trabajo y entregables para producto, aplicación, seguridad, plataforma y operación." loading="lazy"></div>
+    </section>
+    <section id="valor" class="board-card">
+      <div class="board-copy"><span>Recorrido completo · AI-DLC</span><h2>Del dolor a una mejora con valor</h2><p>Inception reúne el problema, la oportunidad, el alcance y la evaluación. Construction implementa y comprueba una unidad. Operations mide el resultado y alimenta el siguiente ciclo.</p><a href="06-valor-ai-dlc.svg">Abrir o guardar SVG</a></div>
+      <div class="board-scroll" tabindex="0" role="region" aria-label="Del dolor a una mejora con valor, desplazamiento horizontal"><img src="06-valor-ai-dlc.svg" alt="Seis preguntas conectan proceso, valor, autonomía, ARA/MODA, implementación y medición del negocio con las fases de AI-DLC." loading="lazy"></div>
     </section>
   </main>
-  <footer><p>Guía y diagramas propios bajo MIT. Véase <a href="../NOTICE.md">el aviso de alcance</a> y la <a href="../GUIA_REPLICACION.md">guía de réplica</a>.</p></footer>
+  <footer><p>Material original MIT · <a href="../RECURSOS.md">Fuentes y recursos</a> · <a href="../README.md">Inicio del workshop</a></p></footer>
 </body>
 </html>

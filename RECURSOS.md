@@ -69,3 +69,7 @@ Estas páginas pertenecen al evento `Agentic Transformation Workshop for LATAM p
 
 
 Las páginas del evento son referencias de procedencia. El recorrido público A–J está explicado en [GUIA_REPLICACION.md](GUIA_REPLICACION.md) y funciona con los archivos de este repositorio.
+
+## Habilidades reutilizables
+
+El repositorio independiente [aws-ara-moda-skills](https://github.com/sjaramillov/aws-ara-moda-skills) publica ambas habilidades bajo MIT, con instrucciones de instalación, ejemplos sintéticos y fuentes versionadas. Úsalas para estudiar los métodos o revisar los resultados de tu práctica.

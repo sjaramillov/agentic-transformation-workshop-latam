@@ -39,6 +39,7 @@ La [guía](GUIA_REPLICACION.md#6-ejecuta-el-agente-y-comprueba-el-flujo-h) te ll
 - [Demo interactiva del agente](AGENTE_EJECUTABLE.md).
 - [Ejecutar ARA/MODA](EJECUCION_AWS.md) y [preparar CloudShell](CLOUDSHELL.md).
 - [Ficha de valor](FICHA_VALOR.md) e [integración con AI-DLC](AI_DLC.md).
+- [Habilidades abiertas ARA/MODA](https://github.com/sjaramillov/aws-ara-moda-skills): instalación, metodología y ejemplos para tu agente.
 - [Recursos y fuentes](RECURSOS.md), [diagramas de apoyo](diagramas/README.md) y [validación](evidence/README.md).
 
 ## Licencia

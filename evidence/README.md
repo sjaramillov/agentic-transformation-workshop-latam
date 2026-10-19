@@ -2,9 +2,11 @@
 
 | Recorrido | Resultado | Consulta |
 | --- | --- | --- |
+| Discovery con cliente, coach y tableros | 21 situaciones; tres tableros; preparación ARA/MODA desde un clon limpio | [Validación del recorrido](discovery/README.md) |
+| Suite con discovery | 123 pruebas aprobadas | [Evidencia](discovery/verification.json) y [CI actual](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/workflows/checks.yml) |
 | Agente con Bedrock y PostgreSQL | 7/7 escenarios con Nova Micro | [Resumen y ejecución](bedrock/README.md) |
 | Aplicación y agente determinista | 28/28 escenarios en dos ejecuciones | [Primera](bedrock/database-e2e-1.json) y [segunda](bedrock/database-e2e-2.json) |
-| Pruebas automatizadas | 112 pruebas; Linux/macOS | [CI del código validado](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/39133062523) |
+| Suite anterior al discovery | 112 pruebas; Linux/macOS | [CI de esa revisión](https://github.com/sjaramillov/agentic-transformation-workshop-latam/actions/runs/39133062523) |
 
 Para ejecutar tus propias comprobaciones, sigue [Pruebas del workshop](../AUDITORIA_E2E.md). Para comenzar la práctica, vuelve a [Inicio rápido](../INICIO_RAPIDO.md).
 

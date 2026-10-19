@@ -1,0 +1,63 @@
+{
+  "result": "passed",
+  "validated_on": "2026-10-19",
+  "source_commit": "f0850cbdc0a85d489cca309d0e8839bfa51ab4fc",
+  "source_sha256": {
+    "workshop/discovery.json": "4792ef94418a25d674cf0c600db454b963a60ed1a8040102fdbb6864f08e5caa",
+    "scripts/discovery.py": "591833df40da7e59cbac1e0aee1a52eb5c205a469aa1af44b8de31d397a903bc",
+    "scripts/facilitate.py": "f88903ff525c8433bc12dfe997c62633e3e4058b6615307712a3e1696d954d27",
+    "scripts/workshop.py": "5553d36ac29282df07dde20ad1387e67b1e6dd04320fb7a6a13b3e5d94c9ccf3",
+    "workshop/coach/index.html": "1c784c3651a8550ad7024dd319ade53886c5910a83843492db432ffca80e86d6",
+    "workshop/coach/app.js": "66d50a1738473a36a52c7ced9146a3c6120aa9ac582d6df6447ecf6a4ca75a25",
+    "workshop/coach/boards.js": "d1b77315f994c6860e8cfbd11a1f6d4bf5d38275637713acf8d64a988b728548",
+    "workshop/coach/style.css": "ea40d84d79b6cc1b83a755d4e29be2a09a52d26b7c62dcaba1a87a3e2c37d9db",
+    "tests/test_discovery.py": "2e0b5f03efb5c38c026223d3d5dd9906bbedd8e13a05119c2efecf2191f4942c"
+  },
+  "unit_suite": {
+    "command": "python3 -m unittest discover -s tests -v",
+    "tests": 123,
+    "result": "passed"
+  },
+  "browser_journey": {
+    "situations_completed": 21,
+    "phases": [
+      9,
+      6,
+      6
+    ],
+    "final_board_count": 3,
+    "final_board_notes": 45,
+    "api_operations": 4,
+    "mixed_choices": true,
+    "pending_feedback_reload": true,
+    "completed_session_reload": true,
+    "keyboard_choice": true,
+    "viewport_widths": [
+      390,
+      1440
+    ],
+    "page_overflow_on_mobile": false,
+    "console_errors": 0,
+    "standalone_boards_offline": true
+  },
+  "clean_clone": {
+    "result": "passed",
+    "public_commit": "f0850cbdc0a85d489cca309d0e8839bfa51ab4fc",
+    "situations_completed": 21,
+    "phases": [
+      9,
+      6,
+      6
+    ],
+    "prepared_contexts": [
+      "ara",
+      "moda"
+    ],
+    "context_hashes_verified": true,
+    "both_analysis_source_hashes_verified": true,
+    "cli_start_and_graceful_stop": true,
+    "event_archive_required": false,
+    "cloud_analysis_executed": false
+  },
+  "scope": "Discovery, local persistence, exports and preparation of isolated analysis sources. Cloud executions have separate evidence."
+}

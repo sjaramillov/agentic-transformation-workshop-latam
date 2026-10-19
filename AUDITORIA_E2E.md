@@ -1,6 +1,29 @@
 # Verificar el workshop
 
-Ejecuta estos comandos desde la raíz del repositorio. Los [resultados publicados](evidence/bedrock/README.md) permiten consultar la evidencia técnica.
+Ejecuta estos comandos desde la raíz del repositorio. Los [resultados publicados](evidence/README.md) permiten consultar la evidencia técnica.
+
+## 0. Cliente, coach y tableros
+
+```bash
+python3 scripts/facilitate.py --output .local/discovery-check
+```
+
+Recorre las 21 situaciones, prueba preguntas recomendadas y alternativas, y lee sus respuestas. Comprueba que:
+
+- A construye eventos y sus filas de actores, comandos, datos, reglas y dolores.
+- B coloca las oportunidades en cuadrantes y después añade autonomía e intervención humana.
+- C alinea consultas, aprobación, ejecución y recuperación por carriles.
+- Recargar o detener y volver a abrir conserva la situación y el feedback pendiente.
+- Al completar el recorrido, puedes descargar la conversación, los tres tableros y los contextos. `tablero.html` se abre sin conexión.
+
+Prepara las fuentes de análisis con esa sesión:
+
+```bash
+python3 scripts/workshop.py prepare \
+  --discovery .local/discovery-check --output .local/discovery-check-sources
+```
+
+El manifiesto debe identificar la sesión, los contextos y los archivos de los dos clones. La [validación publicada](evidence/discovery/README.md) incluye este recorrido desde un clon limpio.
 
 ## 1. Código, materiales y flujo con PostgreSQL
 

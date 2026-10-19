@@ -28,8 +28,8 @@ class Links(HTMLParser):
 class DocumentationTests(unittest.TestCase):
     @staticmethod
     def docs():
-        paths=list(ROOT.glob('*.md'))+[ROOT/'evidence/mit/README.md']
-        for folder in ('diagramas','assets','booking_lab','workshop','historico','evidence/agent-workshop','evidence/bedrock','examples'):
+        paths=list(ROOT.glob('*.md'))+[ROOT/'evidence/README.md', ROOT/'evidence/mit/README.md']
+        for folder in ('diagramas','assets','booking_lab','workshop','historico','evidence/agent-workshop','evidence/bedrock','evidence/discovery','examples'):
             paths.extend((ROOT/folder).rglob('*.md'))
         return paths
 

@@ -6,6 +6,12 @@
 
 Después conectarás esas decisiones con ARA/MODA, ejecutarás un agente de reservas y llevarás el trabajo a AI-DLC. Todo el código y los materiales originales están incluidos bajo **MIT**.
 
+[![Un equipo descubre dolores del proceso y organiza oportunidades en tableros de post-it](assets/presentacion/workshop.png)](https://sjaramillov.github.io/agentic-transformation-workshop-latam/)
+
+**[Abrir la presentación web](https://sjaramillov.github.io/agentic-transformation-workshop-latam/)** · [Explorar los tableros completos](https://sjaramillov.github.io/agentic-transformation-workshop-latam/diagramas/) · [Guía paso a paso](GUIA_REPLICACION.md)
+
+La presentación reúne ocho láminas con ilustraciones del recorrido. Puedes recorrerlas con las flechas, elegir una lámina o imprimirlas como PDF. Los tableros y el caso resuelto se consultan directamente en la web; los siguientes comandos abren la práctica con cliente y coach.
+
 ## Empieza con una reunión
 
 Necesitas **Git, Python 3.11+ y un navegador** en Linux, macOS o WSL.
@@ -33,6 +39,8 @@ Se abrirá el workshop. Si el navegador no se abre, copia la URL que imprime la 
 El cliente y el coach tienen respuestas preparadas. Cada elección recibe feedback; la síntesis común permite completar el caso aunque una pregunta no haya sido la recomendada. Puedes consultar y adaptar las [21 situaciones](workshop/discovery.json), ver la [conversación resuelta](examples/discovery/conversacion.md) o descargar los [tableros completos](examples/discovery/tableros.html).
 
 ## Del tablero a un agente funcionando
+
+![Inception entiende y acuerda, Construction construye y comprueba, Operations mide y aprende](assets/presentacion/06-ai-dlc.svg)
 
 La [guía](GUIA_REPLICACION.md#6-ejecuta-el-agente-y-comprueba-el-flujo-h) te lleva a una API con PostgreSQL, aprobación humana, pagos sintéticos y recuperación de operaciones. Para esta etapa necesitas Docker. Bedrock y AWS Transform son extensiones con tu cuenta AWS.
 

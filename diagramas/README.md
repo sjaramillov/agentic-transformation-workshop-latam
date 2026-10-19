@@ -1,6 +1,8 @@
 # Tableros del workshop
 
-Abre la [galería](index.html) o guarda los SVG para usarlos en una sesión. Son materiales originales MIT, editables y sin dependencias externas.
+Abre la [galería publicada](https://sjaramillov.github.io/agentic-transformation-workshop-latam/diagramas/), la [galería local](index.html) o guarda los SVG para usarlos en una sesión. Son materiales originales MIT, editables y sin dependencias externas.
+
+La [presentación visual](https://sjaramillov.github.io/agentic-transformation-workshop-latam/) introduce el recorrido con ilustraciones resumidas y enlaza estos tableros completos.
 
 | Tablero | Qué explica |
 | --- | --- |

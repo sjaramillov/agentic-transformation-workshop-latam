@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Un workshop abierto para descubrir dolores de negocio, diseñar agentes con criterio y conectar ARA/MODA con AI-DLC. Presentación visual y guía paso a paso.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <title>Del dolor al valor · Workshop abierto</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="style.css">
+  <script src="deck.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#laminas">Ir a la presentación</a>
+  <header class="site-header">
+    <a class="wordmark" href="#proposito">AGENTIC<br><span>TRANSFORMATION WORKSHOP</span></a>
+    <nav aria-label="Recursos del workshop">
+      <a href="../diagramas/">Tableros completos</a>
+      <a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/GUIA_REPLICACION.md">Guía paso a paso</a>
+      <a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam">GitHub ↗</a>
+    </nav>
+  </header>
+  <main id="laminas">
+    <section class="slide opening" id="proposito" aria-labelledby="title-proposito" data-label="Propósito">
+      <div class="opening-copy">
+        <p class="eyebrow">UN WORKSHOP ABIERTO · EN ESPAÑOL</p>
+        <h1 id="title-proposito" tabindex="-1">Primero el dolor.<br>Después, el agente.</h1>
+        <p class="lead">Escucha al cliente, entiende su proceso y descubre dónde una mejora puede aportar valor.</p>
+        <p>Una conversación guiada, tres tableros de post-it y un caso de reservas que podrás ejecutar y adaptar.</p>
+        <a class="button primary" href="#conversacion">Explorar el recorrido <span aria-hidden="true">→</span></a>
+        <p class="quiet">Discovery → ARA/MODA → AI-DLC</p>
+      </div>
+      <figure class="opening-art"><img src="../assets/presentacion/workshop.png" width="1536" height="1024" alt="Un equipo escucha a una facilitadora y organiza notas de dolores, pasos del proceso y oportunidades en un tablero."><figcaption>Conversar, hacer visible el proceso y decidir juntos.</figcaption></figure>
+    </section>
+
+    <section class="slide" id="conversacion" aria-labelledby="title-conversacion" data-label="Cliente y coach">
+      <div class="slide-heading"><div><p class="eyebrow">EL MÉTODO · APRENDER HACIENDO</p><h2 id="title-conversacion" tabindex="-1">Una pregunta abre el camino.</h2></div><p>Eliges qué preguntar. El cliente responde. El coach te ayuda a profundizar. El aprendizaje se convierte en una nota.</p></div>
+      <figure><img src="../assets/presentacion/01-conversacion.svg" width="1200" height="650" alt="Tú eliges una pregunta; el cliente describe un dolor; el coach ayuda a ubicar la excepción en el proceso."><figcaption>21 situaciones preparadas: 9 para el proceso, 6 para la oportunidad y 6 para el flujo.</figcaption></figure>
+      <div class="takeaway"><b>Comienza aquí</b><span>«Cuéntame un caso reciente que haya sido difícil de resolver».</span><a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/examples/discovery/conversacion.md">Ver una conversación resuelta ↗</a></div>
+    </section>
+
+    <section class="slide" id="proceso" aria-labelledby="title-proceso" data-label="A · Proceso">
+      <div class="slide-heading"><div><p class="eyebrow">TABLERO A · ENTENDER EL PROCESO</p><h2 id="title-proceso" tabindex="-1">¿En qué momento empieza el problema?</h2></div><p>Ordena lo que sucede. Coloca personas, datos, reglas y dolores bajo el paso al que pertenecen.</p></div>
+      <figure><img src="../assets/presentacion/02-proceso.svg" width="1200" height="650" alt="Solicitud, aprobación, pago, reserva y recuperación. Las notas de personas y dolores se alinean debajo de cada momento."><figcaption>En este caso, la respuesta perdida deja una pregunta: ¿la reserva y el cobro se realizaron?</figcaption></figure>
+      <div class="takeaway"><b>Así se forma</b><span>Dolor → límites → eventos → excepción → personas, reglas y datos.</span><a href="../diagramas/#journey">Abrir tablero A completo →</a></div>
+    </section>
+
+    <section class="slide" id="oportunidad" aria-labelledby="title-oportunidad" data-label="B · Oportunidad">
+      <div class="slide-heading"><div><p class="eyebrow">TABLERO B · ELEGIR CON CRITERIO</p><h2 id="title-oportunidad" tabindex="-1">Ubica la oportunidad. Acuerda su autonomía.</h2></div><p>Compara las candidatas por los datos que tienen y el criterio que necesitan. Después define quién decide y quién actúa.</p></div>
+      <figure><img src="../assets/presentacion/03-oportunidad.svg" width="1200" height="650" alt="Cuadrantes con formulario, consulta del estado, preparación de reserva y excepciones comerciales. La reserva elegida necesita decisión humana."><figcaption>A: autonomía completa · P: decisión preparada · E: exploración asistida · G: agente como control. H indica intervención humana obligatoria.</figcaption></figure>
+      <div class="takeaway"><b>Así se forma</b><span>Candidatas → datos → cuadrantes → valor → intervención humana → alcance.</span><a href="../diagramas/#oportunidad">Abrir tablero B completo →</a></div>
+    </section>
+
+    <section class="slide" id="flujo" aria-labelledby="title-flujo" data-label="C · Flujo">
+      <div class="slide-heading"><div><p class="eyebrow">TABLERO C · DISEÑAR LA INTERACCIÓN</p><h2 id="title-flujo" tabindex="-1">El agente propone. La persona decide.</h2></div><p>Conecta intención, información, propuesta, aprobación y ejecución. Diseña también qué sucede si se pierde una respuesta.</p></div>
+      <figure><img src="../assets/presentacion/04-flujo.svg" width="1200" height="650" alt="Notas conectadas entre los carriles persona, agente y API: solicitud, propuesta, aprobación, ejecución y recuperación."><figcaption>La síntesis agrupa API y datos. El tablero completo muestra cuatro carriles y las operaciones reales de la API.</figcaption></figure>
+      <div class="takeaway"><b>Una regla visible</b><span>Crear y cancelar necesitan aprobaciones independientes.</span><a href="../diagramas/#workflow">Abrir tablero C completo →</a></div>
+    </section>
+
+    <section class="slide" id="evaluar" aria-labelledby="title-evaluar" data-label="ARA / MODA">
+      <div class="slide-heading"><div><p class="eyebrow">D–I · ARA / MODA</p><h2 id="title-evaluar" tabindex="-1">Del hallazgo a una mejora comprobable.</h2></div><p>Usa el proceso y el flujo como contexto para evaluar la aplicación. Prioriza una mejora, implementa, prueba y compara.</p></div>
+      <figure><img src="../assets/presentacion/05-evaluar.svg" width="1200" height="650" alt="ARA evalúa la interacción con agentes y MODA la modernización; ambas alimentan priorización, cambio, pruebas y comparación."><figcaption>La comparación conserva el alcance e identifica versiones y cobertura. La ficha de valor define cómo medir el impacto en el negocio.</figcaption></figure>
+      <div class="takeaway"><b>Para profundizar</b><span>Metodología, rúbricas, ejemplos y habilidades reutilizables.</span><a href="https://github.com/sjaramillov/aws-ara-moda-skills">Abrir habilidades ARA/MODA ↗</a></div>
+    </section>
+
+    <section class="slide" id="valor" aria-labelledby="title-valor" data-label="Valor y AI-DLC">
+      <div class="slide-heading"><div><p class="eyebrow">J · LLEVARLO AL EQUIPO</p><h2 id="title-valor" tabindex="-1">La mejora continúa después del código.</h2></div><p>Conecta el trabajo con AI-DLC: acuerda el valor, construye una unidad y observa el resultado del proceso.</p></div>
+      <figure><img src="../assets/presentacion/06-ai-dlc.svg" width="1200" height="650" alt="Inception entiende y acuerda; Construction construye y comprueba; Operations mide y aprende, alimentando la siguiente iteración."><figcaption>Ejemplo de indicador: tiempo de conciliación por caso. Define la línea base y una meta antes de atribuir una mejora.</figcaption></figure>
+      <div class="takeaway"><b>Para tu equipo</b><a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/FICHA_VALOR.md">Ficha de valor ↗</a><a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/AI_DLC.md">Integración con AI-DLC ↗</a><a href="../diagramas/#operacion">Responsables y entregables →</a></div>
+    </section>
+
+    <section class="slide closing" id="empezar" aria-labelledby="title-empezar" data-label="Empieza aquí">
+      <div><p class="eyebrow">TU TURNO · TODO EL MATERIAL EN EL REPO</p><h2 id="title-empezar" tabindex="-1">Empieza con una reunión.</h2><p class="lead">Git, Python 3.11+ y tu navegador.</p><p>Estos comandos abren el cliente, el coach y los tableros progresivos. Tu avance se guarda para continuar después.</p>
+        <pre><code>git clone https://github.com/sjaramillov/agentic-transformation-workshop-latam.git
+cd agentic-transformation-workshop-latam
+python3 scripts/facilitate.py</code></pre>
+        <a class="button primary" href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/GUIA_REPLICACION.md">Seguir la guía paso a paso ↗</a>
+      </div>
+      <aside class="route" aria-label="Opciones para continuar">
+        <p class="eyebrow">ELIGE TU SIGUIENTE PASO</p>
+        <ol><li><b>Explorar los tableros</b><p>Consulta el <a href="../examples/discovery/tableros.html">caso resuelto interactivo</a> desde este navegador.</p></li><li><b>Practicar con cliente y coach</b><p>Ejecuta los tres comandos. Esta primera parte funciona sin cuenta AWS ni Docker.</p></li><li><b>Ejecutar el laboratorio</b><p>La guía continúa con Docker y PostgreSQL. Bedrock y AWS Transform se ejecutan con tu cuenta AWS.</p></li></ol>
+        <p><a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/archive/refs/heads/main.zip">Descargar código y materiales ZIP ↗</a></p>
+      </aside>
+    </section>
+  </main>
+  <nav class="deck-controls" aria-label="Controles de la presentación" hidden>
+    <button id="previous" type="button" aria-label="Lámina anterior">← <span>Anterior</span></button>
+    <div class="position"><label for="slide-select">Lámina</label><select id="slide-select"></select><span id="slide-counter" role="status" aria-live="polite"></span></div>
+    <button id="next" type="button" aria-label="Lámina siguiente"><span>Siguiente</span> →</button>
+    <button id="print" type="button" class="print">Imprimir / PDF</button>
+  </nav>
+  <footer><p>Proyecto independiente · <a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/LICENSE">MIT</a> · <a href="https://github.com/sjaramillov/agentic-transformation-workshop-latam/blob/main/RECURSOS.md">Fuentes y recursos</a></p><p>Presentación y tableros disponibles en la web. Código completo y guía en GitHub.</p></footer>
+</body>
+</html>

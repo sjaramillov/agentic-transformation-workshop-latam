@@ -1,5 +1,7 @@
 # Empieza el workshop
 
+[Explora el recorrido visual](https://sjaramillov.github.io/agentic-transformation-workshop-latam/) o comienza directamente con la reunión.
+
 ## 1. Abre la reunión con el cliente
 
 Con Git, Python 3.11+ y un navegador, en Linux, macOS o WSL:

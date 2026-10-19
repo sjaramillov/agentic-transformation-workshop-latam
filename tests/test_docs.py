@@ -29,7 +29,7 @@ class DocumentationTests(unittest.TestCase):
     @staticmethod
     def docs():
         paths=list(ROOT.glob('*.md'))+[ROOT/'evidence/README.md', ROOT/'evidence/mit/README.md']
-        for folder in ('diagramas','assets','booking_lab','workshop','historico','evidence/agent-workshop','evidence/bedrock','evidence/discovery','examples'):
+        for folder in ('diagramas','presentacion','assets','booking_lab','workshop','historico','evidence/agent-workshop','evidence/bedrock','evidence/discovery','examples'):
             paths.extend((ROOT/folder).rglob('*.md'))
         return paths
 
@@ -57,7 +57,8 @@ class DocumentationTests(unittest.TestCase):
             parts = urlsplit(link)
             if not parts.scheme:
                 if parts.path:
-                    self.assertTrue((path.parent / parts.path).is_file(), link)
+                    target = path.parent / parts.path
+                    self.assertTrue(target.is_file() or (target / 'index.html').is_file(), link)
                 elif parts.fragment:
                     self.assertIn(parts.fragment, parsed.ids)
 

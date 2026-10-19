@@ -4,6 +4,8 @@ Tú facilitas una reunión de **Booking MIT**, un servicio de reservas. Elena re
 
 **El recorrido:** dolores → proceso → oportunidad → autonomía → flujo → ARA/MODA → cambio probado → medición de valor.
 
+Para presentar el recorrido a tu equipo, abre la [presentación visual](https://sjaramillov.github.io/agentic-transformation-workshop-latam/): ocho láminas con ilustraciones, enlaces a los tableros y opción de imprimir como PDF.
+
 ## 1. Abre el workshop
 
 Necesitas Git, Python 3.11+ y un navegador, en Linux, macOS o WSL:

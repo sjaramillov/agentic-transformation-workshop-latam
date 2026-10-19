@@ -147,7 +147,9 @@ $('expand-board').addEventListener('click', () => {
   const expanded = document.querySelector('.workspace').classList.toggle('board-expanded');
   $('expand-board').textContent = expanded ? 'Volver a la reunión' : 'Ampliar tablero';
   $('expand-board').setAttribute('aria-expanded', String(expanded));
-  document.querySelector('.board').scrollIntoView({block: 'start'});
+  const target = expanded ? document.querySelector('.board') : $('exercise');
+  target.scrollIntoView({block: 'start'});
+  if (!expanded) target.focus({preventScroll: true});
 });
 $('reload').addEventListener('click', load);
 if (window.WorkshopWeb) WorkshopWeb.subscribe(focus => { if (busy) pendingReload = true; else load(focus); });

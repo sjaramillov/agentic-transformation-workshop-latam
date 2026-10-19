@@ -253,6 +253,8 @@ test('keyboard, board expansion and small screens remain usable', async ({page})
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.locator('#expand-board').click();
   await expect(page.locator('#exercise')).toBeVisible();
+  await expect(page.locator('#exercise')).toBeFocused();
+  await expect(page.locator('#question h2')).toBeInViewport();
   for (const phase of lesson.phases) {
     await page.locator('.filter').filter({hasText: `${phase.id} ·`}).click();
     await expect(page.locator('#notes .map-title')).toHaveText(lesson.boards[phase.id].title);
